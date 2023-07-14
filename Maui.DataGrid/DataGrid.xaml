@@ -3,12 +3,14 @@
       xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
       xmlns:local="clr-namespace:Maui.DataGrid;assembly=Maui.DataGrid"
+      xmlns:m="clr-namespace:UraniumUI.Icons.MaterialIcons;assembly=UraniumUI.Icons.MaterialIcons"
+      xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+      xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
       x:Class="Maui.DataGrid.DataGrid"
-      x:DataType="local:DataGrid"
       CompressedLayout.IsHeadless="True">
     <ContentView.Resources>
         <ResourceDictionary>
-            <local:BoolToSelectionModeConverter x:Key="boolToSelectionMode" />
+            
             <!--Default Header Style-->
             <Style x:Key="DefaultHeaderStyle" TargetType="Label">
                 <Setter Property="FontAttributes" Value="Bold" />
@@ -32,8 +34,37 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0" x:Name="_headerView" HeightRequest="{Binding HeaderHeight, Source={Reference self}}" />
-        <RefreshView Grid.Row="1" x:Name="_refreshView" Grid.RowSpan="2" Command="{Binding PullToRefreshCommand, Source={Reference self}}"
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="50"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <ImageButton  Grid.Row="0" Grid.Column="0"
+                      ScaleX="0.5" ScaleY="0.5"
+                      x:Name="DGUserPreferences"
+                      HeightRequest="{Binding HeaderHeight, Source={Reference self}}"
+                      Source="gear.png"
+                      BackgroundColor="White"                    
+                      AnchorX="0.49"
+                      AnchorY="0.49"
+                      Clicked="DataGridUserPreferencesClick"/>
+        <Grid  Grid.Row="0" Grid.Column="1"  x:Name="_headerView"  HeightRequest="{Binding HeaderHeight, Source={Reference self}}" />
+        <!--Source="C://Users//antonio.leoni//source//repos//Maui.DataGrid//Maui.DataGrid//gear.png"-->
+        <VerticalStackLayout BackgroundColor="Black" ZIndex="1" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Grid.RowSpan="3" x:Name="DGUserPreferencesLayout" IsVisible="false">
+            <CollectionView x:Name="ColumnsList" Margin="10" WidthRequest="300" SelectionMode="Single" CanReorderItems="True" ItemsSource="{Binding Columns,  Source={Reference self}}">
+                <CollectionView.ItemTemplate >
+                    <DataTemplate>
+                        <Border Stroke="#FFFFFFFF" StrokeThickness="2" StrokeShape="RoundRectangle 8,8,8,8" HorizontalOptions="Center">
+                            <Label Text="{Binding  Title}" FontSize="16" HeightRequest="30" Margin="5" HorizontalOptions="Center" ></Label>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+            </CollectionView>
+            <Button Text="Salva" WidthRequest="80" Command="{Binding SaveButtonCommand, Source={Reference self}}"></Button>
+            <Button Text="Annulla" WidthRequest="80" Command="{Binding CancelButtonCommand, Source={Reference self}}"></Button>
+        </VerticalStackLayout>
+        <RefreshView Grid.Row="1" Grid.Column="1"  x:Name="_refreshView" Grid.RowSpan="2" Command="{Binding PullToRefreshCommand, Source={Reference self}}"
                      IsRefreshing="{Binding IsRefreshing, Source={x:Reference self}, Mode=TwoWay}" IsEnabled="{Binding RefreshingEnabled, Source={Reference self}}">
             <!--  Remove ContentView when this pull request is merged https://github.com/dotnet/maui/pull/14302  -->
             <ContentView>
@@ -43,17 +74,21 @@
                     WidthRequest="{Binding WidthRequest, Source={Reference self}, Mode=TwoWay}"
                     BackgroundColor="{Binding BorderColor, Source={Reference self}, Mode=TwoWay}"
                     SelectedItem="{Binding SelectedItem, Source={Reference self}, Mode=TwoWay}"
+                    SelectedItems="{Binding SelectedItems, Source={Reference self}, Mode=TwoWay}"
                     ItemSizingStrategy="{Binding ItemSizingStrategy, Source={Reference self}, Mode=TwoWay}"
-                    SelectionMode="{Binding SelectionEnabled, Source={Reference self}, Converter={StaticResource boolToSelectionMode}}">
+                    CanReorderItems="{Binding CanReorderItems, Source={Reference self}, Mode=TwoWay}"
+                    SelectionMode="{Binding SelectionMode, Source={Reference self}, Mode=TwoWay}">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <local:DataGridRow DataGrid="{Reference self}" HeightRequest="{Binding RowHeight, Source={Reference self}, Mode=OneTime}" />
+
                         </DataTemplate>
+                        
                     </CollectionView.ItemTemplate>
                 </CollectionView>
             </ContentView>
         </RefreshView>
-        <Grid Grid.Row="2" x:Name="_footerView" IsVisible="{Binding PaginationEnabled, Source={Reference self}}" HeightRequest="{Binding FooterHeight, Source={Reference self}}" BackgroundColor="{Binding HeaderBackground, Source={Reference self}}">
+        <Grid Grid.Row="2" Grid.Column="1"  x:Name="_footerView" IsVisible="{Binding PaginationEnabled, Source={Reference self}}" HeightRequest="{Binding FooterHeight, Source={Reference self}}" BackgroundColor="{Binding HeaderBackground, Source={Reference self}}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />

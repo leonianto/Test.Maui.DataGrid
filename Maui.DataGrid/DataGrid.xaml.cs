@@ -8,7 +8,13 @@ using System.ComponentModel;
 using System.Windows.Input;
 using Maui.DataGrid.Utils;
 using Microsoft.Maui.Controls.Shapes;
+using CommunityToolkit;
+
 using Font = Microsoft.Maui.Font;
+using CommunityToolkit.Mvvm.Input;
+using System.Reflection;
+using System.Security.AccessControl;
+using System.Diagnostics;
 
 /// <summary>
 /// DataGrid component for Maui
@@ -30,6 +36,7 @@ public partial class DataGrid
     private readonly Style _defaultHeaderStyle;
     private readonly Style _defaultSortIconStyle;
 
+    public Type CurrentType { get; protected set; }
     #endregion Fields
 
     #region ctor
@@ -218,6 +225,36 @@ public partial class DataGrid
     /// <param name="position">Position of the row in screen</param>
     /// <param name="animated">animated</param>
     public void ScrollTo(object item, ScrollToPosition position, bool animated = true) => _collectionView.ScrollTo(item, position: position, animate: animated);
+    private void SetAutoColumns()
+    {
+
+        if (UseAutoColumns)
+        {
+            if (Columns is INotifyCollectionChanged observable)
+            {
+                observable.CollectionChanged -= OnColumnsChanged;
+            }
+
+            PropertyInfo[] types = CurrentType?.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+
+            if (types != null)
+            {
+                foreach (PropertyInfo info in types)
+                {
+                    Columns.Add(new DataGridColumn()
+                    {
+                        Title = info.Name,
+                        PropertyName = info.Name,
+                    });
+                }
+
+                if (Columns is INotifyCollectionChanged obs)
+                {
+                    obs.CollectionChanged += OnColumnsChanged;
+                }
+            }
+        }
+    }
 
     #endregion Methods
 
@@ -269,6 +306,20 @@ public partial class DataGrid
 
     public static readonly BindableProperty ItemSizingStrategyProperty =
     BindableProperty.Create(nameof(ItemSizingStrategy), typeof(ItemSizingStrategy), typeof(DataGrid), DeviceInfo.Platform == DevicePlatform.Android ? ItemSizingStrategy.MeasureAllItems : ItemSizingStrategy.MeasureFirstItem);
+
+    public static readonly BindableProperty CanReorderItemsProperty =
+   BindableProperty.Create(nameof(CanReorderItems), typeof(bool), typeof(DataGrid), false);
+
+    public static readonly BindableProperty SelectionModeProperty =
+BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(DataGrid), SelectionMode.None);
+
+    public bool UseAutoColumns { get => (bool)GetValue(UseAutoColumnsProperty); set => SetValue(UseAutoColumnsProperty, value); }
+
+    public static readonly BindableProperty UseAutoColumnsProperty =
+        BindableProperty.Create(nameof(UseAutoColumns), typeof(bool), typeof(DataGrid), defaultValue: false,
+            propertyChanged: (bo, ov, nv) => (bo as DataGrid).SetAutoColumns());
+
+
 
     public static readonly BindableProperty RowsBackgroundColorPaletteProperty =
         BindableProperty.Create(nameof(RowsBackgroundColorPalette), typeof(IColorProvider), typeof(DataGrid),
@@ -339,6 +390,8 @@ public partial class DataGrid
                     return;
                 }
 
+                (b as DataGrid)._InitColumns(n);
+
                 //ObservableCollection Tracking
                 if (o is INotifyCollectionChanged oldCollection)
                 {
@@ -368,6 +421,21 @@ public partial class DataGrid
                     self.SelectedItem = null;
                 }
             });
+
+    private void _InitColumns(object n)
+    {
+        var sourceType = n.GetType();
+        if (sourceType.GenericTypeArguments.Length != 1)
+        {
+            throw new InvalidOperationException("DataGrid collection must be a generic typed collection like List<T>.");
+        }
+
+        CurrentType = sourceType.GenericTypeArguments.First();
+
+        var columnsAreReady = Columns?.Any() ?? false;
+
+        SetAutoColumns();
+    }
 
     private void HandleItemsSourceCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
@@ -449,6 +517,22 @@ public partial class DataGrid
                 return null;
             }
         );
+
+    public static readonly BindableProperty SelectedItemsProperty =
+    BindableProperty.Create(nameof(SelectedItems), typeof(IList<object>), typeof(DataGrid), null, BindingMode.TwoWay,
+        propertyChanged: (b, _, n) =>
+        {
+            var self = (DataGrid)b;
+            if (self._collectionView != null)
+            {
+                if (self._collectionView.SelectedItems != (IList<object>)n)
+                {
+                    self._collectionView.SelectedItems = (IList<object>)n;
+                }
+            }
+        }
+
+    );
 
     public static readonly BindableProperty PaginationEnabledProperty =
         BindableProperty.Create(nameof(PaginationEnabled), typeof(bool), typeof(DataGrid), false,
@@ -630,6 +714,25 @@ public partial class DataGrid
     }
 
     /// <summary>
+    /// ItemSizingStrategy
+    /// Default Value is MeasureFirstItem, except on Android
+    /// </summary>
+    public bool CanReorderItems
+    {
+        get => (bool)GetValue(CanReorderItemsProperty);
+        set => SetValue(CanReorderItemsProperty, value);
+    }
+
+    /// <summary>
+    /// SelectionMode
+    /// </summary>
+    public SelectionMode SelectionMode
+    {
+        get => (SelectionMode)GetValue(SelectionModeProperty);
+        set => SetValue(SelectionModeProperty, value);
+    }
+
+    /// <summary>
     /// Background color of the rows. It repeats colors consecutively for rows.
     /// </summary>
     public IColorProvider RowsBackgroundColorPalette
@@ -783,6 +886,15 @@ public partial class DataGrid
     }
 
     /// <summary>
+    /// Selected item
+    /// </summary>
+    public IList<object>? SelectedItems
+    {
+        get => (IList<object>?)GetValue(SelectedItemsProperty);
+        set => SetValue(SelectedItemsProperty, value);
+    }
+
+    /// <summary>
     /// Executes the command when refreshing via pull
     /// </summary>
     public ICommand PullToRefreshCommand
@@ -871,6 +983,7 @@ public partial class DataGrid
     /// </summary>
     public View NoDataView
     {
+
         get => (View)GetValue(NoDataViewProperty);
         set => SetValue(NoDataViewProperty, value);
     }
@@ -953,6 +1066,7 @@ public partial class DataGrid
     private void OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         SelectedItem = _collectionView.SelectedItem;
+        SelectedItems = _collectionView.SelectedItems;
 
         _itemSelectedEventManager.HandleEvent(this, e, nameof(ItemSelected));
     }
@@ -986,6 +1100,7 @@ public partial class DataGrid
                 ColumnSpacing = 0,
                 Padding = new(0, 0, 4, 0),
                 ColumnDefinitions = HeaderColumnDefinitions,
+
                 Children = { column.HeaderLabel, column.SortingIconContainer },
                 GestureRecognizers =
                 {
@@ -1006,6 +1121,7 @@ public partial class DataGrid
 
             Grid.SetColumn(column.SortingIconContainer, 1);
             return grid;
+
         }
 
         return new ContentView
@@ -1043,12 +1159,13 @@ public partial class DataGrid
                 continue;
             }
 
-            col.HeaderView ??= GetHeaderViewForColumn(col, i);
+                col.HeaderView ??= GetHeaderViewForColumn(col, i);
 
-            col.HeaderView.SetBinding(BackgroundColorProperty, new Binding(nameof(HeaderBackground), source: this));
+                col.HeaderView.SetBinding(BackgroundColorProperty, new Binding(nameof(HeaderBackground), source: this));
 
-            Grid.SetColumn(col.HeaderView, i);
-            _headerView.Children.Add(col.HeaderView);
+                Grid.SetColumn(col.HeaderView, i);
+                _headerView.Children.Add(col.HeaderView);
+
         }
     }
 
@@ -1072,4 +1189,47 @@ public partial class DataGrid
     }
 
     #endregion Header Creation Methods
+
+    private void DataGridUserPreferencesClick(object sender, EventArgs e)
+    {
+        if (Columns is INotifyCollectionChanged observable)
+        {
+            observable.CollectionChanged -= OnColumnsChanged;
+        }
+        DGUserPreferencesLayout.IsVisible = true;
+
+        //ColumnsList.ItemsSource = Columns;
+        //Navigation.PushAsync(new DataGridUserPreferencesSetup(Columns));
+    }
+
+    public Command SaveButtonCommand
+    {
+        get
+        {
+            return new Command(() =>
+            {
+                for(int i = 0; i < Columns.Count; i++)
+                {
+                    Columns[i].HeaderView = GetHeaderViewForColumn(Columns[i],i);
+                }
+                Reload();
+                DGUserPreferencesLayout.IsVisible = false;
+                //if (Columns is INotifyCollectionChanged observable)
+                //{
+                //    observable.CollectionChanged += OnColumnsChanged;
+                //}
+            });
+        }
+    }
+
+    public Command CancelButtonCommand
+    {
+        get
+        {
+            return new Command(() =>
+            {
+                DGUserPreferencesLayout.IsVisible = false;
+            });
+        }
+    }
 }

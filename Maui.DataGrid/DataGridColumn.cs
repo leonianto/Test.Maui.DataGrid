@@ -25,7 +25,7 @@ public sealed class DataGridColumn : BindableObject, IDefinition
         {
             IsVisible = false,
             Content = SortingIcon,
-            HorizontalOptions = LayoutOptions.Center,
+            HorizontalOptions = LayoutOptions.End,
             VerticalOptions = LayoutOptions.Center,
         };
     }

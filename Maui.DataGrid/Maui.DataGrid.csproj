@@ -26,13 +26,29 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Resources\Images\gear.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiImage Include="Resources\Images\gear.png" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <None Include="..\README.md">
 	    <Pack>True</Pack>
 	    <PackagePath>\</PackagePath>
 	  </None>
 	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
+	  <PackageReference Include="UraniumUI.Icons.MaterialIcons" Version="2.5.1" />
+	</ItemGroup>
 	<ItemGroup>
 	  <MauiXaml Update="DataGrid.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="DataGridUserPreferencesSetup.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
