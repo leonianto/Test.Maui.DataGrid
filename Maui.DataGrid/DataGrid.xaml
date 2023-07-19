@@ -54,20 +54,6 @@
                       Clicked="DataGridUserPreferencesClick"/>
         <Grid  Grid.Row="0" Grid.Column="1"  x:Name="_headerView"  HeightRequest="{Binding HeaderHeight, Source={Reference self}}" />
 
-        <VerticalStackLayout BackgroundColor="Black" ZIndex="1" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Grid.RowSpan="3" x:Name="DGUserPreferencesLayout" IsVisible="false">
-            <CollectionView x:Name="ColumnsList" Margin="10" WidthRequest="300" SelectionMode="Single" CanReorderItems="True" ItemsSource="{Binding Columns,  Source={Reference self}}">
-                <CollectionView.ItemTemplate >
-                    <DataTemplate>
-                        <Border Stroke="#FFFFFFFF" StrokeThickness="2" StrokeShape="RoundRectangle 8,8,8,8" HorizontalOptions="Center">
-                            <Label Text="{Binding  Title}" FontSize="16" HeightRequest="30" Margin="5" HorizontalOptions="Center" ></Label>
-                        </Border>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-
-            </CollectionView>
-            <Button Text="Salva" WidthRequest="80" Command="{Binding SaveButtonCommand, Source={Reference self}}"></Button>
-            <Button Text="Annulla" WidthRequest="80" Command="{Binding CancelButtonCommand, Source={Reference self}}"></Button>
-        </VerticalStackLayout>
         <RefreshView Grid.Row="1" Grid.Column="1"  x:Name="_refreshView" Grid.RowSpan="2" Command="{Binding PullToRefreshCommand, Source={Reference self}}"
                      IsRefreshing="{Binding IsRefreshing, Source={x:Reference self}, Mode=TwoWay}" IsEnabled="{Binding RefreshingEnabled, Source={Reference self}}">
             <!--  Remove ContentView when this pull request is merged https://github.com/dotnet/maui/pull/14302  -->

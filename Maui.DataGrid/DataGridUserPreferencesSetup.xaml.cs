@@ -14,26 +14,5 @@ public partial class DataGridUserPreferencesSetup : ContentPage
         BindingContext = this;
     }
 
-    //public Command VBackCommand
-    //{
-    //    get
-    //    {
-    //        return new Command(() =>
-    //        {
-    //            Debug.WriteLine("123");
-    //            // if parameter are set, you could send a message to navigate
-    //            //base.OnBackButtonPressed();
-    //            if (CanGoBack)
-    //            {
-    //                WebView.GoBack();
-    //                return true;
-    //            }
-    //            else
-    //            {
-    //                base.OnBackButtonPressed();
-    //                return false;
-    //            }
-    //        });
-    //    }
-    //}
+
 }

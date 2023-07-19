@@ -1199,44 +1199,10 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
 
     private void DataGridUserPreferencesClick(object sender, EventArgs e)
     {
-        if (Columns is INotifyCollectionChanged observable)
-        {
-            observable.CollectionChanged -= OnColumnsChanged;
-        }
-        DGUserPreferencesLayout.IsVisible = true;
 
         //ColumnsList.ItemsSource = Columns;
-        //Navigation.PushAsync(new DataGridUserPreferencesSetup(Columns));
+        Navigation.PushAsync(new DataGridUserPreferencesSetup(Columns));
     }
 
-    public Command SaveButtonCommand
-    {
-        get
-        {
-            return new Command(() =>
-            {
-                for(int i = 0; i < Columns.Count; i++)
-                {
-                    Columns[i].HeaderView = GetHeaderViewForColumn(Columns[i],i);
-                }
-                Reload();
-                DGUserPreferencesLayout.IsVisible = false;
-                //if (Columns is INotifyCollectionChanged observable)
-                //{
-                //    observable.CollectionChanged += OnColumnsChanged;
-                //}
-            });
-        }
-    }
 
-    public Command CancelButtonCommand
-    {
-        get
-        {
-            return new Command(() =>
-            {
-                DGUserPreferencesLayout.IsVisible = false;
-            });
-        }
-    }
 }
