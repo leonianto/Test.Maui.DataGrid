@@ -612,6 +612,11 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
                 var self = (DataGrid)b;
                 var sortData = (SortData)v;
 
+                if (!self.IsLoaded)
+                {
+                    return true;
+                }
+
                 return self.CanSort(sortData);
             },
             (b, o, n) =>
@@ -768,7 +773,7 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
         {
             _internalItems = value;
 
-            _collectionView.ItemsSource = _internalItems; // TODO: Use efficent CollectionChanged handling with observables
+            _collectionView.ItemsSource = _internalItems; // TODO: Use efficient CollectionChanged handling with observables
         }
     }
 
@@ -1085,7 +1090,7 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
 
     #region Header Creation Methods
 
-    private View GetHeaderViewForColumn(DataGridColumn column, int index)
+    private View GetHeaderViewForColumn(DataGridColumn column)
     {
         column.HeaderLabel.Style = column.HeaderLabelStyle ?? HeaderLabelStyle ?? _defaultHeaderStyle;
 
@@ -1112,6 +1117,8 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
                             var order = column.SortingOrder == SortingOrder.Ascendant
                                 ? SortingOrder.Descendant
                                 : SortingOrder.Ascendant;
+
+                            var index = Columns.IndexOf(column);
 
                             SortedColumnIndex = new(index, order);
                         }, () => column.SortingEnabled)
@@ -1159,12 +1166,12 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
                 continue;
             }
 
-                col.HeaderView ??= GetHeaderViewForColumn(col, i);
+            col.HeaderView ??= GetHeaderViewForColumn(col);
+            
+			col.HeaderView.SetBinding(BackgroundColorProperty, new Binding(nameof(HeaderBackground), source: this));
 
-                col.HeaderView.SetBinding(BackgroundColorProperty, new Binding(nameof(HeaderBackground), source: this));
-
-                Grid.SetColumn(col.HeaderView, i);
-                _headerView.Children.Add(col.HeaderView);
+            Grid.SetColumn(col.HeaderView, i);
+            _headerView.Children.Add(col.HeaderView);
 
         }
     }
