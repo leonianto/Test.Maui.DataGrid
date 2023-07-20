@@ -223,14 +223,14 @@ public partial class DataGrid
     public void ScrollTo(object item, ScrollToPosition position, bool animated = true) => _collectionView.ScrollTo(item, position: position, animate: animated);
     private void SetAutoColumns()
     {
-
+        
         if (UseAutoColumns)
         {
             if (Columns is INotifyCollectionChanged observable)
             {
                 observable.CollectionChanged -= OnColumnsChanged;
             }
-
+            Columns.Clear();
             PropertyInfo[] types = CurrentType?.GetProperties(BindingFlags.Instance | BindingFlags.Public);
 
             if (types != null)
@@ -243,7 +243,7 @@ public partial class DataGrid
                         PropertyName = info.Name,
                     });
                 }
-
+                InitHeaderView();
                 if (Columns is INotifyCollectionChanged obs)
                 {
                     obs.CollectionChanged += OnColumnsChanged;
@@ -253,6 +253,7 @@ public partial class DataGrid
     }
 
     #endregion Methods
+
 
     #region Bindable properties
 
@@ -1119,12 +1120,14 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
                             SortedColumnIndex = new(index, order);
                         }, () => column.SortingEnabled)
                     }
+
                 }
+                
             };
 
             Grid.SetColumn(column.SortingIconContainer, 1);
             return grid;
-
+          
         }
 
         return new ContentView

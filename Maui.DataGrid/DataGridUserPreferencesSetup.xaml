@@ -3,13 +3,34 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Maui.DataGrid.DataGridUserPreferencesSetup"
              Title="Riordina colonne">
-    <VerticalStackLayout>
 
-        <CollectionView x:Name="ColumnsList" Margin="10" WidthRequest="300" SelectionMode="Multiple" CanReorderItems="True">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style TargetType="CheckBox">
+                <Style.Triggers>
+                    <Trigger Property="IsChecked" Value="True" TargetType="CheckBox">
+                        <Setter Property="Color" Value="Green"></Setter>
+                    </Trigger>
+                    <Trigger Property="IsChecked" Value="False" TargetType="CheckBox">
+                        <Setter Property="Color" Value="Red"></Setter>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+                
+
+    
+                    <VerticalStackLayout>
+
+        <CollectionView x:Name="ColumnsList" Margin="10" WidthRequest="300" SelectionMode="Single" CanReorderItems="True">
             <CollectionView.ItemTemplate >
                 <DataTemplate>
                     <Border Stroke="#FFFFFFFF" BackgroundColor="White" StrokeThickness="2" StrokeShape="RoundRectangle 8,8,8,8" HorizontalOptions="Center">
+                    <HorizontalStackLayout>
+                        <CheckBox IsChecked="{Binding IsVisible}" />
                         <Label Text="{Binding Title}" FontSize="16" HeightRequest="30" Margin="5" HorizontalOptions="Center" TextColor="Black"></Label>
+                    </HorizontalStackLayout>
                     </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
