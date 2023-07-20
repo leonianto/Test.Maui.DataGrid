@@ -16,7 +16,7 @@
         </FlexLayout>
         <dg:DataGrid Grid.Row="1"
                      x:Name="DataGrid"
-                     SelectionMode="Single" 
+                     SelectionMode="Multiple" 
                      BorderColor="Black"
                      RowHeight="70" 
                      HeaderHeight="50" 
