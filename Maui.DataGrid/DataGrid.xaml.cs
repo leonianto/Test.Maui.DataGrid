@@ -5,16 +5,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Reflection;
 using System.Windows.Input;
 using Maui.DataGrid.Utils;
 using Microsoft.Maui.Controls.Shapes;
-using CommunityToolkit;
-
 using Font = Microsoft.Maui.Font;
-using CommunityToolkit.Mvvm.Input;
-using System.Reflection;
-using System.Security.AccessControl;
-using System.Diagnostics;
 
 /// <summary>
 /// DataGrid component for Maui
@@ -1141,6 +1137,14 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
     {
         SetColumnsBindingContext();
 
+        var pan = new PanGestureRecognizer();
+        pan.PanUpdated += Pan_PanUpdated;
+        _headerView.GestureRecognizers.Add(pan);
+
+        var ptr = new PointerGestureRecognizer();
+        ptr.PointerMoved += Ptr_PointerMoved;
+        _headerView.GestureRecognizers.Add(ptr);
+
         _headerView.Children.Clear();
         _headerView.ColumnDefinitions.Clear();
         ResetSortingOrders();
@@ -1167,13 +1171,130 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
             }
 
             col.HeaderView ??= GetHeaderViewForColumn(col);
-            
-			col.HeaderView.SetBinding(BackgroundColorProperty, new Binding(nameof(HeaderBackground), source: this));
+
+            col.HeaderView.SetBinding(BackgroundColorProperty, new Binding(nameof(HeaderBackground), source: this));
 
             Grid.SetColumn(col.HeaderView, i);
             _headerView.Children.Add(col.HeaderView);
 
         }
+
+        Debug.WriteLine("");
+    }
+
+    public int MaxColumnWidth = 600;
+    public int MinColumnWidth = 100;
+    public int SizingValueArea = 10;
+
+    private double AlreadyAddedX = 0;
+    private Grid SelectedColumn = null;
+    private bool IsPanning = false;
+
+    private enum SizingPosition
+    {
+        left,
+        right,
+        unkown
+    }
+
+    private SizingPosition _SizingPosition;
+
+    /// <summary>
+    /// Function for reconize in wich column the pointer is
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void Ptr_PointerMoved(object? sender, PointerEventArgs e)
+    {
+        if (!IsPanning)
+        {
+            var position = e.GetPosition(_headerView);
+
+            double TotWidth = 0;
+            foreach (var col in _headerView.Children)
+            {
+                TotWidth += (col as Grid).Bounds.Width;
+
+                if (position.Value.X < TotWidth)
+                {
+                    if (position.Value.X > TotWidth - SizingValueArea && position.Value.X < TotWidth)
+                    {
+                        _SizingPosition = SizingPosition.right;
+                    }
+                    else if (position.Value.X > TotWidth - (col as Grid).Bounds.Width && position.Value.X < TotWidth - (col as Grid).Bounds.Width + SizingValueArea)
+                    {
+                        _SizingPosition = SizingPosition.left;
+                    }
+                    else
+                    {
+                        _SizingPosition = SizingPosition.unkown;
+                    }
+
+                    if (_SizingPosition != SizingPosition.unkown)
+                    {
+                        SelectedColumn = (col as Grid);
+                    }
+
+                    break;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Function for Resize the selected Column
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void Pan_PanUpdated(object? sender, PanUpdatedEventArgs e)
+    {
+        if (_SizingPosition == SizingPosition.right)
+        {
+            IsPanning = true;
+            if (e.StatusType is GestureStatus.Completed or GestureStatus.Canceled or GestureStatus.Started)
+            {
+                AlreadyAddedX = 0;
+                IsPanning = false;
+            }
+            var move = e.TotalX + (e.TotalX / 20) - AlreadyAddedX;
+
+            if (SelectedColumn.Bounds.Width == 1)
+            {
+                SelectedColumn.WidthRequest = MinColumnWidth;
+            }
+
+            var initialWidth = SelectedColumn.Bounds.Width;
+            if (initialWidth + move < MaxColumnWidth && initialWidth + move > MinColumnWidth)
+            {
+                _headerView.ColumnDefinitions[_headerView.Children.IndexOf(SelectedColumn)].Width = initialWidth + move;
+                SelectedColumn.WidthRequest = initialWidth + move;
+                AlreadyAddedX += move;
+            }
+        }
+        else if (_SizingPosition == SizingPosition.left)
+        {
+            IsPanning = true;
+            if (e.StatusType is GestureStatus.Completed or GestureStatus.Canceled or GestureStatus.Started)
+            {
+                AlreadyAddedX = 0;
+                IsPanning = false;
+            }
+            var move = e.TotalX + (e.TotalX / 20) - AlreadyAddedX;
+
+            if (_headerView.ColumnDefinitions[_headerView.Children.IndexOf(SelectedColumn) - 1].Width.Value == 1)
+            {
+                (_headerView.Children[_headerView.Children.IndexOf(SelectedColumn) - 1] as Grid).WidthRequest = MinColumnWidth;
+            }
+
+            var initialWidth = _headerView.ColumnDefinitions[_headerView.Children.IndexOf(SelectedColumn) - 1].Width.Value;
+            if (initialWidth + move < MaxColumnWidth && initialWidth + move > MinColumnWidth)
+            {
+                _headerView.ColumnDefinitions[_headerView.Children.IndexOf(SelectedColumn) - 1].Width = initialWidth + move;
+                (_headerView.Children[_headerView.Children.IndexOf(SelectedColumn) - 1] as Grid).WidthRequest = initialWidth + move;
+                AlreadyAddedX += move;
+            }
+        }
+
     }
 
     private void ResetSortingOrders()
