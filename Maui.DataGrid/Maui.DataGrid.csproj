@@ -44,12 +44,6 @@
 	  <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
 	  <PackageReference Include="UraniumUI.Icons.MaterialIcons" Version="2.5.1" />
 	</ItemGroup>
-
-	<ItemGroup>
-	  <Reference Include="MauiCursor">
-	    <HintPath>MauiCursor.dll</HintPath>
-	  </Reference>
-	</ItemGroup>
 	<ItemGroup>
 	  <MauiXaml Update="DataGrid.xaml">
 	    <Generator>MSBuild:Compile</Generator>
