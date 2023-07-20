@@ -1142,6 +1142,7 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
 
         var pan = new PanGestureRecognizer();
         pan.PanUpdated += Pan_PanUpdated;
+        _headerView.GestureRecognizers.Clear();
         _headerView.GestureRecognizers.Add(pan);
 
         var ptr = new PointerGestureRecognizer();
