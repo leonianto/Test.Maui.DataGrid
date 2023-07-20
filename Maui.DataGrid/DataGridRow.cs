@@ -132,7 +132,14 @@ internal sealed class DataGridRow : Grid
 
     private void UpdateBackgroundColor()
     {
-        _hasSelected = DataGrid?.SelectedItem == BindingContext;
+        if(DataGrid?.SelectionMode == SelectionMode.Single)
+        {
+            _hasSelected = DataGrid?.SelectedItem == BindingContext;
+        } else if (DataGrid?.SelectionMode == SelectionMode.Multiple)
+        {
+            _hasSelected = (bool)(DataGrid?.SelectedItems.Contains(BindingContext));
+        }
+        
         var rowIndex = DataGrid?.InternalItems?.IndexOf(BindingContext) ?? -1;
 
         if (rowIndex < 0)
