@@ -1,184 +1,264 @@
-﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
-
 namespace TestDataGrid;
+
+using System.Collections;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
+using System.Windows.Input;
 
 public partial class MainPage : ContentPage, INotifyPropertyChanged
 {
-	private ObservableCollection<Patient> _List = new ObservableCollection<Patient>();
+    private ObservableCollection<Patient> _List = new ObservableCollection<Patient>();
 
-	#region INotifyPropertyChanged implementation
+    #region INotifyPropertyChanged implementation
 
-	public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler PropertyChanged;
 
-	private void OnPropertyChanged(string property) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
+    private void OnPropertyChanged(string property) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
 
-	#endregion INotifyPropertyChanged implementation
+    #endregion INotifyPropertyChanged implementation
 
-	public MainPage()
-	{
-		BindingContext = this;
-		List = GetPatients();
-		InitializeComponent();
+    public MainPage()
+    {
+        BindingContext = this;
+        List = GetPatients();
+        InitializeComponent();
 
-	}
-	public ObservableCollection<Patient> List {
-		get => _List;
-		set {
-			_List = value;
-			OnPropertyChanged(nameof(List));
-		}
-	}
+    }
+
+    //protected override void OnAppearing()
+    //{
+    //    base.OnAppearing();
+    //    searchBar.Text = string.Empty;
+    //    List = GetPatients();
+    //}
+
+    public ObservableCollection<Patient> List
+    {
+        get => _List;
+        set
+        {
+            _List = value;
+            OnPropertyChanged(nameof(List));
+        }
+    }
+
+    private ObservableCollection<Patient> GetPatients()
+    {
+        return new ObservableCollection<Patient>() {
+            new Patient {
+                Id = 1,
+                Name = "Mario",
+                Surname = "Rossi",
+                Birthdate = new DateTime(1990, 5, 10),
+                Birthplace = "Roma"
+            },
+            new Patient {
+                Id = 2,
+                Name = "Laura",
+                Surname = "Bianchi",
+                Birthdate = new DateTime(1985, 9, 15),
+                Birthplace = "Milano"
+            },
+            new Patient {
+                Id = 3,
+                Name = "Giuseppe",
+                Surname = "Verdi",
+                Birthdate = new DateTime(1978, 3, 25),
+                Birthplace = "Napoli"
+            },
+            new Patient {
+                Id = 4,
+                Name = "Paolo",
+                Surname = "Ferrari",
+                Birthdate = new DateTime(1992, 7, 7),
+                Birthplace = "Torino"
+            },
+            new Patient {
+                Id = 5,
+                Name = "Francesca",
+                Surname = "Russo",
+                Birthdate = new DateTime(1987, 12, 18),
+                Birthplace = "Palermo"
+            },
+            new Patient {
+                Id = 6,
+                Name = "Luca",
+                Surname = "Marini",
+                Birthdate = new DateTime(1983, 2, 5),
+                Birthplace = "Firenze"
+            },
+            new Patient {
+                Id = 7,
+                Name = "Alessia",
+                Surname = "Galli",
+                Birthdate = new DateTime(1995, 11, 3),
+                Birthplace = "Bologna"
+            },
+            new Patient {
+                Id = 8,
+                Name = "Roberto",
+                Surname = "Conti",
+                Birthdate = new DateTime(1980, 8, 20),
+                Birthplace = "Genova"
+            },
+            new Patient {
+                Id = 9,
+                Name = "Elisa",
+                Surname = "Marchetti",
+                Birthdate = new DateTime(1998, 4, 14),
+                Birthplace = "Verona"
+            },
+            new Patient {
+                Id = 10,
+                Name = "Giovanni",
+                Surname = "Ricci",
+                Birthdate = new DateTime(1975, 1, 30),
+                Birthplace = "Padova"
+            },
+            new Patient {
+                Id = 11,
+                Name = "Stefania",
+                Surname = "Esposito",
+                Birthdate = new DateTime(1991, 6, 8),
+                Birthplace = "Perugia"
+            },
+            new Patient {
+                Id = 12,
+                Name = "Marco",
+                Surname = "Ferri",
+                Birthdate = new DateTime(1986, 10, 12),
+                Birthplace = "Trieste"
+            },
+            new Patient {
+                Id = 13,
+                Name = "Valentina",
+                Surname = "Barbieri",
+                Birthdate = new DateTime(1982, 9, 22),
+                Birthplace = "Cagliari"
+            },
+            new Patient {
+                Id = 14,
+                Name = "Antonio",
+                Surname = "Vitali",
+                Birthdate = new DateTime(1993, 3, 9),
+                Birthplace = "Catania"
+            },
+            new Patient {
+                Id = 15,
+                Name = "Sara",
+                Surname = "Fabbri",
+                Birthdate = new DateTime(1979, 11, 1),
+                Birthplace = "Messina"
+            },
+            new Patient {
+                Id = 16,
+                Name = "Simone",
+                Surname = "Costa",
+                Birthdate = new DateTime(1996, 7, 19),
+                Birthplace = "Pisa"
+            },
+            new Patient {
+                Id = 17,
+                Name = "Eleonora",
+                Surname = "Gentile",
+                Birthdate = new DateTime(1984, 4, 28),
+                Birthplace = "Modena"
+            },
+            new Patient {
+                Id = 18,
+                Name = "Riccardo",
+                Surname = "Lombardi",
+                Birthdate = new DateTime(1999, 2, 16),
+                Birthplace = "Bari"
+            },
+            new Patient {
+                Id = 19,
+                Name = "Cristina",
+                Surname = "Martini",
+                Birthdate = new DateTime(1977, 10, 7),
+                Birthplace = "Trento"
+            },
+            new Patient {
+                Id = 20,
+                Name = "Lorenzo",
+                Surname = "Galli",
+                Birthdate = new DateTime(1994, 8, 23),
+                Birthplace = "Venezia"
+            }
+
+        };
+    }
+
+    /// <summary>
+    /// Research through the items a specific query inserted in the searchBar
+    /// </summary>
+    public ICommand PerformSearch => new Command<string>((string query) =>
+    {
+        List = GetPatients();
+
+        var searchResult = _GetSearchResults(query);
+
+        if (searchResult != null)
+        {
+            try
+            { 
+            List = searchResult;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
+            }
+            }
+    });
+
+    private ObservableCollection<Patient> _GetSearchResults(string query)
+    {
+
+        var results = new ObservableCollection<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Id.ToString(CultureInfo.CurrentCulture)) && x.Id.ToString(CultureInfo.CurrentCulture).StartsWith(query, StringComparison.OrdinalIgnoreCase)));
 
 
+        if (results == null || results.Count <= 0)
+        {
+            results = new ObservableCollection<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Name) && x.Name.StartsWith(query, StringComparison.OrdinalIgnoreCase)));
+        }
+        else
+        {
+            return results;
+        }
 
-	private ObservableCollection<Patient> GetPatients()
-	{
-		return   new ObservableCollection<Patient>() {
-			new Patient {
-				Id = 1,
-				Name = "Mario",
-				Surname = "Rossi",
-				Birthdate = new DateTime(1990, 5, 10),
-				Birthplace = "Roma"
-			},
-            new Patient {
-				Id = 2,
-				Name = "Laura",
-				Surname = "Bianchi",
-				Birthdate = new DateTime(1985, 9, 15),
-				Birthplace = "Milano"
-			},
-            new Patient {
-				Id = 3,
-				Name = "Giuseppe",
-				Surname = "Verdi",
-				Birthdate = new DateTime(1978, 3, 25),
-				Birthplace = "Napoli"
-			},
-            new Patient {
-				Id = 4,
-				Name = "Paolo",
-				Surname = "Ferrari",
-				Birthdate = new DateTime(1992, 7, 7),
-				Birthplace = "Torino"
-			},
-            new Patient {
-				Id = 5,
-				Name = "Francesca",
-				Surname = "Russo",
-				Birthdate = new DateTime(1987, 12, 18),
-				Birthplace = "Palermo"
-			},
-            new Patient {
-				Id = 6,
-				Name = "Luca",
-				Surname = "Marini",
-				Birthdate = new DateTime(1983, 2, 5),
-				Birthplace = "Firenze"
-			},
-            new Patient {
-				Id = 7,
-				Name = "Alessia",
-				Surname = "Galli",
-				Birthdate = new DateTime(1995, 11, 3),
-				Birthplace = "Bologna"
-			},
-            new Patient {
-				Id = 8,
-				Name = "Roberto",
-				Surname = "Conti",
-				Birthdate = new DateTime(1980, 8, 20),
-				Birthplace = "Genova"
-			},
-            new Patient {
-				Id = 9,
-				Name = "Elisa",
-				Surname = "Marchetti",
-				Birthdate = new DateTime(1998, 4, 14),
-				Birthplace = "Verona"
-			},
-            new Patient {
-				Id = 10,
-				Name = "Giovanni",
-				Surname = "Ricci",
-				Birthdate = new DateTime(1975, 1, 30),
-				Birthplace = "Padova"
-			},
-            new Patient {
-				Id = 11,
-				Name = "Stefania",
-				Surname = "Esposito",
-				Birthdate = new DateTime(1991, 6, 8),
-				Birthplace = "Perugia"
-			},
-            new Patient {
-				Id = 12,
-				Name = "Marco",
-				Surname = "Ferri",
-				Birthdate = new DateTime(1986, 10, 12),
-				Birthplace = "Trieste"
-			},
-            new Patient {
-				Id = 13,
-				Name = "Valentina",
-				Surname = "Barbieri",
-				Birthdate = new DateTime(1982, 9, 22),
-				Birthplace = "Cagliari"
-			},
-            new Patient {
-				Id = 14,
-				Name = "Antonio",
-				Surname = "Vitali",
-				Birthdate = new DateTime(1993, 3, 9),
-				Birthplace = "Catania"
-			},
-            new Patient {
-				Id = 15,
-				Name = "Sara",
-				Surname = "Fabbri",
-				Birthdate = new DateTime(1979, 11, 1),
-				Birthplace = "Messina"
-			},
-            new Patient {
-				Id = 16,
-				Name = "Simone",
-				Surname = "Costa",
-				Birthdate = new DateTime(1996, 7, 19),
-				Birthplace = "Pisa"
-			},
-            new Patient {
-				Id = 17,
-				Name = "Eleonora",
-				Surname = "Gentile",
-				Birthdate = new DateTime(1984, 4, 28),
-				Birthplace = "Modena"
-			},
-            new Patient {
-				Id = 18,
-				Name = "Riccardo",
-				Surname = "Lombardi",
-				Birthdate = new DateTime(1999, 2, 16),
-				Birthplace = "Bari"
-			},
-            new Patient {
-				Id = 19,
-				Name = "Cristina",
-				Surname = "Martini",
-				Birthdate = new DateTime(1977, 10, 7),
-				Birthplace = "Trento"
-			},
-            new Patient {
-				Id = 20,
-				Name = "Lorenzo",
-				Surname = "Galli",
-				Birthdate = new DateTime(1994, 8, 23),
-				Birthplace = "Venezia"
-			}
+        if (results == null || results.Count <= 0)
+        {
+            results = new ObservableCollection<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Surname) && x.Surname.StartsWith(query, StringComparison.OrdinalIgnoreCase)));
+        }
+        else
+        {
+            return results;
+        }
 
-		};
-	}
-	
+        if (results == null || results.Count <= 0)
+        {
+            results = new ObservableCollection<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Birthplace) && x.Birthplace.StartsWith(query, StringComparison.OrdinalIgnoreCase)));
+        }
+        else
+        {
+            return results;
+        }
+
+        if (results == null || results.Count <= 0)
+        {
+            results = new ObservableCollection<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Birthdate.ToString(CultureInfo.CurrentCulture)) && x.Birthdate.ToString(CultureInfo.CurrentCulture).StartsWith(query, StringComparison.OrdinalIgnoreCase)));
+        }
+        else
+        {
+            return results;
+        }
+        return results;
+
+    }
 
 }
 

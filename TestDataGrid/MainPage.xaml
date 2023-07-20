@@ -1,10 +1,21 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:dg="clr-namespace:Maui.DataGrid;assembly=Maui.DataGrid"
              x:Class="TestDataGrid.MainPage">
-    <Grid RowDefinitions="*" BackgroundColor="White">
-        <dg:DataGrid Grid.Row="1" 
+    <Grid RowDefinitions="Auto,*" BackgroundColor="White">
+        <FlexLayout Grid.Row="0"  BackgroundColor="Black" >
+
+            <SearchBar x:Name="searchBar"
+                      Placeholder="Search"
+                      SearchCommand="{Binding PerformSearch}"
+                      SearchCommandParameter="{Binding Source={x:Reference searchBar}, Path=Text}"
+                       HeightRequest="30"
+                       WidthRequest="300"
+                       Margin="5,10,0,0"/>
+        </FlexLayout>
+        <dg:DataGrid Grid.Row="1"
+                     x:Name="DataGrid"
                      SelectionMode="Single" 
                      BorderColor="Black"
                      RowHeight="70" 
@@ -16,14 +27,6 @@
                      PageSize="5"      
                      ActiveRowColor="Aquamarine"
                      UseAutoColumns="True">
-            <dg:DataGrid.Columns>
-
-                <!--<dg:DataGridColumn Title="ID" PropertyName="Id"  />
-                <dg:DataGridColumn Title="Name" PropertyName="Name"  />
-                <dg:DataGridColumn Title="Surname" PropertyName="Surname"  />
-                <dg:DataGridColumn Title="Birthdate" PropertyName="Birthdate"  />
-                <dg:DataGridColumn Title="Birthplace" PropertyName="Birthplace"/>-->
-            </dg:DataGrid.Columns>
 
             <dg:DataGrid.RowsBackgroundColorPalette>
                 <dg:PaletteCollection>
