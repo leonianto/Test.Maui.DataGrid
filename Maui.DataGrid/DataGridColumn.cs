@@ -119,7 +119,7 @@ public sealed class DataGridColumn : BindableObject, IDefinition
 
     #region Properties
 
-    internal DataGrid? DataGrid { get; set; }
+    public DataGrid? DataGrid { get; set; }
 
     internal ColumnDefinition? ColumnDefinition
     {

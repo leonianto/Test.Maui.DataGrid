@@ -221,29 +221,101 @@ public partial class DataGrid
     /// <param name="position">Position of the row in screen</param>
     /// <param name="animated">animated</param>
     public void ScrollTo(object item, ScrollToPosition position, bool animated = true) => _collectionView.ScrollTo(item, position: position, animate: animated);
+
     private void SetAutoColumns()
     {
-        
+        Debug.WriteLine("SetAutoColumns");
         if (UseAutoColumns)
         {
             if (Columns is INotifyCollectionChanged observable)
             {
                 observable.CollectionChanged -= OnColumnsChanged;
             }
+
+            //Lists for save the current DataGrid Layout
+            var ColumnsWidth = new List<GridLength>();
+            var ColumnsTitle = new List<string>();
+            var ColumnsVisibility = new List<bool>();
+            foreach (var col in Columns)
+            {
+                ColumnsTitle.Add(col.Title);
+                ColumnsWidth.Add(col.Width);
+                ColumnsVisibility.Add(col.IsVisible);
+            }
+
             Columns.Clear();
             PropertyInfo[] types = CurrentType?.GetProperties(BindingFlags.Instance | BindingFlags.Public);
 
             if (types != null)
             {
-                foreach (PropertyInfo info in types)
+                // if there are some already stored titles
+                if (ColumnsTitle.Count > 0)
                 {
-                    Columns.Add(new DataGridColumn()
+                    foreach (var col in ColumnsTitle)
                     {
-                        Title = info.Name,
-                        PropertyName = info.Name,
-                    });
+                        foreach (PropertyInfo info in types)
+                        {
+                            if (info.Name == col)
+                            {
+                                if (ColumnsWidth.Count > 0 && ColumnsVisibility.Count > 0)
+                                {
+                                    Columns.Add(new DataGridColumn()
+                                    {
+                                        Title = info.Name,
+                                        PropertyName = info.Name,
+                                        Width = ColumnsWidth[0],
+                                        IsVisible = ColumnsVisibility[0],
+                                        DataGrid = this
+                                    });
+                                    ColumnsWidth.RemoveAt(0);
+                                    ColumnsVisibility.RemoveAt(0);
+                                }
+                                else
+                                {
+                                    Columns.Add(new DataGridColumn()
+                                    {
+                                        Title = info.Name,
+                                        PropertyName = info.Name,
+                                        DataGrid = this
+                                    });
+                                }
+                                break;
+                            }
+                        }
+                    }
                 }
+                // else it's creating or the first time
+                else
+                {
+                    foreach (PropertyInfo info in types)
+                    {
+                        if (ColumnsWidth.Count > 0 && ColumnsVisibility.Count > 0)
+                        {
+                            Columns.Add(new DataGridColumn()
+                            {
+                                Title = info.Name,
+                                PropertyName = info.Name,
+                                Width = ColumnsWidth[0],
+                                IsVisible = ColumnsVisibility[0],
+                                DataGrid = this
+                            });
+                            ColumnsWidth.RemoveAt(0);
+                            ColumnsVisibility.RemoveAt(0);
+                        }
+                        else
+                        {
+                            Columns.Add(new DataGridColumn()
+                            {
+                                Title = info.Name,
+                                PropertyName = info.Name,
+                                DataGrid = this
+                            });
+                        }
+                    }
+                }
+
                 InitHeaderView();
+
                 if (Columns is INotifyCollectionChanged obs)
                 {
                     obs.CollectionChanged += OnColumnsChanged;
@@ -313,7 +385,7 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
     public bool UseAutoColumns { get => (bool)GetValue(UseAutoColumnsProperty); set => SetValue(UseAutoColumnsProperty, value); }
 
     public static readonly BindableProperty UseAutoColumnsProperty =
-        BindableProperty.Create(nameof(UseAutoColumns), typeof(bool), typeof(DataGrid), defaultValue: false,
+        BindableProperty.Create(nameof(UseAutoColumns), typeof(bool), typeof(DataGrid), defaultValue: true,
             propertyChanged: (bo, ov, nv) => (bo as DataGrid).SetAutoColumns());
 
 
@@ -672,6 +744,13 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
                 }
             });
 
+
+    /*public static readonly BindableProperty MaxColumnWidthProperty =
+       BindableProperty.Create(nameof(MaxColumnWidth), typeof(double), typeof(DataGrid), 1000);
+
+    public static readonly BindableProperty MinColumnWidthProperty =
+       BindableProperty.Create(nameof(MinColumnWidth), typeof(double), typeof(DataGrid), 99);*/
+
     #endregion Bindable properties
 
     #region Properties
@@ -999,6 +1078,28 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
         private set => SetValue(PageCountProperty, value);
     }
 
+    /*/// <summary>
+    /// Max Width of the DataGrid Columns
+    /// </summary>
+    public double MaxColumnWidth
+    {
+        get => (double)GetValue(MaxColumnWidthProperty);
+        set => SetValue(MaxColumnWidthProperty, value);
+    }
+
+    /// <summary>
+    /// Min Width of the DataGrid Columns
+    /// </summary>
+    public double MinColumnWidth
+    {
+        get => (double)GetValue(MinColumnWidthProperty);
+        set => SetValue(MinColumnWidthProperty, value);
+    }*/
+
+    public double MinColumnWidth { get; set; } = 100;
+
+    public double MaxColumnWidth { get; set; } = 1000;
+
     #endregion Properties
 
     #region UI Methods
@@ -1087,7 +1188,7 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
 
     #region Header Creation Methods
 
-    private View GetHeaderViewForColumn(DataGridColumn column)
+    public View GetHeaderViewForColumn(DataGridColumn column)
     {
         column.HeaderLabel.Style = column.HeaderLabelStyle ?? HeaderLabelStyle ?? _defaultHeaderStyle;
 
@@ -1122,12 +1223,12 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
                     }
 
                 }
-                
+
             };
 
             Grid.SetColumn(column.SortingIconContainer, 1);
             return grid;
-          
+
         }
 
         return new ContentView
@@ -1138,16 +1239,18 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
 
     private void InitHeaderView()
     {
+        Debug.WriteLine("InitHeaderView");
         SetColumnsBindingContext();
+
+        /*_headerView.GestureRecognizers.Clear();
 
         var pan = new PanGestureRecognizer();
         pan.PanUpdated += Pan_PanUpdated;
-        _headerView.GestureRecognizers.Clear();
         _headerView.GestureRecognizers.Add(pan);
 
         var ptr = new PointerGestureRecognizer();
         ptr.PointerMoved += Ptr_PointerMoved;
-        _headerView.GestureRecognizers.Add(ptr);
+        _headerView.GestureRecognizers.Add(ptr);*/
 
         _headerView.Children.Clear();
         _headerView.ColumnDefinitions.Clear();
@@ -1164,6 +1267,11 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
         for (var i = 0; i < Columns.Count; i++)
         {
             var col = Columns[i];
+
+            if (col.Width.Value < MinColumnWidth)
+            {
+                col.Width = MinColumnWidth;
+            }
 
             col.ColumnDefinition ??= new(col.Width);
 
@@ -1182,14 +1290,9 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
             _headerView.Children.Add(col.HeaderView);
 
         }
-
-        Debug.WriteLine("");
     }
 
-    public int MaxColumnWidth = 600;
-    public int MinColumnWidth = 100;
-    public int SizingValueArea = 10;
-
+    /*private int SizingValueArea = 20;
     private double AlreadyAddedX = 0;
     private Grid SelectedColumn = null;
     private bool IsPanning = false;
@@ -1212,6 +1315,7 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
     {
         if (!IsPanning)
         {
+            //Debug.WriteLine("Moving");
             var position = e.GetPosition(_headerView);
 
             double TotWidth = 0;
@@ -1252,6 +1356,8 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
     /// <param name="e"></param>
     private void Pan_PanUpdated(object? sender, PanUpdatedEventArgs e)
     {
+        //Debug.WriteLine("Panning");
+        //if sizing from the right side of the column
         if (_SizingPosition == SizingPosition.right)
         {
             IsPanning = true;
@@ -1260,7 +1366,7 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
                 AlreadyAddedX = 0;
                 IsPanning = false;
             }
-            var move = e.TotalX + (e.TotalX / 20) - AlreadyAddedX;
+            var move = e.TotalX *//*+ (e.TotalX / 5)*//* - AlreadyAddedX;
 
             if (SelectedColumn.Bounds.Width == 1)
             {
@@ -1275,6 +1381,7 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
                 AlreadyAddedX += move;
             }
         }
+        //if sizing from the left side of the column
         else if (_SizingPosition == SizingPosition.left)
         {
             IsPanning = true;
@@ -1283,7 +1390,7 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
                 AlreadyAddedX = 0;
                 IsPanning = false;
             }
-            var move = e.TotalX + (e.TotalX / 20) - AlreadyAddedX;
+            var move = e.TotalX *//*+ (e.TotalX / 5)*//* - AlreadyAddedX;
 
             if (_headerView.ColumnDefinitions[_headerView.Children.IndexOf(SelectedColumn) - 1].Width.Value == 1)
             {
@@ -1300,7 +1407,7 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
         }
 
     }
-
+*/
     private void ResetSortingOrders()
     {
         foreach (var column in Columns)
@@ -1326,7 +1433,7 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
     {
 
         //ColumnsList.ItemsSource = Columns;
-        Navigation.PushAsync(new DataGridUserPreferencesSetup(Columns));
+        Navigation.PushAsync(new DataGridUserPreferencesSetup(Columns, this));
     }
 
 

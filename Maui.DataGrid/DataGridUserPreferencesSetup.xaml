@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:dtgrid="clr-namespace:Maui.DataGrid"
              x:Class="Maui.DataGrid.DataGridUserPreferencesSetup"
-             Title="Riordina colonne">
+             Title="Riordina colonne" x:Name="this">
 
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -18,19 +19,23 @@
             </Style>
         </ResourceDictionary>
     </ContentPage.Resources>
-                
 
-    
-                    <VerticalStackLayout>
+
+
+    <VerticalStackLayout>
 
         <CollectionView x:Name="ColumnsList" Margin="10" WidthRequest="300" SelectionMode="Single" CanReorderItems="True">
             <CollectionView.ItemTemplate >
                 <DataTemplate>
                     <Border Stroke="#FFFFFFFF" BackgroundColor="White" StrokeThickness="2" StrokeShape="RoundRectangle 8,8,8,8" HorizontalOptions="Center">
-                    <HorizontalStackLayout>
-                        <CheckBox IsChecked="{Binding IsVisible}" />
-                        <Label Text="{Binding Title}" FontSize="16" HeightRequest="30" Margin="5" HorizontalOptions="Center" TextColor="Black"></Label>
-                    </HorizontalStackLayout>
+                        <HorizontalStackLayout>
+                            <CheckBox IsChecked="{Binding IsVisible}" />
+                            <Label Text="{Binding Title}" FontSize="16" HeightRequest="30" Margin="5" VerticalOptions="End" TextColor="Black"></Label>
+                            <!--{Binding DataGrid.MinColumnWidth, Mode=OneWay}-->
+                            <!--{Binding DataGrid.MaxColumnWidth, Mode=OneWay}-->
+                            <dtgrid:CustomStepper Minimum="100" Maximum="{Binding DataGrid.MaxColumnWidth, Mode=OneWay}" Increment="10" ValueChanged="Stepper_ValueChanged" Value="{Binding Width.Value, Mode=OneWay}" Tag="{Binding}" />
+                            <Label Text="{Binding Width.Value}" FontSize="16" HeightRequest="30" Margin="5" VerticalOptions="End" TextColor="Black"></Label>
+                        </HorizontalStackLayout>
                     </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
