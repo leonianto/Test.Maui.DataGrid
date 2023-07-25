@@ -44,8 +44,6 @@ internal sealed class DataGridRow : Grid
                 }
             });
 
-
-
     #endregion Bindable Properties
 
     #region Methods

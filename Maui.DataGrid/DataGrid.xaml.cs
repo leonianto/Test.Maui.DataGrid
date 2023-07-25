@@ -1001,34 +1001,6 @@ public partial class DataGrid
         private set => SetValue(PageCountProperty, value);
     }
 
-    public ICommand MyCommand
-    {
-        get
-        {
-            return (ICommand)GetValue(MyCommandProperty);
-        }
-        set
-        {
-            SetValue(MyCommandProperty, value);
-        }
-    }
-
-    public static readonly BindableProperty MyCommandProperty =
-        BindableProperty.Create(nameof(MyCommand), typeof(ICommand), typeof(DataGrid), null,
-                propertyChanged: (bindable, oldValue, newValue) =>
-                {
-                    foreach(DataGridRow row in ((DataGrid)bindable).ItemsSource)
-                    {
-                        row.GestureRecognizers.Clear();
-
-                        TapGestureRecognizer tap = new TapGestureRecognizer();
-                        tap.Command = newValue as ICommand;
-                        tap.NumberOfTapsRequired = 2;
-                        row.GestureRecognizers.Add(tap);
-                    }
-
-                });
-
     #endregion Properties
 
     #region UI Methods
