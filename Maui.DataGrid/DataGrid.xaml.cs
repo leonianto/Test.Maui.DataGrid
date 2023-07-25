@@ -5,16 +5,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Reflection;
 using System.Windows.Input;
 using Maui.DataGrid.Utils;
 using Microsoft.Maui.Controls.Shapes;
-using CommunityToolkit;
-
 using Font = Microsoft.Maui.Font;
-using CommunityToolkit.Mvvm.Input;
-using System.Reflection;
-using System.Security.AccessControl;
-using System.Diagnostics;
 
 /// <summary>
 /// DataGrid component for Maui
@@ -227,7 +222,7 @@ public partial class DataGrid
     public void ScrollTo(object item, ScrollToPosition position, bool animated = true) => _collectionView.ScrollTo(item, position: position, animate: animated);
     private void SetAutoColumns()
     {
-        
+
         if (UseAutoColumns)
         {
             if (Columns is INotifyCollectionChanged observable)
@@ -245,6 +240,9 @@ public partial class DataGrid
                     {
                         Title = info.Name,
                         PropertyName = info.Name,
+                        CellTemplate = (info.PropertyType != typeof(string) &&
+                                        info.PropertyType != typeof(int) &&
+                                        info.PropertyType != typeof(DateTime)) ? new DataTemplate(info.PropertyType) : null,
                     });
                 }
                 InitHeaderView();
@@ -312,7 +310,7 @@ public partial class DataGrid
    BindableProperty.Create(nameof(CanReorderItems), typeof(bool), typeof(DataGrid), false);
 
     public static readonly BindableProperty SelectionModeProperty =
-BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(DataGrid), SelectionMode.None);
+    BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(DataGrid), SelectionMode.None);
 
     public bool UseAutoColumns { get => (bool)GetValue(UseAutoColumnsProperty); set => SetValue(UseAutoColumnsProperty, value); }
 
@@ -1003,6 +1001,34 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
         private set => SetValue(PageCountProperty, value);
     }
 
+    public ICommand MyCommand
+    {
+        get
+        {
+            return (ICommand)GetValue(MyCommandProperty);
+        }
+        set
+        {
+            SetValue(MyCommandProperty, value);
+        }
+    }
+
+    public static readonly BindableProperty MyCommandProperty =
+        BindableProperty.Create(nameof(MyCommand), typeof(ICommand), typeof(DataGrid), null,
+                propertyChanged: (bindable, oldValue, newValue) =>
+                {
+                    foreach(DataGridRow row in ((DataGrid)bindable).ItemsSource)
+                    {
+                        row.GestureRecognizers.Clear();
+
+                        TapGestureRecognizer tap = new TapGestureRecognizer();
+                        tap.Command = newValue as ICommand;
+                        tap.NumberOfTapsRequired = 2;
+                        row.GestureRecognizers.Add(tap);
+                    }
+
+                });
+
     #endregion Properties
 
     #region UI Methods
@@ -1126,12 +1152,12 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
                     }
 
                 }
-                
+
             };
 
             Grid.SetColumn(column.SortingIconContainer, 1);
             return grid;
-          
+
         }
 
         return new ContentView
@@ -1170,8 +1196,8 @@ BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(Dat
             }
 
             col.HeaderView ??= GetHeaderViewForColumn(col);
-            
-			col.HeaderView.SetBinding(BackgroundColorProperty, new Binding(nameof(HeaderBackground), source: this));
+
+            col.HeaderView.SetBinding(BackgroundColorProperty, new Binding(nameof(HeaderBackground), source: this));
 
             Grid.SetColumn(col.HeaderView, i);
             _headerView.Children.Add(col.HeaderView);

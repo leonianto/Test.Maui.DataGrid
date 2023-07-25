@@ -1,5 +1,7 @@
 namespace Maui.DataGrid;
 
+using System.Diagnostics;
+using System.Reflection;
 using Maui.DataGrid.Utils;
 using Microsoft.Maui.Controls;
 
@@ -41,6 +43,8 @@ internal sealed class DataGridRow : Grid
                     newDataGrid.ItemSelected += self.DataGrid_ItemSelected;
                 }
             });
+
+
 
     #endregion Bindable Properties
 
@@ -88,23 +92,42 @@ internal sealed class DataGridRow : Grid
     private View CreateCell(DataGridColumn col)
     {
         View cell;
+        var propertyValue = GetPropertyValue(col.PropertyName);
 
-        if (col.CellTemplate != null)
+        if (col.CellTemplate != null && propertyValue != null)
         {
+            //if (col.CellTemplate.LoadTemplate().GetType() == typeof(Image))
+            //{
+
             cell = new ContentView
             {
                 BackgroundColor = _bgColor,
-                Content = col.CellTemplate.CreateContent() as View
+                Content = propertyValue as View
             };
+            Debug.WriteLine("ContentView");
+            //}
+            //else
+            //{
+            //cell = new ContentView
+            //{
+            //    BackgroundColor = _bgColor,
+            //    Content = col.CellTemplate.CreateContent() as View
+
+            //};
+
+            //}
+
 
             if (!string.IsNullOrWhiteSpace(col.PropertyName))
             {
                 cell.SetBinding(BindingContextProperty,
                     new Binding(col.PropertyName, source: BindingContext));
+
             }
         }
         else
         {
+            Debug.WriteLine("Label");
             cell = new Label
             {
                 TextColor = _textColor,
@@ -130,16 +153,39 @@ internal sealed class DataGridRow : Grid
         return cell;
     }
 
+    private object GetPropertyValue(string propertyName)
+    {
+        // Ottieni il tipo del binding context
+        Type bindingContextType = BindingContext.GetType();
+
+        // Cerca la proprietà con il nome specificato nel tipo del binding context
+        PropertyInfo property = bindingContextType.GetProperty(propertyName);
+
+        if (property != null)
+        {
+            // Se la proprietà esiste, ottieni il suo valore dal binding context
+            object propertyValue = property.GetValue(BindingContext);
+
+            return propertyValue;
+        }
+        else
+        {
+            // La proprietà con il nome specificato non esiste nel binding context.
+            return null;
+        }
+    }
+
     private void UpdateBackgroundColor()
     {
-        if(DataGrid?.SelectionMode == SelectionMode.Single)
+        if (DataGrid?.SelectionMode == SelectionMode.Single)
         {
             _hasSelected = DataGrid?.SelectedItem == BindingContext;
-        } else if (DataGrid?.SelectionMode == SelectionMode.Multiple)
+        }
+        else if (DataGrid?.SelectionMode == SelectionMode.Multiple)
         {
             _hasSelected = (bool)(DataGrid?.SelectedItems.Contains(BindingContext));
         }
-        
+
         var rowIndex = DataGrid?.InternalItems?.IndexOf(BindingContext) ?? -1;
 
         if (rowIndex < 0)

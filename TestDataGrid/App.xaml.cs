@@ -1,4 +1,4 @@
-﻿namespace TestDataGrid;
+namespace TestDataGrid;
 
 public partial class App : Application
 {

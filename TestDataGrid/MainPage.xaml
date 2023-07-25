@@ -2,24 +2,26 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:dg="clr-namespace:Maui.DataGrid;assembly=Maui.DataGrid"
+             xmlns:local="clr-namespace:TestDataGrid"
              x:Class="TestDataGrid.MainPage">
     <Grid RowDefinitions="Auto,*" BackgroundColor="White">
-        <FlexLayout Grid.Row="0"  BackgroundColor="Black" >
-
+        <FlexLayout Grid.Row="0"  BackgroundColor="Black">
+            <Button x:Name="SelectionModeButton" Text="Multiple Selection" Clicked="SelectionModeButtonClick" HeightRequest="30" VerticalOptions="Center" Margin="10"/>
+            <Button  x:Name="AddButtonToDatagrid" Text="AddButton" Clicked="_AddButtonToDataGridClick" HeightRequest="30" ></Button>
             <SearchBar x:Name="searchBar"
-                      Placeholder="Search"
-                      SearchCommand="{Binding PerformSearch}"
-                      SearchCommandParameter="{Binding Source={x:Reference searchBar}, Path=Text}"
+                       Placeholder="Search"
+                       SearchCommand="{Binding PerformSearch}"
+                       SearchCommandParameter="{Binding Source={x:Reference searchBar}, Path=Text}"
                        HeightRequest="30"
                        WidthRequest="300"
-                       Margin="5,10,0,0"/>
+                       Margin="5,10,0,0" />
         </FlexLayout>
         <dg:DataGrid Grid.Row="1"
                      x:Name="DataGrid"
-                     SelectionMode="Multiple" 
+                     SelectionMode="Single" 
                      BorderColor="Black"
                      RowHeight="70" 
-                     HeaderHeight="50" 
+                     HeaderHeight="50"      
                      HeaderBackground="Beige"
                      HeaderBordersVisible="True"
                      ItemsSource="{Binding List}" 
@@ -28,6 +30,22 @@
                      ActiveRowColor="Aquamarine"
                      UseAutoColumns="True">
 
+            <!--UNcomment with UseAutoColumns=false-->
+            <!--<dg:DataGrid.Columns >
+                <dg:DataGridColumn Title="Id" PropertyName="Id" />
+                <dg:DataGridColumn Title="Nome" PropertyName="Name" />
+                    <dg:DataGridColumn Title="Cognome" PropertyName="Surname" />
+                    <dg:DataGridColumn Title="Compleanno" PropertyName="Birthdate" />
+                    <dg:DataGridColumn Title="Icona" PropertyName="Icon">
+                    <dg:DataGridColumn.CellTemplate>
+                        <DataTemplate x:DataType="{x:Type local:Patient}">
+                            <Image Source="{Binding Icon}" HorizontalOptions="Center" VerticalOptions="Center"
+                                   Aspect="AspectFit" HeightRequest="60" />
+                        </DataTemplate>
+                    </dg:DataGridColumn.CellTemplate>
+                </dg:DataGridColumn>
+            </dg:DataGrid.Columns>-->
+            
             <dg:DataGrid.RowsBackgroundColorPalette>
                 <dg:PaletteCollection>
                     <Color>#F2F2F2</Color>

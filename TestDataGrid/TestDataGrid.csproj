@@ -49,7 +49,17 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="CommunityToolkit.Maui" Version="5.2.0" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <ProjectReference Include="..\Maui.DataGrid\Maui.DataGrid.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="PatientPopup.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	</ItemGroup>
 
 </Project>

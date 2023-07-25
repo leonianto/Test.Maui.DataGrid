@@ -67,13 +67,11 @@
                     SelectedItems="{Binding SelectedItems, Source={Reference self}, Mode=TwoWay}"
                     ItemSizingStrategy="{Binding ItemSizingStrategy, Source={Reference self}, Mode=TwoWay}"
                     CanReorderItems="{Binding CanReorderItems, Source={Reference self}, Mode=TwoWay}"
-                    SelectionMode="{Binding SelectionMode, Source={Reference self}, Mode=TwoWay}">
-                    <CollectionView.ItemTemplate>
+                    SelectionMode="{Binding SelectionMode, Source={Reference self}, Mode=TwoWay}" >
+                    <CollectionView.ItemTemplate >
                         <DataTemplate>
-                            <local:DataGridRow DataGrid="{Reference self}" HeightRequest="{Binding RowHeight, Source={Reference self}, Mode=OneTime}" />
-
+                            <local:DataGridRow x:Name="DataGridRow"  DataGrid="{Reference self}" HeightRequest="{Binding RowHeight, Source={Reference self}, Mode=OneTime}" />
                         </DataTemplate>
-                        
                     </CollectionView.ItemTemplate>
                 </CollectionView>
             </ContentView>

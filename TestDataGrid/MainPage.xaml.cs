@@ -1,12 +1,13 @@
 namespace TestDataGrid;
 
-using System.Collections;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using System.Windows.Input;
+using CommunityToolkit.Maui.Views;
+
+//using EvolutionControlLibrary;
 
 public partial class MainPage : ContentPage, INotifyPropertyChanged
 {
@@ -23,10 +24,12 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
     public MainPage()
     {
         BindingContext = this;
-        List = GetPatients();
         InitializeComponent();
-
+        List = GetPatients();
     }
+
+
+       
 
     //protected override void OnAppearing()
     //{
@@ -47,149 +50,178 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
 
     private ObservableCollection<Patient> GetPatients()
     {
-        return new ObservableCollection<Patient>() {
+        try
+        {
+            return new ObservableCollection<Patient>() {
             new Patient {
                 Id = 1,
                 Name = "Mario",
                 Surname = "Rossi",
                 Birthdate = new DateTime(1990, 5, 10),
-                Birthplace = "Roma"
+                Birthplace = "Roma",
+                Icon = new Image{Source = "dog.png"}
             },
             new Patient {
                 Id = 2,
                 Name = "Laura",
                 Surname = "Bianchi",
                 Birthdate = new DateTime(1985, 9, 15),
-                Birthplace = "Milano"
+                Birthplace = "Milano",
+                Icon = new Image{Source = "anal_gland_expression.png"}
             },
             new Patient {
                 Id = 3,
                 Name = "Giuseppe",
                 Surname = "Verdi",
                 Birthdate = new DateTime(1978, 3, 25),
-                Birthplace = "Napoli"
+                Birthplace = "Napoli",
+                Icon = new Image{Source = "cone_of_shame.png"}
             },
             new Patient {
                 Id = 4,
                 Name = "Paolo",
                 Surname = "Ferrari",
                 Birthdate = new DateTime(1992, 7, 7),
-                Birthplace = "Torino"
+                Birthplace = "Torino",
+                Icon = new Image{Source = "dog2.png"}
             },
             new Patient {
                 Id = 5,
                 Name = "Francesca",
                 Surname = "Russo",
                 Birthdate = new DateTime(1987, 12, 18),
-                Birthplace = "Palermo"
+                Birthplace = "Palermo",
+                Icon = new Image{Source = "pet_insurance.png"}
             },
             new Patient {
                 Id = 6,
                 Name = "Luca",
                 Surname = "Marini",
                 Birthdate = new DateTime(1983, 2, 5),
-                Birthplace = "Firenze"
+                Birthplace = "Firenze",
+                Icon = new Image{Source = "pet1.png"}
             },
             new Patient {
                 Id = 7,
                 Name = "Alessia",
                 Surname = "Galli",
                 Birthdate = new DateTime(1995, 11, 3),
-                Birthplace = "Bologna"
+                Birthplace = "Bologna",
+                Icon = new Image{Source = "pet2.png"}
             },
             new Patient {
                 Id = 8,
                 Name = "Roberto",
                 Surname = "Conti",
                 Birthdate = new DateTime(1980, 8, 20),
-                Birthplace = "Genova"
+                Birthplace = "Genova",
+                Icon = new Image{Source = "veterinarian.png"}
             },
             new Patient {
                 Id = 9,
                 Name = "Elisa",
                 Surname = "Marchetti",
                 Birthdate = new DateTime(1998, 4, 14),
-                Birthplace = "Verona"
+                Birthplace = "Verona",
+                 Icon = new Image{Source = "veterinarian2.png"}
             },
             new Patient {
                 Id = 10,
                 Name = "Giovanni",
                 Surname = "Ricci",
                 Birthdate = new DateTime(1975, 1, 30),
-                Birthplace = "Padova"
+                Birthplace = "Padova",
+                 Icon = new Image{Source = "veterinarian3.png"}
             },
             new Patient {
                 Id = 11,
                 Name = "Stefania",
                 Surname = "Esposito",
                 Birthdate = new DateTime(1991, 6, 8),
-                Birthplace = "Perugia"
+                Birthplace = "Perugia",
+                 Icon = new Image{Source = "veterinarian4.png"}
             },
             new Patient {
                 Id = 12,
                 Name = "Marco",
                 Surname = "Ferri",
                 Birthdate = new DateTime(1986, 10, 12),
-                Birthplace = "Trieste"
+                Birthplace = "Trieste",
+                 Icon = new Image{Source = "veterinarian5.png"}
             },
             new Patient {
                 Id = 13,
                 Name = "Valentina",
                 Surname = "Barbieri",
                 Birthdate = new DateTime(1982, 9, 22),
-                Birthplace = "Cagliari"
+                Birthplace = "Cagliari",
+                 Icon = new Image{Source = "weight.png"}
             },
             new Patient {
                 Id = 14,
                 Name = "Antonio",
                 Surname = "Vitali",
                 Birthdate = new DateTime(1993, 3, 9),
-                Birthplace = "Catania"
+                Birthplace = "Catania",
+                 Icon = new Image{Source = "x_ray.png"}
             },
             new Patient {
                 Id = 15,
                 Name = "Sara",
                 Surname = "Fabbri",
                 Birthdate = new DateTime(1979, 11, 1),
-                Birthplace = "Messina"
+                Birthplace = "Messina",
+                 Icon = new Image{Source = "x_ray2.png"}
             },
             new Patient {
                 Id = 16,
                 Name = "Simone",
                 Surname = "Costa",
                 Birthdate = new DateTime(1996, 7, 19),
-                Birthplace = "Pisa"
+                Birthplace = "Pisa",
+                Icon = new Image{Source = "x_ray3.png"}
             },
             new Patient {
                 Id = 17,
                 Name = "Eleonora",
                 Surname = "Gentile",
                 Birthdate = new DateTime(1984, 4, 28),
-                Birthplace = "Modena"
+                Birthplace = "Modena",
+                Icon = new Image{Source = "x_ray4.png"}
             },
             new Patient {
                 Id = 18,
                 Name = "Riccardo",
                 Surname = "Lombardi",
                 Birthdate = new DateTime(1999, 2, 16),
-                Birthplace = "Bari"
+                Birthplace = "Bari",
+                Icon = new Image{Source = "veterinarian6.png"}
             },
             new Patient {
                 Id = 19,
                 Name = "Cristina",
                 Surname = "Martini",
                 Birthdate = new DateTime(1977, 10, 7),
-                Birthplace = "Trento"
+                Birthplace = "Trento",
+                Icon = new Image{Source = "pet1.png"}
             },
             new Patient {
                 Id = 20,
                 Name = "Lorenzo",
                 Surname = "Galli",
                 Birthdate = new DateTime(1994, 8, 23),
-                Birthplace = "Venezia"
+                Birthplace = "Venezia",
+                Icon = new Image{Source = "pet2.png"}
             }
 
-        };
+    };
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine(e.Message);
+            Debug.WriteLine(e.StackTrace);
+        }
+        return null;
     }
 
     /// <summary>
@@ -204,15 +236,15 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
         if (searchResult != null)
         {
             try
-            { 
-            List = searchResult;
+            {
+                List = searchResult;
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
                 Debug.WriteLine(ex.StackTrace);
             }
-            }
+        }
     });
 
     private ObservableCollection<Patient> _GetSearchResults(string query)
@@ -260,5 +292,56 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
 
     }
 
+    private async void _DataGridItemSelected(object sender, SelectionChangedEventArgs e)
+    {
+
+        SelectionMode selectionMode = DataGrid.SelectionMode;
+        IList<object> selectedItems = new List<object>();
+
+        if (selectionMode == SelectionMode.Single)
+        {
+            selectedItems.Add(DataGrid.SelectedItem);
+        }
+        else if (selectionMode == SelectionMode.Multiple)
+        {
+            selectedItems = DataGrid.SelectedItems;
+        }
+        var popup = new PatientPopup(selectionMode, selectedItems);
+
+        await this.ShowPopupAsync(popup);
+    }
+
+    private void SelectionModeButtonClick(object sender, EventArgs e)
+    {
+        if (SelectionModeButton.Text == "Multiple Selection")
+        {
+            DataGrid.SelectionMode = SelectionMode.Multiple;
+            SelectionModeButton.Text = "Single Selection";
+
+        }
+        else if (SelectionModeButton.Text == "Single Selection")
+        {
+
+            DataGrid.SelectionMode = SelectionMode.Single;
+            SelectionModeButton.Text = "Multiple Selection";
+
+        }
+    }
+
+    private void _AddButtonToDataGridClick(object sender, EventArgs e)
+    {
+        DataGrid.Columns = DataGrid.Columns;
+    }
+
+
+    private ICommand _TappedGR()
+    {
+
+        return new Command(() =>
+        {
+            Debug.WriteLine("Heylà");
+        });
+
+    }
 }
 

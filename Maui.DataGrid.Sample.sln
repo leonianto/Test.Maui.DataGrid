@@ -14,7 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Root Files", "Root Files", 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestDataGrid", "TestDataGrid\TestDataGrid.csproj", "{CE185BFE-389F-49F6-9CA8-4BBB26EE1EC3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestDataGrid", "TestDataGrid\TestDataGrid.csproj", "{CE185BFE-389F-49F6-9CA8-4BBB26EE1EC3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
