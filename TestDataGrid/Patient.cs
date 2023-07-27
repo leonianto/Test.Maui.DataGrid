@@ -8,7 +8,7 @@ namespace TestDataGrid
         public string Surname { get; set; }
         public DateTime Birthdate { get; set; }
         public string Birthplace { get; set; }
-        //public EImage EImage { get; set; }
+        //public EvolutionIconEnum.IconPathDataEnumType EImage { get; set; }
         public Image Icon { get; set; }
     }
 }

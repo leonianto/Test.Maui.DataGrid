@@ -94,18 +94,7 @@ internal sealed class DataGridRow : Grid
 
         if (col.CellTemplate != null && propertyValue != null)
         {
-            //if (col.CellTemplate.LoadTemplate().GetType() == typeof(Image))
-            //{
 
-            //cell = new ContentView
-            //{
-            //    BackgroundColor = _bgColor,
-            //    Content = propertyValue as View
-            //};
-            Debug.WriteLine("ContentView");
-            //}
-            //else
-            //{
             cell = new ContentView
             {
                 BackgroundColor = _bgColor,
@@ -113,14 +102,12 @@ internal sealed class DataGridRow : Grid
 
             };
 
-            //}
-
 
             if (!string.IsNullOrWhiteSpace(col.PropertyName))
             {
                 cell.SetBinding(BindingContextProperty,
                     new Binding(col.PropertyName, source: BindingContext));
-
+   
             }
         }
         else

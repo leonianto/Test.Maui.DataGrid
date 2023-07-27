@@ -4,10 +4,11 @@
              xmlns:dg="clr-namespace:Maui.DataGrid;assembly=Maui.DataGrid"
              xmlns:local="clr-namespace:TestDataGrid"
              x:Class="TestDataGrid.MainPage">
+
     <Grid RowDefinitions="Auto,*" BackgroundColor="White">
         <FlexLayout Grid.Row="0"  BackgroundColor="Black">
             <Button x:Name="SelectionModeButton" Text="Multiple Selection" Clicked="SelectionModeButtonClick" HeightRequest="30" VerticalOptions="Center" Margin="10"/>
-            <Button  x:Name="AddButtonToDatagrid" Text="AddButton" Clicked="_AddButtonToDataGridClick" HeightRequest="30" ></Button>
+
             <SearchBar x:Name="searchBar"
                        Placeholder="Search"
                        SearchCommand="{Binding PerformSearch}"
@@ -28,23 +29,24 @@
                      PaginationEnabled="False" 
                      PageSize="5"      
                      ActiveRowColor="Aquamarine"
-                     UseAutoColumns="True">
+                     UseAutoColumns="False">
 
             <!--UNcomment with UseAutoColumns=false-->
-            <!--<dg:DataGrid.Columns >
+            <dg:DataGrid.Columns >
                 <dg:DataGridColumn Title="Id" PropertyName="Id" />
                 <dg:DataGridColumn Title="Nome" PropertyName="Name" />
                     <dg:DataGridColumn Title="Cognome" PropertyName="Surname" />
                     <dg:DataGridColumn Title="Compleanno" PropertyName="Birthdate" />
                     <dg:DataGridColumn Title="Icona" PropertyName="Icon">
                     <dg:DataGridColumn.CellTemplate>
-                        <DataTemplate x:DataType="{x:Type local:Patient}">
-                            <Image Source="{Binding Icon}" HorizontalOptions="Center" VerticalOptions="Center"
+                        <DataTemplate>
+                            <!--<ecl:EImage Image="{Binding EImage, Source={RelativeSource AncestorType={x:Type local:Patient}} }" BackgroundColor="AliceBlue" WidthRequest="40" HeightRequest="40" ImageBackgroundColor="green" ImageColor="red"  HorizontalOptions="Center" VerticalOptions="Center"></ecl:EImage>-->
+                            <Image Source="{Binding Source}" HorizontalOptions="Center" VerticalOptions="Center"
                                    Aspect="AspectFit" HeightRequest="60" />
                         </DataTemplate>
                     </dg:DataGridColumn.CellTemplate>
                 </dg:DataGridColumn>
-            </dg:DataGrid.Columns>-->
+            </dg:DataGrid.Columns>
             
             <dg:DataGrid.RowsBackgroundColorPalette>
                 <dg:PaletteCollection>
