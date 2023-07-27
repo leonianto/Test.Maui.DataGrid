@@ -348,16 +348,6 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
     }
 
 
-    private ICommand _TappedGR()
-    {
-
-        return new Command(() =>
-        {
-            Debug.WriteLine("Heylà");
-        });
-
-    }
-
     /// <summary>
     /// Method to resize all columns to width 1*
     /// </summary>

@@ -29,7 +29,7 @@
                      PaginationEnabled="False" 
                      PageSize="5"      
                      ActiveRowColor="CornflowerBlue"
-                     UseAutoColumns="True"
+                     UseAutoColumns="False"
                      BorderThickness="0.0"
                      >
 
