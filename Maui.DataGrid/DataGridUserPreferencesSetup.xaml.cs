@@ -46,11 +46,10 @@ public partial class DataGridUserPreferencesSetup : ContentPage
 
     private void Stepper_ValueChanged(object sender, ValueChangedEventArgs e)
     {
-
         if (e.NewValue != null && (DataGridColumn)(sender as CustomStepper).Tag != null)
         {
             DataGridColumn dataGridColumn = (DataGridColumn)(sender as CustomStepper).Tag;
-            dataGridColumn.Width = new GridLength(e.NewValue, GridUnitType.Absolute);
+            dataGridColumn.Width = new GridLength(e.NewValue, GridUnitType.Star);
 
             CurrentDataGrid.Reload();
         }

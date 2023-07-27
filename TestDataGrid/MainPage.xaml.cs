@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Windows.Input;
 using CommunityToolkit.Maui.Views;
+using Maui.DataGrid;
 
 //using EvolutionControlLibrary;
 
@@ -342,6 +343,21 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
             Debug.WriteLine("Heylà");
         });
 
+    }
+
+    /// <summary>
+    /// Method to resize all columns to width 1*
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void _ResizeDatagrid(object sender, EventArgs e)
+    {
+        foreach(DataGridColumn a in DataGrid.Columns)
+        {          
+            a.Width = new GridLength(1, GridUnitType.Star);
+        }
+
+        DataGrid.Reload();
     }
 }
 

@@ -8,6 +8,7 @@
         <FlexLayout Grid.Row="0"  BackgroundColor="Black">
             <Button x:Name="SelectionModeButton" Text="Multiple Selection" Clicked="SelectionModeButtonClick" HeightRequest="30" VerticalOptions="Center" Margin="10"/>
             <Button  x:Name="AddButtonToDatagrid" Text="AddButton" Clicked="_AddButtonToDataGridClick" HeightRequest="30" ></Button>
+            <Button x:Name="ResizeDatagridButton" Text="Resize" Clicked="_ResizeDatagrid" HeightRequest="30" />
             <SearchBar x:Name="searchBar"
                        Placeholder="Search"
                        SearchCommand="{Binding PerformSearch}"
@@ -27,8 +28,10 @@
                      ItemsSource="{Binding List}" 
                      PaginationEnabled="False" 
                      PageSize="5"      
-                     ActiveRowColor="Aquamarine"
-                     UseAutoColumns="True">
+                     ActiveRowColor="CornflowerBlue"
+                     UseAutoColumns="True"
+                     BorderThickness="0.0"
+                     >
 
             <!--UNcomment with UseAutoColumns=false-->
             <!--<dg:DataGrid.Columns >

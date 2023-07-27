@@ -18,6 +18,7 @@ using Font = Microsoft.Maui.Font;
 [XamlCompilation(XamlCompilationOptions.Compile)]
 public partial class DataGrid
 {
+
     #region Fields
 
     private static readonly ColumnDefinitionCollection HeaderColumnDefinitions = new()
@@ -42,6 +43,8 @@ public partial class DataGrid
         InitializeComponent();
         _defaultHeaderStyle = (Style)Resources["DefaultHeaderStyle"];
         _defaultSortIconStyle = (Style)Resources["DefaultSortIconStyle"];
+
+
     }
 
     #endregion ctor
@@ -1134,7 +1137,7 @@ public partial class DataGrid
         _itemSelectedEventManager.HandleEvent(this, e, nameof(ItemSelected));
     }
 
-    internal void Reload()
+    public void Reload()
     {
         InitHeaderView();
 

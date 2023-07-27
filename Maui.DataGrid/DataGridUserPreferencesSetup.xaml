@@ -33,7 +33,7 @@
                             <Label Text="{Binding Title}" FontSize="16" HeightRequest="30" Margin="5" VerticalOptions="End" TextColor="Black"></Label>
                             <!--{Binding DataGrid.MinColumnWidth, Mode=OneWay}-->
                             <!--{Binding DataGrid.MaxColumnWidth, Mode=OneWay}-->
-                            <dtgrid:CustomStepper x:Name="stepper" Minimum="0" Maximum="200" Increment="10"  Value="{Binding Width.Value, Mode=OneWay}" Tag="{Binding}" ValueChanged="Stepper_ValueChanged"/>
+                            <dtgrid:CustomStepper x:Name="stepper" Minimum="0.1" Maximum="10" Increment="0.1"  Value="{Binding Width.Value, Mode=OneWay}" Tag="{Binding}" ValueChanged="Stepper_ValueChanged"/>
                             <Label Text="{Binding Source={x:Reference stepper}, Path=Value}" FontSize="16" HeightRequest="30" Margin="5" VerticalOptions="End" TextColor="Black"></Label>
                         </HorizontalStackLayout>
                     </Border>
