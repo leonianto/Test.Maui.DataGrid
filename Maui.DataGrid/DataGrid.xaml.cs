@@ -1395,11 +1395,6 @@ public partial class DataGrid
     private void DataGridUserPreferencesClick(object sender, EventArgs e)
     {
 
-        //ColumnsList.ItemsSource = Columns;
-        //if (Columns is INotifyCollectionChanged observable)
-        //{
-        //    observable.CollectionChanged -= OnColumnsChanged;
-        //}
         Navigation.PushAsync(new DataGridUserPreferencesSetup(Columns, this));
 
     }

@@ -8,8 +8,6 @@ using System.Windows.Input;
 using CommunityToolkit.Maui.Views;
 using Maui.DataGrid;
 
-//using EvolutionControlLibrary;
-
 public partial class MainPage : ContentPage, INotifyPropertyChanged
 {
     private List<Patient> _List = new List<Patient>();
@@ -60,6 +58,7 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
                 Surname = "Rossi",
                 Birthdate = new DateTime(1990, 5, 10),
                 Birthplace = "Roma",
+                //EImage =  EvolutionIconEnum.IconPathDataEnumType.PatientIcon,
                 Icon = new Image{Source = "dog.png"}
             },
             new Patient {
@@ -68,6 +67,7 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
                 Surname = "Bianchi",
                 Birthdate = new DateTime(1985, 9, 15),
                 Birthplace = "Milano",
+                //EImage =  EvolutionIconEnum.IconPathDataEnumType.PatientIcon,
                 Icon = new Image{Source = "anal_gland_expression.png"}
             },
             new Patient {
@@ -76,6 +76,7 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
                 Surname = "Verdi",
                 Birthdate = new DateTime(1978, 3, 25),
                 Birthplace = "Napoli",
+                //EImage =  EvolutionIconEnum.IconPathDataEnumType.PatientIcon,
                 Icon = new Image{Source = "cone_of_shame.png"}
             },
             new Patient {
@@ -84,6 +85,7 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
                 Surname = "Ferrari",
                 Birthdate = new DateTime(1992, 7, 7),
                 Birthplace = "Torino",
+                //EImage =  EvolutionIconEnum.IconPathDataEnumType.PatientIcon,
                 Icon = new Image{Source = "dog2.png"}
             },
             new Patient {
@@ -92,6 +94,7 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
                 Surname = "Russo",
                 Birthdate = new DateTime(1987, 12, 18),
                 Birthplace = "Palermo",
+                //EImage =  EvolutionIconEnum.IconPathDataEnumType.PatientIcon,
                 Icon = new Image{Source = "pet_insurance.png"}
             },
             new Patient {
@@ -100,6 +103,7 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
                 Surname = "Marini",
                 Birthdate = new DateTime(1983, 2, 5),
                 Birthplace = "Firenze",
+                //EImage =  EvolutionIconEnum.IconPathDataEnumType.PatientIcon,
                 Icon = new Image{Source = "pet1.png"}
             },
             new Patient {
@@ -108,6 +112,7 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
                 Surname = "Galli",
                 Birthdate = new DateTime(1995, 11, 3),
                 Birthplace = "Bologna",
+                //EImage =  EvolutionIconEnum.IconPathDataEnumType.PatientIcon,
                 Icon = new Image{Source = "pet2.png"}
             },
             new Patient {
@@ -116,6 +121,7 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
                 Surname = "Conti",
                 Birthdate = new DateTime(1980, 8, 20),
                 Birthplace = "Genova",
+                //EImage =  EvolutionIconEnum.IconPathDataEnumType.PatientIcon,
                 Icon = new Image{Source = "veterinarian.png"}
             },
             new Patient {
@@ -124,7 +130,8 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
                 Surname = "Marchetti",
                 Birthdate = new DateTime(1998, 4, 14),
                 Birthplace = "Verona",
-                 Icon = new Image{Source = "veterinarian2.png"}
+                //EImage =  EvolutionIconEnum.IconPathDataEnumType.PatientIcon,
+                Icon = new Image{Source = "veterinarian2.png"}
             },
             new Patient {
                 Id = 10,
@@ -132,7 +139,8 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
                 Surname = "Ricci",
                 Birthdate = new DateTime(1975, 1, 30),
                 Birthplace = "Padova",
-                 Icon = new Image{Source = "veterinarian3.png"}
+                //EImage =  EvolutionIconEnum.IconPathDataEnumType.PatientIcon,
+                Icon = new Image{Source = "veterinarian3.png"}
             },
             new Patient {
                 Id = 11,
@@ -140,7 +148,8 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
                 Surname = "Esposito",
                 Birthdate = new DateTime(1991, 6, 8),
                 Birthplace = "Perugia",
-                 Icon = new Image{Source = "veterinarian4.png"}
+                //EImage =  EvolutionIconEnum.IconPathDataEnumType.PatientIcon,
+                Icon = new Image{Source = "veterinarian4.png"}
             },
             new Patient {
                 Id = 12,
@@ -148,7 +157,8 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
                 Surname = "Ferri",
                 Birthdate = new DateTime(1986, 10, 12),
                 Birthplace = "Trieste",
-                 Icon = new Image{Source = "veterinarian5.png"}
+                //EImage =  EvolutionIconEnum.IconPathDataEnumType.PatientIcon,
+                Icon = new Image{Source = "veterinarian5.png"}
             },
             new Patient {
                 Id = 13,
@@ -156,7 +166,8 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
                 Surname = "Barbieri",
                 Birthdate = new DateTime(1982, 9, 22),
                 Birthplace = "Cagliari",
-                 Icon = new Image{Source = "weight.png"}
+                //EImage =  EvolutionIconEnum.IconPathDataEnumType.PatientIcon,
+                Icon = new Image{Source = "weight.png"}
             },
             new Patient {
                 Id = 14,
@@ -164,7 +175,8 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
                 Surname = "Vitali",
                 Birthdate = new DateTime(1993, 3, 9),
                 Birthplace = "Catania",
-                 Icon = new Image{Source = "x_ray.png"}
+                //EImage =  EvolutionIconEnum.IconPathDataEnumType.PatientIcon,
+                Icon = new Image{Source = "x_ray.png"}
             },
             new Patient {
                 Id = 15,
@@ -172,7 +184,8 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
                 Surname = "Fabbri",
                 Birthdate = new DateTime(1979, 11, 1),
                 Birthplace = "Messina",
-                 Icon = new Image{Source = "x_ray2.png"}
+                //EImage =  EvolutionIconEnum.IconPathDataEnumType.PatientIcon,
+                Icon = new Image{Source = "x_ray2.png"}
             },
             new Patient {
                 Id = 16,
@@ -180,6 +193,7 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
                 Surname = "Costa",
                 Birthdate = new DateTime(1996, 7, 19),
                 Birthplace = "Pisa",
+                //EImage =  EvolutionIconEnum.IconPathDataEnumType.PatientIcon,
                 Icon = new Image{Source = "x_ray3.png"}
             },
             new Patient {
@@ -188,6 +202,7 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
                 Surname = "Gentile",
                 Birthdate = new DateTime(1984, 4, 28),
                 Birthplace = "Modena",
+                //EImage =  EvolutionIconEnum.IconPathDataEnumType.PatientIcon,
                 Icon = new Image{Source = "x_ray4.png"}
             },
             new Patient {
@@ -196,6 +211,7 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
                 Surname = "Lombardi",
                 Birthdate = new DateTime(1999, 2, 16),
                 Birthplace = "Bari",
+                //EImage =  EvolutionIconEnum.IconPathDataEnumType.PatientIcon,
                 Icon = new Image{Source = "veterinarian6.png"}
             },
             new Patient {
@@ -204,6 +220,7 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
                 Surname = "Martini",
                 Birthdate = new DateTime(1977, 10, 7),
                 Birthplace = "Trento",
+                //EImage =  EvolutionIconEnum.IconPathDataEnumType.PatientIcon,
                 Icon = new Image{Source = "pet1.png"}
             },
             new Patient {
@@ -212,6 +229,7 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
                 Surname = "Galli",
                 Birthdate = new DateTime(1994, 8, 23),
                 Birthplace = "Venezia",
+                //EImage =  EvolutionIconEnum.IconPathDataEnumType.PatientIcon,
                 Icon = new Image{Source = "pet2.png"}
             }
 
@@ -329,18 +347,13 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
         }
     }
 
-    private void _AddButtonToDataGridClick(object sender, EventArgs e)
-    {
-        DataGrid.Columns = DataGrid.Columns;
-    }
-
 
     private ICommand _TappedGR()
     {
 
         return new Command(() =>
         {
-            Debug.WriteLine("Heyl√†");
+            Debug.WriteLine("Heyl‡");
         });
 
     }
