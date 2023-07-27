@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Reflection;
 using System.Windows.Input;
 using Maui.DataGrid.Utils;
@@ -220,37 +221,66 @@ public partial class DataGrid
     /// <param name="position">Position of the row in screen</param>
     /// <param name="animated">animated</param>
     public void ScrollTo(object item, ScrollToPosition position, bool animated = true) => _collectionView.ScrollTo(item, position: position, animate: animated);
+
     private void SetAutoColumns()
     {
 
+        Debug.WriteLine("SetAutoColumns");
         if (UseAutoColumns)
         {
             if (Columns is INotifyCollectionChanged observable)
             {
                 observable.CollectionChanged -= OnColumnsChanged;
             }
-            Columns.Clear();
-            PropertyInfo[] types = CurrentType?.GetProperties(BindingFlags.Instance | BindingFlags.Public);
 
-            if (types != null)
+            List<DataGridColumn> columnsCopy = new List<DataGridColumn>(Columns);
+
+            Columns.Clear();
+
+            if (columnsCopy.Count > 0)
             {
-                foreach (PropertyInfo info in types)
+                //Datagrid already built one time
+                foreach (DataGridColumn columncopy in columnsCopy)
                 {
-                    Columns.Add(new DataGridColumn()
-                    {
-                        Title = info.Name,
-                        PropertyName = info.Name,
-                        CellTemplate = (info.PropertyType != typeof(string) &&
-                                        info.PropertyType != typeof(int) &&
-                                        info.PropertyType != typeof(DateTime)) ? new DataTemplate(info.PropertyType) : null,
-                    });
-                }
-                InitHeaderView();
-                if (Columns is INotifyCollectionChanged obs)
-                {
-                    obs.CollectionChanged += OnColumnsChanged;
+
+                    DataGridColumn column = new DataGridColumn();
+                    column.Title = columncopy.Title;
+                    column.PropertyName = columncopy.PropertyName;
+
+                    column.Width = columncopy.Width;
+                    column.IsVisible = columncopy.IsVisible;
+                    //column.DataGrid = this;
+                    column.CellTemplate = columncopy.CellTemplate;
+
+                    Columns.Add(column);
+
                 }
             }
+            else
+            {
+                //Datagrid to build
+                PropertyInfo[] types = CurrentType?.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+                foreach (PropertyInfo propertyinfo in types)
+                {
+                    DataGridColumn column = new DataGridColumn();
+                    column.Title = propertyinfo.Name;
+                    column.PropertyName = propertyinfo.Name;
+                    column.CellTemplate = (propertyinfo.PropertyType != typeof(string) &&
+                                        propertyinfo.PropertyType != typeof(int) &&
+                                        propertyinfo.PropertyType != typeof(DateTime)) ? new DataTemplate(propertyinfo.PropertyType) : null;
+                    Columns.Add(column);
+                }
+            }
+
+
+
+            InitHeaderView();
+
+            if (Columns is INotifyCollectionChanged obs)
+            {
+                obs.CollectionChanged += OnColumnsChanged;
+            }
+
         }
     }
 
@@ -315,7 +345,7 @@ public partial class DataGrid
     public bool UseAutoColumns { get => (bool)GetValue(UseAutoColumnsProperty); set => SetValue(UseAutoColumnsProperty, value); }
 
     public static readonly BindableProperty UseAutoColumnsProperty =
-        BindableProperty.Create(nameof(UseAutoColumns), typeof(bool), typeof(DataGrid), defaultValue: false,
+        BindableProperty.Create(nameof(UseAutoColumns), typeof(bool), typeof(DataGrid), defaultValue: true,
             propertyChanged: (bo, ov, nv) => (bo as DataGrid).SetAutoColumns());
 
 
@@ -674,6 +704,13 @@ public partial class DataGrid
                 }
             });
 
+
+    /*public static readonly BindableProperty MaxColumnWidthProperty =
+       BindableProperty.Create(nameof(MaxColumnWidth), typeof(double), typeof(DataGrid), 1000);
+
+    public static readonly BindableProperty MinColumnWidthProperty =
+       BindableProperty.Create(nameof(MinColumnWidth), typeof(double), typeof(DataGrid), 99);*/
+
     #endregion Bindable properties
 
     #region Properties
@@ -1001,6 +1038,28 @@ public partial class DataGrid
         private set => SetValue(PageCountProperty, value);
     }
 
+    /*/// <summary>
+    /// Max Width of the DataGrid Columns
+    /// </summary>
+    public double MaxColumnWidth
+    {
+        get => (double)GetValue(MaxColumnWidthProperty);
+        set => SetValue(MaxColumnWidthProperty, value);
+    }
+
+    /// <summary>
+    /// Min Width of the DataGrid Columns
+    /// </summary>
+    public double MinColumnWidth
+    {
+        get => (double)GetValue(MinColumnWidthProperty);
+        set => SetValue(MinColumnWidthProperty, value);
+    }*/
+
+    public double MinColumnWidth { get; set; } = 100;
+
+    public double MaxColumnWidth { get; set; } = 1000;
+
     #endregion Properties
 
     #region UI Methods
@@ -1089,7 +1148,7 @@ public partial class DataGrid
 
     #region Header Creation Methods
 
-    private View GetHeaderViewForColumn(DataGridColumn column)
+    public View GetHeaderViewForColumn(DataGridColumn column)
     {
         column.HeaderLabel.Style = column.HeaderLabelStyle ?? HeaderLabelStyle ?? _defaultHeaderStyle;
 
@@ -1140,7 +1199,18 @@ public partial class DataGrid
 
     private void InitHeaderView()
     {
+        Debug.WriteLine("InitHeaderView");
         SetColumnsBindingContext();
+
+        /*_headerView.GestureRecognizers.Clear();
+
+        var pan = new PanGestureRecognizer();
+        pan.PanUpdated += Pan_PanUpdated;
+        _headerView.GestureRecognizers.Add(pan);
+
+        var ptr = new PointerGestureRecognizer();
+        ptr.PointerMoved += Ptr_PointerMoved;
+        _headerView.GestureRecognizers.Add(ptr);*/
 
         _headerView.Children.Clear();
         _headerView.ColumnDefinitions.Clear();
@@ -1157,6 +1227,11 @@ public partial class DataGrid
         for (var i = 0; i < Columns.Count; i++)
         {
             var col = Columns[i];
+
+            //if (col.Width.Value < MinColumnWidth)
+            //{
+            //    col.Width = MinColumnWidth;
+            //}
 
             col.ColumnDefinition ??= new(col.Width);
 
@@ -1177,6 +1252,122 @@ public partial class DataGrid
         }
     }
 
+    /*private int SizingValueArea = 20;
+    private double AlreadyAddedX = 0;
+    private Grid SelectedColumn = null;
+    private bool IsPanning = false;
+
+    private enum SizingPosition
+    {
+        left,
+        right,
+        unkown
+    }
+
+    private SizingPosition _SizingPosition;
+
+    /// <summary>
+    /// Function for reconize in wich column the pointer is
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void Ptr_PointerMoved(object? sender, PointerEventArgs e)
+    {
+        if (!IsPanning)
+        {
+            //Debug.WriteLine("Moving");
+            var position = e.GetPosition(_headerView);
+
+            double TotWidth = 0;
+            foreach (var col in _headerView.Children)
+            {
+                TotWidth += (col as Grid).Bounds.Width;
+
+                if (position.Value.X < TotWidth)
+                {
+                    if (position.Value.X > TotWidth - SizingValueArea && position.Value.X < TotWidth)
+                    {
+                        _SizingPosition = SizingPosition.right;
+                    }
+                    else if (position.Value.X > TotWidth - (col as Grid).Bounds.Width && position.Value.X < TotWidth - (col as Grid).Bounds.Width + SizingValueArea)
+                    {
+                        _SizingPosition = SizingPosition.left;
+                    }
+                    else
+                    {
+                        _SizingPosition = SizingPosition.unkown;
+                    }
+
+                    if (_SizingPosition != SizingPosition.unkown)
+                    {
+                        SelectedColumn = (col as Grid);
+                    }
+
+                    break;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Function for Resize the selected Column
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void Pan_PanUpdated(object? sender, PanUpdatedEventArgs e)
+    {
+        //Debug.WriteLine("Panning");
+        //if sizing from the right side of the column
+        if (_SizingPosition == SizingPosition.right)
+        {
+            IsPanning = true;
+            if (e.StatusType is GestureStatus.Completed or GestureStatus.Canceled or GestureStatus.Started)
+            {
+                AlreadyAddedX = 0;
+                IsPanning = false;
+            }
+            var move = e.TotalX *//*+ (e.TotalX / 5)*//* - AlreadyAddedX;
+
+            if (SelectedColumn.Bounds.Width == 1)
+            {
+                SelectedColumn.WidthRequest = MinColumnWidth;
+            }
+
+            var initialWidth = SelectedColumn.Bounds.Width;
+            if (initialWidth + move < MaxColumnWidth && initialWidth + move > MinColumnWidth)
+            {
+                _headerView.ColumnDefinitions[_headerView.Children.IndexOf(SelectedColumn)].Width = initialWidth + move;
+                SelectedColumn.WidthRequest = initialWidth + move;
+                AlreadyAddedX += move;
+            }
+        }
+        //if sizing from the left side of the column
+        else if (_SizingPosition == SizingPosition.left)
+        {
+            IsPanning = true;
+            if (e.StatusType is GestureStatus.Completed or GestureStatus.Canceled or GestureStatus.Started)
+            {
+                AlreadyAddedX = 0;
+                IsPanning = false;
+            }
+            var move = e.TotalX *//*+ (e.TotalX / 5)*//* - AlreadyAddedX;
+
+            if (_headerView.ColumnDefinitions[_headerView.Children.IndexOf(SelectedColumn) - 1].Width.Value == 1)
+            {
+                (_headerView.Children[_headerView.Children.IndexOf(SelectedColumn) - 1] as Grid).WidthRequest = MinColumnWidth;
+            }
+
+            var initialWidth = _headerView.ColumnDefinitions[_headerView.Children.IndexOf(SelectedColumn) - 1].Width.Value;
+            if (initialWidth + move < MaxColumnWidth && initialWidth + move > MinColumnWidth)
+            {
+                _headerView.ColumnDefinitions[_headerView.Children.IndexOf(SelectedColumn) - 1].Width = initialWidth + move;
+                (_headerView.Children[_headerView.Children.IndexOf(SelectedColumn) - 1] as Grid).WidthRequest = initialWidth + move;
+                AlreadyAddedX += move;
+            }
+        }
+
+    }
+*/
     private void ResetSortingOrders()
     {
         foreach (var column in Columns)
@@ -1202,7 +1393,12 @@ public partial class DataGrid
     {
 
         //ColumnsList.ItemsSource = Columns;
-        Navigation.PushAsync(new DataGridUserPreferencesSetup(Columns));
+        //if (Columns is INotifyCollectionChanged observable)
+        //{
+        //    observable.CollectionChanged -= OnColumnsChanged;
+        //}
+        Navigation.PushAsync(new DataGridUserPreferencesSetup(Columns, this));
+
     }
 
 

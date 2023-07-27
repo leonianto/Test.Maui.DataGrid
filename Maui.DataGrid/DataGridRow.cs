@@ -97,21 +97,21 @@ internal sealed class DataGridRow : Grid
             //if (col.CellTemplate.LoadTemplate().GetType() == typeof(Image))
             //{
 
-            cell = new ContentView
-            {
-                BackgroundColor = _bgColor,
-                Content = propertyValue as View
-            };
+            //cell = new ContentView
+            //{
+            //    BackgroundColor = _bgColor,
+            //    Content = propertyValue as View
+            //};
             Debug.WriteLine("ContentView");
             //}
             //else
             //{
-            //cell = new ContentView
-            //{
-            //    BackgroundColor = _bgColor,
-            //    Content = col.CellTemplate.CreateContent() as View
+            cell = new ContentView
+            {
+                BackgroundColor = _bgColor,
+                Content = col.CellTemplate.CreateContent() as View
 
-            //};
+            };
 
             //}
 
@@ -153,22 +153,22 @@ internal sealed class DataGridRow : Grid
 
     private object GetPropertyValue(string propertyName)
     {
-        // Ottieni il tipo del binding context
+        // get binding context type
         Type bindingContextType = BindingContext.GetType();
 
-        // Cerca la proprietà con il nome specificato nel tipo del binding context
+        // search property by name
         PropertyInfo property = bindingContextType.GetProperty(propertyName);
 
         if (property != null)
         {
-            // Se la proprietà esiste, ottieni il suo valore dal binding context
+            // property exists, get its value from binding context
             object propertyValue = property.GetValue(BindingContext);
 
             return propertyValue;
         }
         else
         {
-            // La proprietà con il nome specificato non esiste nel binding context.
+            // Property does not exist
             return null;
         }
     }

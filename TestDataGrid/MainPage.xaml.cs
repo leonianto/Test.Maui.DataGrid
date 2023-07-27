@@ -11,7 +11,7 @@ using CommunityToolkit.Maui.Views;
 
 public partial class MainPage : ContentPage, INotifyPropertyChanged
 {
-    private ObservableCollection<Patient> _List = new ObservableCollection<Patient>();
+    private List<Patient> _List = new List<Patient>();
 
     #region INotifyPropertyChanged implementation
 
@@ -38,7 +38,7 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
     //    List = GetPatients();
     //}
 
-    public ObservableCollection<Patient> List
+    public List<Patient> List
     {
         get => _List;
         set
@@ -48,11 +48,11 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
         }
     }
 
-    private ObservableCollection<Patient> GetPatients()
+    private List<Patient> GetPatients()
     {
         try
         {
-            return new ObservableCollection<Patient>() {
+            return new List<Patient>() {
             new Patient {
                 Id = 1,
                 Name = "Mario",
@@ -247,15 +247,15 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
         }
     });
 
-    private ObservableCollection<Patient> _GetSearchResults(string query)
+    private List<Patient> _GetSearchResults(string query)
     {
 
-        var results = new ObservableCollection<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Id.ToString(CultureInfo.CurrentCulture)) && x.Id.ToString(CultureInfo.CurrentCulture).StartsWith(query, StringComparison.OrdinalIgnoreCase)));
+        var results = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Id.ToString(CultureInfo.CurrentCulture)) && x.Id.ToString(CultureInfo.CurrentCulture).StartsWith(query, StringComparison.OrdinalIgnoreCase)));
 
 
         if (results == null || results.Count <= 0)
         {
-            results = new ObservableCollection<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Name) && x.Name.StartsWith(query, StringComparison.OrdinalIgnoreCase)));
+            results = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Name) && x.Name.StartsWith(query, StringComparison.OrdinalIgnoreCase)));
         }
         else
         {
@@ -264,7 +264,7 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
 
         if (results == null || results.Count <= 0)
         {
-            results = new ObservableCollection<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Surname) && x.Surname.StartsWith(query, StringComparison.OrdinalIgnoreCase)));
+            results = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Surname) && x.Surname.StartsWith(query, StringComparison.OrdinalIgnoreCase)));
         }
         else
         {
@@ -273,7 +273,7 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
 
         if (results == null || results.Count <= 0)
         {
-            results = new ObservableCollection<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Birthplace) && x.Birthplace.StartsWith(query, StringComparison.OrdinalIgnoreCase)));
+            results = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Birthplace) && x.Birthplace.StartsWith(query, StringComparison.OrdinalIgnoreCase)));
         }
         else
         {
@@ -282,7 +282,7 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
 
         if (results == null || results.Count <= 0)
         {
-            results = new ObservableCollection<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Birthdate.ToString(CultureInfo.CurrentCulture)) && x.Birthdate.ToString(CultureInfo.CurrentCulture).StartsWith(query, StringComparison.OrdinalIgnoreCase)));
+            results = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Birthdate.ToString(CultureInfo.CurrentCulture)) && x.Birthdate.ToString(CultureInfo.CurrentCulture).StartsWith(query, StringComparison.OrdinalIgnoreCase)));
         }
         else
         {

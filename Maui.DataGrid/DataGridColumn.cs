@@ -6,7 +6,7 @@ using System.ComponentModel;
 /// <summary>
 /// Specifies each column of the DataGrid.
 /// </summary>
-public sealed class DataGridColumn : BindableObject, IDefinition
+public sealed class DataGridColumn : BindableObject, IDefinition, INotifyPropertyChanged
 {
     #region Fields
 
@@ -119,7 +119,7 @@ public sealed class DataGridColumn : BindableObject, IDefinition
 
     #region Properties
 
-    internal DataGrid? DataGrid { get; set; }
+    public DataGrid? DataGrid { get; set; }
 
     internal ColumnDefinition? ColumnDefinition
     {
@@ -299,4 +299,14 @@ public sealed class DataGridColumn : BindableObject, IDefinition
     private void OnSizeChanged() => _sizeChangedEventManager.HandleEvent(this, EventArgs.Empty, nameof(SizeChanged));
 
     #endregion Methods
+
+
+    #region INotifyPropertyChanged implementation
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    private void OnPropertyChanged(string property) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
+
+    #endregion INotifyPropertyChanged implementation
+
 }

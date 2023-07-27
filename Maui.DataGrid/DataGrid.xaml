@@ -3,10 +3,8 @@
       xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
       xmlns:local="clr-namespace:Maui.DataGrid;assembly=Maui.DataGrid"
-      xmlns:m="clr-namespace:UraniumUI.Icons.MaterialIcons;assembly=UraniumUI.Icons.MaterialIcons"
-      xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
-      xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
       x:Class="Maui.DataGrid.DataGrid"
+      x:DataType="local:DataGrid"
       CompressedLayout.IsHeadless="True">
     <ContentView.Resources>
         <ResourceDictionary>
@@ -70,7 +68,7 @@
                     SelectionMode="{Binding SelectionMode, Source={Reference self}, Mode=TwoWay}" >
                     <CollectionView.ItemTemplate >
                         <DataTemplate>
-                            <local:DataGridRow x:Name="DataGridRow"  DataGrid="{Reference self}" HeightRequest="{Binding RowHeight, Source={Reference self}, Mode=OneTime}" />
+                            <local:DataGridRow x:Name="DataGridRow"  DataGrid="{Reference self}" HeightRequest="{Binding RowHeight, Source={Reference self}, Mode=OneTime}"/>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
