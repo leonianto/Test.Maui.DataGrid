@@ -50,7 +50,7 @@
                       AnchorX="0.49"
                       AnchorY="0.49"
                       Clicked="DataGridUserPreferencesClick"/>
-        <Grid  Grid.Row="0" Grid.Column="1"  x:Name="_headerView"  HeightRequest="{Binding HeaderHeight, Source={Reference self}}" />
+        <Grid  Grid.Row="0" Grid.Column="1"  x:Name="_headerView" HeightRequest="{Binding HeaderHeight, Source={Reference self}}" />
 
         <RefreshView Grid.Row="1" Grid.Column="1"  x:Name="_refreshView" Grid.RowSpan="2" Command="{Binding PullToRefreshCommand, Source={Reference self}}"
                      IsRefreshing="{Binding IsRefreshing, Source={x:Reference self}, Mode=TwoWay}" IsEnabled="{Binding RefreshingEnabled, Source={Reference self}}">

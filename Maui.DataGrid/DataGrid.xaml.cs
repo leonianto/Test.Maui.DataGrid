@@ -44,7 +44,18 @@ public partial class DataGrid
         _defaultHeaderStyle = (Style)Resources["DefaultHeaderStyle"];
         _defaultSortIconStyle = (Style)Resources["DefaultSortIconStyle"];
 
-
+        //! move header when selection changed
+        self.PropertyChanged += (s, e) =>
+        {
+            if(SelectionMode == SelectionMode.Multiple)
+            {
+                _headerView.Margin = new Thickness(28, 0, 0, 0);
+            }
+            else if(SelectionMode == SelectionMode.Single)
+            {
+                _headerView.Margin = new Thickness(0, 0, 0, 0);
+            }
+        };
     }
 
     #endregion ctor
