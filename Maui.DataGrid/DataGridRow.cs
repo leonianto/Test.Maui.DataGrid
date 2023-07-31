@@ -2,7 +2,7 @@ namespace Maui.DataGrid;
 
 using System.Diagnostics;
 using System.Reflection;
-using Maui.DataGrid.Utils;
+using Maui.DataGrid.Extensions;
 using Microsoft.Maui.Controls;
 
 internal sealed class DataGridRow : Grid
@@ -75,7 +75,7 @@ internal sealed class DataGridRow : Grid
 
     private void SetStyling()
     {
-        UpdateBackgroundColor();
+        UpdateColors();
 
         // We are using the spacing between rows to generate visible borders, and thus the background color is the border color.
         BackgroundColor = DataGrid.BorderColor;
@@ -138,6 +138,43 @@ internal sealed class DataGridRow : Grid
         return cell;
     }
 
+    private void UpdateColors()
+    {
+        if (DataGrid?.SelectionMode == SelectionMode.Single)
+        {
+            _hasSelected = DataGrid?.SelectedItem == BindingContext;
+        }
+        else if (DataGrid?.SelectionMode == SelectionMode.Multiple)
+        {
+            _hasSelected = (bool)(DataGrid?.SelectedItems.Contains(BindingContext));
+        }
+
+        var rowIndex = DataGrid.InternalItems?.IndexOf(BindingContext) ?? -1;
+
+        if (rowIndex < 0)
+        {
+            return;
+        }
+
+        _bgColor = DataGrid?.SelectionEnabled == true && _hasSelected
+                       ? DataGrid.ActiveRowColor
+                       : DataGrid?.RowsBackgroundColorPalette.GetColor(rowIndex, BindingContext);
+        _textColor = DataGrid?.RowsTextColorPalette.GetColor(rowIndex, BindingContext);
+
+        foreach (var v in Children)
+        {
+            if (v is View view)
+            {
+                view.BackgroundColor = _bgColor;
+
+                if (view is Label label)
+                {
+                    label.TextColor = _textColor;
+                }
+            }
+        }
+    }
+
     private object GetPropertyValue(string propertyName)
     {
         // get binding context type
@@ -157,48 +194,6 @@ internal sealed class DataGridRow : Grid
         {
             // Property does not exist
             return null;
-        }
-    }
-
-    private void UpdateBackgroundColor()
-    {
-        if (DataGrid?.SelectionMode == SelectionMode.Single)
-        {
-            _hasSelected = DataGrid?.SelectedItem == BindingContext;
-        }
-        else if (DataGrid?.SelectionMode == SelectionMode.Multiple)
-        {
-            _hasSelected = (bool)(DataGrid?.SelectedItems.Contains(BindingContext));
-        }
-
-        var rowIndex = DataGrid?.InternalItems?.IndexOf(BindingContext) ?? -1;
-
-        if (rowIndex < 0)
-        {
-            return;
-        }
-
-        _bgColor = DataGrid?.SelectionEnabled == true && _hasSelected
-                ? DataGrid.ActiveRowColor
-                : DataGrid?.RowsBackgroundColorPalette.GetColor(rowIndex, BindingContext);
-        _textColor = DataGrid?.RowsTextColorPalette.GetColor(rowIndex, BindingContext);
-
-        ChangeColor(_bgColor, _textColor);
-    }
-
-    private void ChangeColor(Color? bgColor, Color? textColor)
-    {
-        foreach (var v in Children)
-        {
-            if (v is View view)
-            {
-                view.BackgroundColor = bgColor;
-
-                if (view is Label label)
-                {
-                    label.TextColor = textColor;
-                }
-            }
         }
     }
 
@@ -236,7 +231,7 @@ internal sealed class DataGridRow : Grid
 
         if (_hasSelected || (e.CurrentSelection.Count > 0 && e.CurrentSelection[^1] == BindingContext))
         {
-            UpdateBackgroundColor();
+            UpdateColors();
         }
     }
 
