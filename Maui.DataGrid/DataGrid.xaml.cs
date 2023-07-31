@@ -1205,33 +1205,16 @@ public partial class DataGrid
                 {
                     new DragGestureRecognizer
                     {
-
                         DragStartingCommand = new Command((s) =>
                         {
                            _draggedElementIndex = Columns.IndexOf(column);
-                        }),
-
-
+                        })
                     },
                     new DropGestureRecognizer
                     {
-
                         DropCommand = new Command(() =>
                         {
-                            int currentIndex = Columns.IndexOf(column);
-                            DataGridColumn cellToDrop = Columns[_draggedElementIndex];
-                            if (Columns is INotifyCollectionChanged observable)
-                                {
-                                    observable.CollectionChanged -= OnColumnsChanged;
-                                }
-                            Columns[_draggedElementIndex] = Columns[currentIndex];
-                            Columns[currentIndex] = cellToDrop;
-                            if (Columns is INotifyCollectionChanged observable2)
-                                {
-                                    observable2.CollectionChanged += OnColumnsChanged;
-                                }
-
-                            Reload();
+                             _MoveColumns(column);
                         })
                     }
 
@@ -1270,7 +1253,6 @@ public partial class DataGrid
                     },
                     new DragGestureRecognizer
                     {
-                        
                         DragStartingCommand = new Command((s) =>
                         {
                            _draggedElementIndex = Columns.IndexOf(column);
@@ -1280,50 +1262,70 @@ public partial class DataGrid
                     {
                         DropCommand = new Command(() =>
                         {
-                            int currentIndex = Columns.IndexOf(column);
-                            DataGridColumn cellToDrop = Columns[_draggedElementIndex];
-                            if (Columns is INotifyCollectionChanged observable)
-                                {
-                                    observable.CollectionChanged -= OnColumnsChanged;
-                                }
-                            Columns[_draggedElementIndex] = Columns[currentIndex];
-                            Columns[currentIndex] = cellToDrop;
-                            if (Columns is INotifyCollectionChanged observable2)
-                                {
-                                    observable2.CollectionChanged += OnColumnsChanged;
-                                }
-
-                            Reload();
+                            _MoveColumns(column);
                         })
                     }
-
                 }
+        };
 
-            };
-
-            Grid.SetColumn(column.SortingIconContainer, 1);
-            return grid;
-
+        Grid.SetColumn(column.SortingIconContainer, 1);
+        return grid;
     }
-    //void OnDragStarting(object sender, DragStartingEventArgs e)
-    //{
-    //    e.Data.Text = "My text data goes here";
-    //}
+
+    /// <summary>
+    /// Function for Move the dragged column and all the others that have been affected
+    /// </summary>
+    /// <param name="column">Dragged column</param>
+    private void _MoveColumns(DataGridColumn column)
+    {
+        var currentIndex = Columns.IndexOf(column);
+        var cellToDrop = Columns[_draggedElementIndex];
+
+        if (Columns is INotifyCollectionChanged observable)
+        {
+            observable.CollectionChanged -= OnColumnsChanged;
+        }
+
+        ///Columns[_draggedElementIndex] = Columns[currentIndex];
+        ///Columns[currentIndex] = cellToDrop;
+
+        //if the 2 columns are close
+        if (Math.Abs(_draggedElementIndex - currentIndex) == 1)
+        {
+            Columns[_draggedElementIndex] = Columns[currentIndex];
+            Columns[currentIndex] = cellToDrop;
+        }
+        //else if dragging from left to right
+        else if (_draggedElementIndex < currentIndex)
+        {
+            for (var i = _draggedElementIndex; i < currentIndex; i++)
+            {
+                Columns[i] = Columns[i + 1];
+            }
+            Columns[currentIndex] = cellToDrop;
+        }
+        //else if dragging from right to left
+        else if (_draggedElementIndex > currentIndex)
+        {
+            for (var i = _draggedElementIndex; i > currentIndex + 1; i--)
+            {
+                Columns[i] = Columns[i - 1];
+            }
+            Columns[currentIndex + 1] = cellToDrop;
+        }
+
+        if (Columns is INotifyCollectionChanged observable2)
+        {
+            observable2.CollectionChanged += OnColumnsChanged;
+        }
+
+        Reload();
+    }
 
     private void InitHeaderView()
     {
         Debug.WriteLine("InitHeaderView");
         SetColumnsBindingContext();
-
-        /*_headerView.GestureRecognizers.Clear();
-
-        var pan = new PanGestureRecognizer();
-        pan.PanUpdated += Pan_PanUpdated;
-        _headerView.GestureRecognizers.Add(pan);
-
-        var ptr = new PointerGestureRecognizer();
-        ptr.PointerMoved += Ptr_PointerMoved;
-        _headerView.GestureRecognizers.Add(ptr);*/
 
         _headerView.Children.Clear();
         _headerView.ColumnDefinitions.Clear();
@@ -1340,11 +1342,6 @@ public partial class DataGrid
         for (var i = 0; i < Columns.Count; i++)
         {
             var col = Columns[i];
-
-            //if (col.Width.Value < MinColumnWidth)
-            //{
-            //    col.Width = MinColumnWidth;
-            //}
 
             col.ColumnDefinition ??= new(col.Width);
 
@@ -1367,122 +1364,6 @@ public partial class DataGrid
         }
     }
 
-    /*private int SizingValueArea = 20;
-    private double AlreadyAddedX = 0;
-    private Grid SelectedColumn = null;
-    private bool IsPanning = false;
-
-    private enum SizingPosition
-    {
-        left,
-        right,
-        unkown
-    }
-
-    private SizingPosition _SizingPosition;
-
-    /// <summary>
-    /// Function for reconize in wich column the pointer is
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void Ptr_PointerMoved(object? sender, PointerEventArgs e)
-    {
-        if (!IsPanning)
-        {
-            //Debug.WriteLine("Moving");
-            var position = e.GetPosition(_headerView);
-
-            double TotWidth = 0;
-            foreach (var col in _headerView.Children)
-            {
-                TotWidth += (col as Grid).Bounds.Width;
-
-                if (position.Value.X < TotWidth)
-                {
-                    if (position.Value.X > TotWidth - SizingValueArea && position.Value.X < TotWidth)
-                    {
-                        _SizingPosition = SizingPosition.right;
-                    }
-                    else if (position.Value.X > TotWidth - (col as Grid).Bounds.Width && position.Value.X < TotWidth - (col as Grid).Bounds.Width + SizingValueArea)
-                    {
-                        _SizingPosition = SizingPosition.left;
-                    }
-                    else
-                    {
-                        _SizingPosition = SizingPosition.unkown;
-                    }
-
-                    if (_SizingPosition != SizingPosition.unkown)
-                    {
-                        SelectedColumn = (col as Grid);
-                    }
-
-                    break;
-                }
-            }
-        }
-    }
-
-    /// <summary>
-    /// Function for Resize the selected Column
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void Pan_PanUpdated(object? sender, PanUpdatedEventArgs e)
-    {
-        //Debug.WriteLine("Panning");
-        //if sizing from the right side of the column
-        if (_SizingPosition == SizingPosition.right)
-        {
-            IsPanning = true;
-            if (e.StatusType is GestureStatus.Completed or GestureStatus.Canceled or GestureStatus.Started)
-            {
-                AlreadyAddedX = 0;
-                IsPanning = false;
-            }
-            var move = e.TotalX *//*+ (e.TotalX / 5)*//* - AlreadyAddedX;
-
-            if (SelectedColumn.Bounds.Width == 1)
-            {
-                SelectedColumn.WidthRequest = MinColumnWidth;
-            }
-
-            var initialWidth = SelectedColumn.Bounds.Width;
-            if (initialWidth + move < MaxColumnWidth && initialWidth + move > MinColumnWidth)
-            {
-                _headerView.ColumnDefinitions[_headerView.Children.IndexOf(SelectedColumn)].Width = initialWidth + move;
-                SelectedColumn.WidthRequest = initialWidth + move;
-                AlreadyAddedX += move;
-            }
-        }
-        //if sizing from the left side of the column
-        else if (_SizingPosition == SizingPosition.left)
-        {
-            IsPanning = true;
-            if (e.StatusType is GestureStatus.Completed or GestureStatus.Canceled or GestureStatus.Started)
-            {
-                AlreadyAddedX = 0;
-                IsPanning = false;
-            }
-            var move = e.TotalX *//*+ (e.TotalX / 5)*//* - AlreadyAddedX;
-
-            if (_headerView.ColumnDefinitions[_headerView.Children.IndexOf(SelectedColumn) - 1].Width.Value == 1)
-            {
-                (_headerView.Children[_headerView.Children.IndexOf(SelectedColumn) - 1] as Grid).WidthRequest = MinColumnWidth;
-            }
-
-            var initialWidth = _headerView.ColumnDefinitions[_headerView.Children.IndexOf(SelectedColumn) - 1].Width.Value;
-            if (initialWidth + move < MaxColumnWidth && initialWidth + move > MinColumnWidth)
-            {
-                _headerView.ColumnDefinitions[_headerView.Children.IndexOf(SelectedColumn) - 1].Width = initialWidth + move;
-                (_headerView.Children[_headerView.Children.IndexOf(SelectedColumn) - 1] as Grid).WidthRequest = initialWidth + move;
-                AlreadyAddedX += move;
-            }
-        }
-
-    }
-*/
     private void ResetSortingOrders()
     {
         foreach (var column in Columns)
@@ -1507,7 +1388,7 @@ public partial class DataGrid
     private void DataGridUserPreferencesClick(object sender, EventArgs e)
     {
 
-       // Navigation.PushAsync(new DataGridUserPreferencesSetup(Columns, this));
+        // Navigation.PushAsync(new DataGridUserPreferencesSetup(Columns, this));
         MopupService.Instance.PushAsync(new DataGridUserPreferencesSetup(Columns, this));
     }
 
