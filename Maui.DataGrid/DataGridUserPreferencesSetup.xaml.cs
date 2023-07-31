@@ -2,7 +2,7 @@ namespace Maui.DataGrid;
 
 using System.Collections.ObjectModel;
 
-public partial class DataGridUserPreferencesSetup : ContentPage
+public partial class DataGridUserPreferencesSetup
 {
 
     private ObservableCollection<DataGridColumn> _ColumnsListSource = new ObservableCollection<DataGridColumn>();
