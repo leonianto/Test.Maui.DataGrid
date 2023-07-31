@@ -50,6 +50,7 @@
 
 	<ItemGroup>
 	  <PackageReference Include="CommunityToolkit.Maui" Version="5.2.0" />
+	  <PackageReference Include="Mopups" Version="1.1.0" />
 	</ItemGroup>
 
 	<ItemGroup>

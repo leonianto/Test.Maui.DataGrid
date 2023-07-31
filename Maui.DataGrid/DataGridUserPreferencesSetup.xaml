@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+<mopups:PopupPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:dtgrid="clr-namespace:Maui.DataGrid"
              x:Class="Maui.DataGrid.DataGridUserPreferencesSetup"
+             xmlns:mopanim="clr-namespace:Mopups.Animations;assembly=Mopups"
+             xmlns:mopups="clr-namespace:Mopups.Pages;assembly=Mopups"
              Title="Riordina colonne" x:Name="this"
              xmlns:local="clr-namespace:Maui.DataGrid">
 
@@ -21,8 +23,24 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
+    <!--<mopups:PopupPage.Animation>
+        <mopanim:ScaleAnimation
+            DurationIn="700"
+            EasingIn="BounceOut"
+            PositionIn="Bottom"
+            PositionOut="Center"
+            ScaleIn="1"
+            ScaleOut="0.7"/>
+    </mopups:PopupPage.Animation>-->
 
-    <VerticalStackLayout>
+
+    <Border Stroke="Black" StrokeThickness="1" BackgroundColor="#fefae0" WidthRequest="350" HeightRequest="300">
+        <Border.StrokeShape>
+            <RoundRectangle CornerRadius="10,10,10,10"/>
+        </Border.StrokeShape>
+
+        
+    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center">
 
         <CollectionView x:Name="ColumnsList" ItemsSource="{Binding ColumnsListSource, Mode=TwoWay}"  Margin="10" WidthRequest="300" SelectionMode="Single" CanReorderItems="True">
             <CollectionView.ItemTemplate >
@@ -42,4 +60,5 @@
 
         </CollectionView>
     </VerticalStackLayout>
-</ContentPage>
+    </Border>
+</mopups:PopupPage>

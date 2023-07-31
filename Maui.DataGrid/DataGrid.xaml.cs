@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Windows.Input;
 using Maui.DataGrid.Utils;
 using Microsoft.Maui.Controls.Shapes;
+using Mopups.Services;
 using Font = Microsoft.Maui.Font;
 
 /// <summary>
@@ -1406,8 +1407,8 @@ public partial class DataGrid
     private void DataGridUserPreferencesClick(object sender, EventArgs e)
     {
 
-        Navigation.PushAsync(new DataGridUserPreferencesSetup(Columns, this));
-
+       // Navigation.PushAsync(new DataGridUserPreferencesSetup(Columns, this));
+        MopupService.Instance.PushAsync(new DataGridUserPreferencesSetup(Columns, this));
     }
 
 
