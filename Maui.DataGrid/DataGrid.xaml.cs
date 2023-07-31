@@ -1286,40 +1286,18 @@ public partial class DataGrid
             observable.CollectionChanged -= OnColumnsChanged;
         }
 
-        ///Columns[_draggedElementIndex] = Columns[currentIndex];
-        ///Columns[currentIndex] = cellToDrop;
-
-        //if the 2 columns are close
-        if (Math.Abs(_draggedElementIndex - currentIndex) == 1)
-        {
-            Columns[_draggedElementIndex] = Columns[currentIndex];
-            Columns[currentIndex] = cellToDrop;
-        }
-        //else if dragging from left to right
-        else if (_draggedElementIndex < currentIndex)
-        {
-            for (var i = _draggedElementIndex; i < currentIndex; i++)
-            {
-                Columns[i] = Columns[i + 1];
-            }
-            Columns[currentIndex] = cellToDrop;
-        }
-        //else if dragging from right to left
-        else if (_draggedElementIndex > currentIndex)
-        {
-            for (var i = _draggedElementIndex; i > currentIndex + 1; i--)
-            {
-                Columns[i] = Columns[i - 1];
-            }
-            Columns[currentIndex + 1] = cellToDrop;
-        }
+        Columns.Move(_draggedElementIndex, currentIndex);
 
         if (Columns is INotifyCollectionChanged observable2)
         {
             observable2.CollectionChanged += OnColumnsChanged;
         }
 
-        Reload();
+        //reload only if it's needed
+        if (_draggedElementIndex != currentIndex)
+        {
+            Reload();
+        }
     }
 
     private void InitHeaderView()
