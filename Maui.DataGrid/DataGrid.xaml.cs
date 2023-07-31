@@ -51,7 +51,7 @@ public partial class DataGrid
         {
             if (SelectionMode == SelectionMode.Multiple)
             {
-                _headerView.Margin = new Thickness(28, 0, 0, 0);
+                _headerView.Margin = new Thickness(30, 0, 0, 0);
                 HideBox.IsVisible = true;
             }
             else if (SelectionMode == SelectionMode.Single)

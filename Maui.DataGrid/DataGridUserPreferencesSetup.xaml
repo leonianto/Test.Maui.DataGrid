@@ -34,7 +34,7 @@
     </mopups:PopupPage.Animation>-->
 
 
-    <Border Stroke="Black" StrokeThickness="1" BackgroundColor="#fefae0" WidthRequest="350" HeightRequest="300">
+    <Border Stroke="Black" StrokeThickness="1" BackgroundColor="#fefae0" WidthRequest="350" HeightRequest="350">
         <Border.StrokeShape>
             <RoundRectangle CornerRadius="10,10,10,10"/>
         </Border.StrokeShape>
@@ -42,7 +42,7 @@
         
     <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center">
 
-        <CollectionView x:Name="ColumnsList" ItemsSource="{Binding ColumnsListSource, Mode=TwoWay}"  Margin="10" WidthRequest="300" SelectionMode="Single" CanReorderItems="True">
+            <CollectionView x:Name="ColumnsList" ItemsSource="{Binding ColumnsListSource, Mode=TwoWay}"  Margin="10" WidthRequest="300" HeightRequest="300" SelectionMode="Single" CanReorderItems="True">
             <CollectionView.ItemTemplate >
                 <DataTemplate x:DataType="local:DataGridColumn">
                     <Border Stroke="#FFFFFFFF" BackgroundColor="White" StrokeThickness="2" StrokeShape="RoundRectangle 8,8,8,8" HorizontalOptions="Center">
@@ -59,6 +59,7 @@
             </CollectionView.ItemTemplate>
 
         </CollectionView>
-    </VerticalStackLayout>
+
+        </VerticalStackLayout>
     </Border>
 </mopups:PopupPage>
