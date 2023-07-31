@@ -33,6 +33,7 @@ public partial class DataGrid
     private readonly Style _defaultHeaderStyle;
     private readonly Style _defaultSortIconStyle;
 
+    private int _draggedElementIndex;
     public Type CurrentType { get; protected set; }
     #endregion Fields
 
@@ -47,13 +48,15 @@ public partial class DataGrid
         //! move header when selection changed
         self.PropertyChanged += (s, e) =>
         {
-            if(SelectionMode == SelectionMode.Multiple)
+            if (SelectionMode == SelectionMode.Multiple)
             {
                 _headerView.Margin = new Thickness(28, 0, 0, 0);
+                HideBox.IsVisible = true;
             }
-            else if(SelectionMode == SelectionMode.Single)
+            else if (SelectionMode == SelectionMode.Single)
             {
                 _headerView.Margin = new Thickness(0, 0, 0, 0);
+                HideBox.IsVisible = false;
             }
         };
     }
@@ -1177,7 +1180,6 @@ public partial class DataGrid
                 ColumnSpacing = 0,
                 Padding = new(0, 0, 4, 0),
                 ColumnDefinitions = HeaderColumnDefinitions,
-
                 Children = { column.HeaderLabel, column.SortingIconContainer },
                 GestureRecognizers =
                 {
@@ -1194,12 +1196,49 @@ public partial class DataGrid
 
                             SortedColumnIndex = new(index, order);
                         }, () => column.SortingEnabled)
+                    },
+                    new DragGestureRecognizer
+                    {
+                        
+                        DragStartingCommand = new Command((s) =>
+                        {
+                           _draggedElementIndex = Columns.IndexOf(column);
+                        }),
+                    },
+                    new DropGestureRecognizer
+                    {
+                        DropCommand = new Command(() =>
+                        {
+                            int currentIndex = Columns.IndexOf(column);
+                            DataGridColumn cellToDrop = Columns[_draggedElementIndex];
+                            if (Columns is INotifyCollectionChanged observable)
+                                {
+                                    observable.CollectionChanged -= OnColumnsChanged;
+                                }
+                            Columns[_draggedElementIndex] = Columns[currentIndex];
+                            Columns[currentIndex] = cellToDrop;
+                            if (Columns is INotifyCollectionChanged observable2)
+                                {
+                                    observable2.CollectionChanged += OnColumnsChanged;
+                                }
+
+                            Reload();
+                        })
                     }
 
                 }
 
             };
+            //var behavior = new EventToCommandBehavior
+            //{
+            //    EventName = nameof(),
+            //    Command = new Command(() =>
+            //    {
+            //        _draggedElementIndex = Columns.IndexOf(column);
+            //    })
+            //};
 
+            //grid.Behaviors.Add(behavior);
             Grid.SetColumn(column.SortingIconContainer, 1);
             return grid;
 
@@ -1207,9 +1246,48 @@ public partial class DataGrid
 
         return new ContentView
         {
-            Content = column.HeaderLabel
+            Content = column.HeaderLabel,
+            GestureRecognizers =
+                {
+                    new DragGestureRecognizer
+                    {
+
+                        DragStartingCommand = new Command((s) =>
+                        {
+                           _draggedElementIndex = Columns.IndexOf(column);
+                        }),
+                       
+
+                    },
+                    new DropGestureRecognizer
+                    {
+                        
+                        DropCommand = new Command(() =>
+                        {
+                            int currentIndex = Columns.IndexOf(column);
+                            DataGridColumn cellToDrop = Columns[_draggedElementIndex];
+                            if (Columns is INotifyCollectionChanged observable)
+                                {
+                                    observable.CollectionChanged -= OnColumnsChanged;
+                                }
+                            Columns[_draggedElementIndex] = Columns[currentIndex];
+                            Columns[currentIndex] = cellToDrop;
+                            if (Columns is INotifyCollectionChanged observable2)
+                                {
+                                    observable2.CollectionChanged += OnColumnsChanged;
+                                }
+
+                            Reload();
+                        })
+                    }
+
+                }
         };
     }
+    //void OnDragStarting(object sender, DragStartingEventArgs e)
+    //{
+    //    e.Data.Text = "My text data goes here";
+    //}
 
     private void InitHeaderView()
     {

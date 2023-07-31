@@ -336,14 +336,13 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
         {
             DataGrid.SelectionMode = SelectionMode.Multiple;
             SelectionModeButton.Text = "Single Selection";
-
+            DataGrid.SelectedItems.Clear();
         }
         else if (SelectionModeButton.Text == "Single Selection")
         {
 
             DataGrid.SelectionMode = SelectionMode.Single;
             SelectionModeButton.Text = "Multiple Selection";
-
         }
     }
 
