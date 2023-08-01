@@ -46,20 +46,23 @@ public partial class DataGrid
         _defaultHeaderStyle = (Style)Resources["DefaultHeaderStyle"];
         _defaultSortIconStyle = (Style)Resources["DefaultSortIconStyle"];
 
-        //! move header when selection changed
-        self.PropertyChanged += (s, e) =>
+        //! move header when selection changed and platform is windows
+        if (DeviceInfo.Current.Platform == DevicePlatform.WinUI)
         {
-            if (SelectionMode == SelectionMode.Multiple)
+            self.PropertyChanged += (s, e) =>
             {
-                _headerView.Margin = new Thickness(28, 0, 0, 0);
-                HideBox.IsVisible = true;
-            }
-            else if (SelectionMode == SelectionMode.Single)
-            {
-                _headerView.Margin = new Thickness(0, 0, 0, 0);
-                HideBox.IsVisible = false;
-            }
-        };
+                if (SelectionMode == SelectionMode.Multiple)
+                {
+                    _headerView.Margin = new Thickness(28, 0, 0, 0);
+                    HideBox.IsVisible = true;
+                }
+                else if (SelectionMode == SelectionMode.Single)
+                {
+                    _headerView.Margin = new Thickness(0, 0, 0, 0);
+                    HideBox.IsVisible = false;
+                }
+            };
+        }
     }
 
     #endregion ctor
@@ -1117,9 +1120,6 @@ public partial class DataGrid
         set => SetValue(MinColumnWidthProperty, value);
     }*/
 
-    public double MinColumnWidth { get; set; } = 100;
-
-    public double MaxColumnWidth { get; set; } = 1000;
 
     #endregion Properties
 

@@ -1,5 +1,6 @@
 using CommunityToolkit.Maui;
 using Mopups.Hosting;
+using UraniumUI;
 
 namespace TestDataGrid;
 
@@ -16,6 +17,7 @@ public static class MauiProgram
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                fonts.AddMaterialIconFonts();
             });
 
         return builder.Build();
