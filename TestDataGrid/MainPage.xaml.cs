@@ -1,6 +1,5 @@
 namespace TestDataGrid;
 
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
@@ -263,49 +262,76 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
         }
     });
 
+    /// <summary>
+    /// Function for search the given text in all the visible fields
+    /// </summary>
+    /// <param name="query"></param>
+    /// <returns>List of Patients that match the research</returns>
     private List<Patient> _GetSearchResults(string query)
     {
+        var result = new List<Patient>();
 
-        var results = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Id.ToString(CultureInfo.CurrentCulture)) && x.Id.ToString(CultureInfo.CurrentCulture).StartsWith(query, StringComparison.OrdinalIgnoreCase)));
+        foreach (var column in DataGrid.Columns)
+        {
+            if (column.PropertyName == "Id")
+            {
+                if (column.IsVisible)
+                {
+                    var temp = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Id.ToString(CultureInfo.CurrentCulture)) && x.Id.ToString(CultureInfo.CurrentCulture).StartsWith(query, StringComparison.OrdinalIgnoreCase) || x.Id.ToString(CultureInfo.CurrentCulture).Contains(query, StringComparison.OrdinalIgnoreCase)));
+                    result = result.Concat(temp).ToList();
+                }
+            }
 
+            if (column.PropertyName == "Name")
+            {
+                if (column.IsVisible)
+                {
+                    var temp = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Name.ToString(CultureInfo.CurrentCulture)) && x.Name.ToString(CultureInfo.CurrentCulture).StartsWith(query, StringComparison.OrdinalIgnoreCase) || x.Name.ToString(CultureInfo.CurrentCulture).Contains(query, StringComparison.OrdinalIgnoreCase)));
+                    result = result.Concat(temp).ToList();
+                }
+            }
 
-        if (results == null || results.Count <= 0)
-        {
-            results = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Name) && x.Name.StartsWith(query, StringComparison.OrdinalIgnoreCase)));
-        }
-        else
-        {
-            return results;
+            if (column.PropertyName == "Surname")
+            {
+                if (column.IsVisible)
+                {
+                    var temp = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Surname.ToString(CultureInfo.CurrentCulture)) && x.Surname.ToString(CultureInfo.CurrentCulture).StartsWith(query, StringComparison.OrdinalIgnoreCase) || x.Surname.ToString(CultureInfo.CurrentCulture).Contains(query, StringComparison.OrdinalIgnoreCase)));
+                    result = result.Concat(temp).ToList();
+                }
+            }
+
+            if (column.PropertyName == "Birthplace")
+            {
+                if (column.IsVisible)
+                {
+                    var temp = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Birthplace.ToString(CultureInfo.CurrentCulture)) && x.Birthplace.ToString(CultureInfo.CurrentCulture).StartsWith(query, StringComparison.OrdinalIgnoreCase) || x.Birthplace.ToString(CultureInfo.CurrentCulture).Contains(query, StringComparison.OrdinalIgnoreCase)));
+                    result = result.Concat(temp).ToList();
+                }
+            }
+
+            if (column.PropertyName == "Birthdate")
+            {
+                if (column.IsVisible)
+                {
+                    var temp = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Birthdate.ToString(CultureInfo.CurrentCulture)) && x.Birthdate.ToString(CultureInfo.CurrentCulture).StartsWith(query, StringComparison.OrdinalIgnoreCase) || x.Birthdate.ToString(CultureInfo.CurrentCulture).Contains(query, StringComparison.OrdinalIgnoreCase)));
+                    result = result.Concat(temp).ToList();
+                }
+            }
         }
 
-        if (results == null || results.Count <= 0)
+        for (var i = 0; i < result.Count; i++)
         {
-            results = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Surname) && x.Surname.StartsWith(query, StringComparison.OrdinalIgnoreCase)));
-        }
-        else
-        {
-            return results;
-        }
-
-        if (results == null || results.Count <= 0)
-        {
-            results = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Birthplace) && x.Birthplace.StartsWith(query, StringComparison.OrdinalIgnoreCase)));
-        }
-        else
-        {
-            return results;
+            for (var k = i + 1; k < result.Count; k++)
+            {
+                if (result[i] == result[k])
+                {
+                    result.Remove(result[k]);
+                    k--;
+                }
+            }
         }
 
-        if (results == null || results.Count <= 0)
-        {
-            results = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Birthdate.ToString(CultureInfo.CurrentCulture)) && x.Birthdate.ToString(CultureInfo.CurrentCulture).StartsWith(query, StringComparison.OrdinalIgnoreCase)));
-        }
-        else
-        {
-            return results;
-        }
-        return results;
-
+        return result;
     }
 
     private async void _DataGridItemSelected(object sender, SelectionChangedEventArgs e)
@@ -349,8 +375,8 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
     /// <param name="e"></param>
     private void _ResizeDatagrid(object sender, EventArgs e)
     {
-        foreach(DataGridColumn a in DataGrid.Columns)
-        {          
+        foreach (var a in DataGrid.Columns)
+        {
             a.Width = new GridLength(1, GridUnitType.Star);
         }
 

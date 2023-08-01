@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Windows.Input;
 using Maui.DataGrid.Extensions;
 using Microsoft.Maui.Controls.Shapes;
+using Microsoft.Maui.Graphics;
 using Mopups.Services;
 using Font = Microsoft.Maui.Font;
 
