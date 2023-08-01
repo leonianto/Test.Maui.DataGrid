@@ -12,6 +12,11 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
 {
     private List<Patient> _List = new List<Patient>();
 
+    /// <summary>
+    /// List of page sizes
+    /// </summary>
+    public List<int> PageSizeList { get; } = new() { 5, 10, 50, 100, 200, 1000 };
+
     #region INotifyPropertyChanged implementation
 
     public event PropertyChangedEventHandler PropertyChanged;
@@ -25,10 +30,22 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
         BindingContext = this;
         InitializeComponent();
         List = GetPatients();
+
+        //! ESSENTIAL FOR PAGINATION
+        //! used to update stepper maximum property
+        SizePicker.PropertyChanged += (s, e) =>
+        {
+            if (DataGrid.StepperMaximum > 1)
+            {
+                PaginationStepper.IsEnabled = true;
+                PaginationStepper.Maximum = DataGrid.StepperMaximum;
+            }
+            else
+            {
+                PaginationStepper.IsEnabled = false;
+            }
+        };
     }
-
-
-       
 
     //protected override void OnAppearing()
     //{
@@ -354,12 +371,14 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
     /// <param name="e"></param>
     private void _ResizeDatagrid(object sender, EventArgs e)
     {
-        foreach(DataGridColumn a in DataGrid.Columns)
-        {          
+        foreach (DataGridColumn a in DataGrid.Columns)
+        {
             a.Width = new GridLength(1, GridUnitType.Star);
         }
 
         DataGrid.Reload();
     }
+
+
 }
 

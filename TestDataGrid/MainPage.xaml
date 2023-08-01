@@ -16,18 +16,27 @@
                        HeightRequest="30"
                        WidthRequest="300"
                        Margin="5,10,0,0" />
+            <!-- Pagination -->
+            <HorizontalStackLayout IsVisible="{Binding PaginationEnabled, Source={Reference DataGrid}, Mode=TwoWay}">
+                <Label Text="# per page:" Margin="5,0,0,0" VerticalTextAlignment="Center" TextColor="White" />
+                <Picker x:Name="SizePicker" ItemsSource="{Binding PageSizeList, Source={Reference DataGrid}, Mode=OneTime}" SelectedItem="{Binding PageSize, Source={Reference DataGrid}}" TextColor="Black" />
+                <Label Text="Page:" Margin="0,0,5,0" VerticalTextAlignment="Center" TextColor="White" />
+                <Label Text="{Binding PageNumber, Source={Reference DataGrid}}" VerticalTextAlignment="Center" TextColor="White" />
+                <Stepper x:Name="PaginationStepper" Value="{Binding PageNumber, Source={Reference DataGrid}}" Minimum="1" BackgroundColor="Wheat"/>
+            </HorizontalStackLayout>
         </FlexLayout>
+            
         <dg:DataGrid Grid.Row="1"
                      x:Name="DataGrid"
                      SelectionMode="Single" 
                      BorderColor="Black"
                      RowHeight="70" 
-                     HeaderHeight="50"      
-                     HeaderBackground="Beige"
+                     HeaderHeight="30"      
+                     HeaderBackground="#fefae0"
                      HeaderBordersVisible="True"
                      ItemsSource="{Binding List}" 
-                     PaginationEnabled="False" 
-                     PageSize="5"      
+                     PaginationEnabled="True"
+                     PageSize="5"
                      ActiveRowColor="CornflowerBlue"
                      UseAutoColumns="False"
                      BorderThickness="0.0"
