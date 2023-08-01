@@ -30,7 +30,7 @@
                      PageSize="5"      
                      ActiveRowColor="CornflowerBlue"
                      UseAutoColumns="False"
-                     BorderThickness="0.0"
+                     BorderThickness="1"
                      >
 
             <!--UNcomment with UseAutoColumns=false-->

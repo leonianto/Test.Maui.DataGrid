@@ -146,10 +146,10 @@ internal sealed class DataGridRow : Grid
         }
         else if (DataGrid?.SelectionMode == SelectionMode.Multiple)
         {
-            _hasSelected = (bool)(DataGrid?.SelectedItems.Contains(BindingContext));
+            _hasSelected = (DataGrid?.SelectedItems?.Contains(BindingContext)) ?? false;
         }
 
-        var rowIndex = DataGrid.InternalItems?.IndexOf(BindingContext) ?? -1;
+        var rowIndex = DataGrid?.InternalItems?.IndexOf(BindingContext) ?? -1;
 
         if (rowIndex < 0)
         {
@@ -175,18 +175,18 @@ internal sealed class DataGridRow : Grid
         }
     }
 
-    private object GetPropertyValue(string propertyName)
+    private object? GetPropertyValue(string propertyName)
     {
         // get binding context type
-        Type bindingContextType = BindingContext.GetType();
+        var bindingContextType = BindingContext.GetType();
 
         // search property by name
-        PropertyInfo property = bindingContextType.GetProperty(propertyName);
+        var property = bindingContextType?.GetProperty(propertyName);
 
         if (property != null)
         {
             // property exists, get its value from binding context
-            object propertyValue = property.GetValue(BindingContext);
+            var propertyValue = property.GetValue(BindingContext);
 
             return propertyValue;
         }

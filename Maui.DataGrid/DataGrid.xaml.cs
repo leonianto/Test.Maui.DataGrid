@@ -35,7 +35,7 @@ public partial class DataGrid
     private readonly Style _defaultSortIconStyle;
 
     private int _draggedElementIndex;
-    public Type CurrentType { get; protected set; }
+    public Type? CurrentType { get; protected set; }
     #endregion Fields
 
     #region ctor
@@ -51,7 +51,7 @@ public partial class DataGrid
         {
             if (SelectionMode == SelectionMode.Multiple)
             {
-                _headerView.Margin = new Thickness(30, 0, 0, 0);
+                _headerView.Margin = new Thickness(28, 0, 0, 0);
                 HideBox.IsVisible = true;
             }
             else if (SelectionMode == SelectionMode.Single)
@@ -242,24 +242,25 @@ public partial class DataGrid
                 observable.CollectionChanged -= OnColumnsChanged;
             }
 
-            List<DataGridColumn> columnsCopy = new List<DataGridColumn>(Columns);
+            var columnsCopy = new List<DataGridColumn>(Columns);
 
             Columns.Clear();
 
             if (columnsCopy.Count > 0)
             {
                 //Datagrid already built one time
-                foreach (DataGridColumn columncopy in columnsCopy)
+                foreach (var columncopy in columnsCopy)
                 {
 
-                    DataGridColumn column = new DataGridColumn();
-                    column.Title = columncopy.Title;
-                    column.PropertyName = columncopy.PropertyName;
-
-                    column.Width = columncopy.Width;
-                    column.IsVisible = columncopy.IsVisible;
-                    //column.DataGrid = this;
-                    column.CellTemplate = columncopy.CellTemplate;
+                    var column = new DataGridColumn
+                    {
+                        Title = columncopy.Title,
+                        PropertyName = columncopy.PropertyName,
+                        Width = columncopy.Width,
+                        IsVisible = columncopy.IsVisible,
+                        //column.DataGrid = this;
+                        CellTemplate = columncopy.CellTemplate
+                    };
 
                     Columns.Add(column);
 
@@ -268,16 +269,29 @@ public partial class DataGrid
             else
             {
                 //Datagrid to build
-                PropertyInfo[] types = CurrentType?.GetProperties(BindingFlags.Instance | BindingFlags.Public);
-                foreach (PropertyInfo propertyinfo in types)
+                var types = CurrentType?.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+                if (types != null)
                 {
-                    DataGridColumn column = new DataGridColumn();
-                    column.Title = propertyinfo.Name;
-                    column.PropertyName = propertyinfo.Name;
-                    column.CellTemplate = (propertyinfo.PropertyType != typeof(string) &&
-                                        propertyinfo.PropertyType != typeof(int) &&
-                                        propertyinfo.PropertyType != typeof(DateTime)) ? new DataTemplate(propertyinfo.PropertyType) : null;
-                    Columns.Add(column);
+                    foreach (var propertyinfo in types)
+                    {
+                        if (propertyinfo != null)
+                        {
+                            var column = new DataGridColumn
+                            {
+                                Title = propertyinfo.Name,
+                                PropertyName = propertyinfo.Name
+                            };
+
+                            if (propertyinfo.PropertyType != typeof(string) &&
+                                propertyinfo.PropertyType != typeof(int) &&
+                                propertyinfo.PropertyType != typeof(DateTime))
+                            {
+                                column.CellTemplate = new DataTemplate(propertyinfo.PropertyType);
+                            }
+
+                            Columns.Add(column);
+                        }
+                    }
                 }
             }
 
@@ -424,7 +438,10 @@ public partial class DataGrid
                     return;
                 }
 
-                (b as DataGrid)._InitColumns(n);
+                if (n != null)
+                {
+                    (b as DataGrid)?._InitColumns(n);
+                }
 
                 //ObservableCollection Tracking
                 if (o is INotifyCollectionChanged oldCollection)

@@ -4,18 +4,9 @@ using System.Collections.ObjectModel;
 
 public partial class DataGridUserPreferencesSetup
 {
+    public ObservableCollection<DataGridColumn> ColumnsListSource { get; set; } = new ObservableCollection<DataGridColumn>();
 
-    private ObservableCollection<DataGridColumn> _ColumnsListSource = new ObservableCollection<DataGridColumn>();
-    public ObservableCollection<DataGridColumn> ColumnsListSource
-    {
-        get => _ColumnsListSource;
-        set
-        {
-            _ColumnsListSource = value;
-        }
-    }
-
-    public DataGrid CurrentDataGrid;
+    private DataGrid _CurrentDataGrid;
 
     /// <summary>
     /// Constructor
@@ -38,7 +29,7 @@ public partial class DataGridUserPreferencesSetup
 
         BindingContext = this;
 
-        CurrentDataGrid = datagrid;
+        _CurrentDataGrid = datagrid;
     }
 
 
@@ -46,12 +37,12 @@ public partial class DataGridUserPreferencesSetup
 
     private void Stepper_ValueChanged(object sender, ValueChangedEventArgs e)
     {
-        if (e.NewValue != null && (DataGridColumn)(sender as CustomStepper).Tag != null)
+        if ((DataGridColumn)((CustomStepper)sender).Tag != null)
         {
-            DataGridColumn dataGridColumn = (DataGridColumn)(sender as CustomStepper).Tag;
+            var dataGridColumn = (DataGridColumn)((CustomStepper)sender).Tag;
             dataGridColumn.Width = new GridLength(e.NewValue, GridUnitType.Star);
 
-            CurrentDataGrid.Reload();
+            _CurrentDataGrid.Reload();
         }
     }
 
