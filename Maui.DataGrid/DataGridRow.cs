@@ -155,23 +155,16 @@ internal sealed class DataGridRow : Grid
             return;
         }
 
-        _bgColor = DataGrid?.SelectionEnabled == true && _hasSelected
-                       ? DataGrid.ActiveRowColor
-                       : DataGrid?.RowsBackgroundColorPalette.GetColor(rowIndex, BindingContext);
-        _textColor = DataGrid?.RowsTextColorPalette.GetColor(rowIndex, BindingContext);
-
-        foreach (var v in Children)
+        //change color of the entire row based on if it's selected or not
+        if (_hasSelected)
         {
-            if (v is View view)
-            {
-                view.BackgroundColor = _bgColor;
-
-                if (view is Label label)
-                {
-                    label.TextColor = _textColor;
-                }
-            }
+            VisualStateManager.GoToState((Parent.Parent as Border), "Selected");
         }
+        else
+        {
+            VisualStateManager.GoToState((Parent.Parent as Border), "Normal");
+        }
+
     }
 
     private object? GetPropertyValue(string propertyName)

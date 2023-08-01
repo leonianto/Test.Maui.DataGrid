@@ -51,7 +51,7 @@
                       AnchorY="0.49"
                       Clicked="DataGridUserPreferencesClick"/>
         <!--Header-->
-        <Grid BackgroundColor="Black"  Grid.Row="0" Grid.Column="1"  x:Name="_headerView" HeightRequest="{Binding HeaderHeight, Source={Reference self}}" />
+        <Grid BackgroundColor="{Binding BorderColor, Source={Reference self}, Mode=TwoWay}"  Grid.Row="0" Grid.Column="1"  x:Name="_headerView" HeightRequest="{Binding HeaderHeight, Source={Reference self}}" />
 
         <BoxView x:Name="HideBox" Grid.Row="1" Grid.Column="1"  Color="White" WidthRequest="28" IsVisible="False" ZIndex="5" HorizontalOptions="Start"></BoxView>
 
@@ -64,7 +64,7 @@
                 <CollectionView
                     x:Name="_collectionView"
                     WidthRequest="{Binding WidthRequest, Source={Reference self}, Mode=TwoWay}"
-                    BackgroundColor="{Binding BorderColor, Source={Reference self}, Mode=TwoWay}"
+                    Background="{Binding BorderColor, Source={Reference self}, Mode=TwoWay}"
                     SelectedItem="{Binding SelectedItem, Source={Reference self}, Mode=TwoWay}"
                     SelectedItems="{Binding SelectedItems, Source={Reference self}, Mode=TwoWay}"
                     ItemSizingStrategy="{Binding ItemSizingStrategy, Source={Reference self}, Mode=TwoWay}"
@@ -72,7 +72,45 @@
                     SelectionMode="{Binding SelectionMode, Source={Reference self}, Mode=TwoWay}" >
                     <CollectionView.ItemTemplate >
                         <DataTemplate>
-                            <local:DataGridRow x:Name="DataGridRow"  DataGrid="{Reference self}" HeightRequest="{Binding RowHeight, Source={Reference self}, Mode=OneTime}"/>
+                            <Border Margin="0,0,0,0">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
+                                    <PointerGestureRecognizer PointerEntered="PointerGestureRecognizer_PointerEntered" PointerExited="PointerGestureRecognizer_PointerExited"/>
+                                </Border.GestureRecognizers>
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="VisualStateManager.VisualStateGroups">
+                                            <VisualStateGroupList>
+                                                <VisualStateGroup x:Name="CommonStates">
+                                                    <VisualState x:Name="Normal" >
+                                                        <VisualState.Setters>
+                                                            <Setter Property="Background" Value="#00000000" />
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                    <VisualState x:Name="CustomPointerOver">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="Background" Value="#5c7e99" />
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                    <VisualState x:Name="Selected">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="Background" Value="#53D8FB" />
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                </VisualStateGroup>
+                                            </VisualStateGroupList>
+                                        </Setter>
+                                    </Style>
+                                </Border.Style>
+                                <Grid HeightRequest="{Binding RowHeight, Source={Reference self}, Mode=OneTime}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="0.95*"/>
+                                        <RowDefinition Height="0.05*"/>
+                                    </Grid.RowDefinitions>
+                                    <local:DataGridRow x:Name="DataGridRow" Background="#00000000" DataGrid="{Reference self}"/>
+                                    <Rectangle Grid.Row="1" Fill="lightgray"/>
+                                </Grid>
+                            </Border>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
 

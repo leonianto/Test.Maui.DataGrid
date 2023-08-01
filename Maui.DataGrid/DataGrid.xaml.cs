@@ -364,37 +364,20 @@ public partial class DataGrid
    BindableProperty.Create(nameof(CanReorderItems), typeof(bool), typeof(DataGrid), false);
 
     public static readonly BindableProperty SelectionModeProperty =
-    BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(DataGrid), SelectionMode.None);
+    BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(DataGrid), SelectionMode.None,
+        propertyChanged: (b, o, n) =>
+        {
+            var datagrid = b as DataGrid;
+            datagrid.SelectedItems?.Clear();
+            datagrid.SelectedItem = null;
+            datagrid.Reload();
+        });
 
     public bool UseAutoColumns { get => (bool)GetValue(UseAutoColumnsProperty); set => SetValue(UseAutoColumnsProperty, value); }
 
     public static readonly BindableProperty UseAutoColumnsProperty =
         BindableProperty.Create(nameof(UseAutoColumns), typeof(bool), typeof(DataGrid), defaultValue: true,
             propertyChanged: (bo, ov, nv) => (bo as DataGrid).SetAutoColumns());
-
-
-
-    public static readonly BindableProperty RowsBackgroundColorPaletteProperty =
-        BindablePropertyExtensions.Create<IColorProvider>(new PaletteCollection { Colors.White },
-            propertyChanged: (b, _, _) =>
-            {
-                var self = (DataGrid)b;
-                if (self.Columns != null && self.ItemsSource != null)
-                {
-                    self.Reload();
-                }
-            });
-
-    public static readonly BindableProperty RowsTextColorPaletteProperty =
-        BindablePropertyExtensions.Create<IColorProvider>(new PaletteCollection { Colors.Black },
-            propertyChanged: (b, _, _) =>
-            {
-                var self = (DataGrid)b;
-                if (self.Columns != null && self.ItemsSource != null)
-                {
-                    self.Reload();
-                }
-            });
 
     public static readonly BindableProperty ColumnsProperty =
         BindablePropertyExtensions.Create(new ObservableCollection<DataGridColumn>(),
@@ -812,24 +795,6 @@ public partial class DataGrid
     }
 
     /// <summary>
-    /// Background color of the rows. It repeats colors consecutively for rows.
-    /// </summary>
-    public IColorProvider RowsBackgroundColorPalette
-    {
-        get => (IColorProvider)GetValue(RowsBackgroundColorPaletteProperty);
-        set => SetValue(RowsBackgroundColorPaletteProperty, value);
-    }
-
-    /// <summary>
-    /// Text color of the rows. It repeats colors consecutively for rows.
-    /// </summary>
-    public IColorProvider RowsTextColorPalette
-    {
-        get => (IColorProvider)GetValue(RowsTextColorPaletteProperty);
-        set => SetValue(RowsTextColorPaletteProperty, value);
-    }
-
-    /// <summary>
     /// ItemsSource of the DataGrid
     /// </summary>
     public IEnumerable ItemsSource
@@ -1172,6 +1137,11 @@ public partial class DataGrid
 
     public void Reload()
     {
+        Debug.WriteLine("Reload");
+        ///not always needed the selection cleaning
+        /*SelectedItems?.Clear();
+        SelectedItem = null;*/
+
         InitHeaderView();
 
         if (_internalItems is not null)
@@ -1357,10 +1327,51 @@ public partial class DataGrid
 
     private void DataGridUserPreferencesClick(object sender, EventArgs e)
     {
-
         // Navigation.PushAsync(new DataGridUserPreferencesSetup(Columns, this));
         MopupService.Instance.PushAsync(new DataGridUserPreferencesSetup(Columns, this));
     }
 
+    /// <summary>
+    /// Function for highlight the row when pointer is over
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void PointerGestureRecognizer_PointerEntered(object sender, PointerEventArgs e)
+    {
+        var f = (Border)sender;
+        if (!SelectedItems.Contains(f.BindingContext) && SelectedItem != f.BindingContext)
+        {
+            VisualStateManager.GoToState(f, "CustomPointerOver");
+        }
+    }
 
+    /// <summary>
+    /// Function for stop highlight of the row couse the pointer is exited the control
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void PointerGestureRecognizer_PointerExited(object sender, PointerEventArgs e)
+    {
+        var f = (Border)sender;
+        if (!SelectedItems.Contains(f.BindingContext) && SelectedItem != f.BindingContext)
+        {
+            VisualStateManager.GoToState(f, "Normal");
+        }
+    }
+
+    /*
+     *  Can't deselect the selected item when SelectionMode == Single
+     */
+    private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
+    {
+        /*if (SelectionMode == SelectionMode.Single)
+        {
+            var f = (Border)sender;
+            if (SelectedItem == f.BindingContext)
+            {
+                SelectedItem = null;
+                VisualStateManager.GoToState(f, "Normal");
+            }
+        }*/
+    }
 }
