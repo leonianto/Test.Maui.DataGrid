@@ -299,9 +299,9 @@ public sealed class DataGridColumn : BindableObject, IDefinition, INotifyPropert
 
     #region INotifyPropertyChanged implementation
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public new event PropertyChangedEventHandler? PropertyChanged;
 
-    private void OnPropertyChanged(string property) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
+    private new void OnPropertyChanged(string property) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
 
     #endregion INotifyPropertyChanged implementation
 

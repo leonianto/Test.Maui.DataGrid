@@ -1,7 +1,7 @@
 namespace Maui.DataGrid;
 
-using System.Diagnostics;
 using System.Reflection;
+using System.Diagnostics;
 using Maui.DataGrid.Extensions;
 using Microsoft.Maui.Controls;
 
@@ -107,12 +107,11 @@ internal sealed class DataGridRow : Grid
             {
                 cell.SetBinding(BindingContextProperty,
                     new Binding(col.PropertyName, source: BindingContext));
-   
+
             }
         }
         else
         {
-            Debug.WriteLine("Label");
             cell = new Label
             {
                 TextColor = _textColor,
@@ -146,47 +145,40 @@ internal sealed class DataGridRow : Grid
         }
         else if (DataGrid?.SelectionMode == SelectionMode.Multiple)
         {
-            _hasSelected = (bool)(DataGrid?.SelectedItems.Contains(BindingContext));
+            _hasSelected = (DataGrid?.SelectedItems?.Contains(BindingContext)) ?? false;
         }
 
-        var rowIndex = DataGrid.InternalItems?.IndexOf(BindingContext) ?? -1;
+        var rowIndex = DataGrid?.InternalItems?.IndexOf(BindingContext) ?? -1;
 
         if (rowIndex < 0)
         {
             return;
         }
 
-        _bgColor = DataGrid?.SelectionEnabled == true && _hasSelected
-                       ? DataGrid.ActiveRowColor
-                       : DataGrid?.RowsBackgroundColorPalette.GetColor(rowIndex, BindingContext);
-        _textColor = DataGrid?.RowsTextColorPalette.GetColor(rowIndex, BindingContext);
-
-        foreach (var v in Children)
+        //change color of the entire row based on if it's selected or not
+        if (_hasSelected)
         {
-            if (v is View view)
-            {
-                view.BackgroundColor = _bgColor;
-
-                if (view is Label label)
-                {
-                    label.TextColor = _textColor;
-                }
-            }
+            VisualStateManager.GoToState((Parent.Parent as Border), "Selected");
         }
+        else
+        {
+            VisualStateManager.GoToState((Parent.Parent as Border), "Normal");
+        }
+
     }
 
-    private object GetPropertyValue(string propertyName)
+    private object? GetPropertyValue(string propertyName)
     {
         // get binding context type
-        Type bindingContextType = BindingContext.GetType();
+        var bindingContextType = BindingContext.GetType();
 
         // search property by name
-        PropertyInfo property = bindingContextType.GetProperty(propertyName);
+        var property = bindingContextType?.GetProperty(propertyName);
 
         if (property != null)
         {
             // property exists, get its value from binding context
-            object propertyValue = property.GetValue(BindingContext);
+            var propertyValue = property.GetValue(BindingContext);
 
             return propertyValue;
         }

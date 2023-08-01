@@ -1,8 +1,10 @@
 namespace TestDataGrid;
 
 using System;
+using System.Globalization;
 using System.Xml.Linq;
 using CommunityToolkit.Maui.Views;
+using Microsoft.Maui.Platform;
 
 public partial class PatientPopup : Popup
 {
@@ -35,7 +37,7 @@ public partial class PatientPopup : Popup
             Label patientId = new Label()
             {
 
-                Text = ((Patient)_Patients[0]).Id.ToString(),
+                Text = ((Patient)_Patients[0]).Id.ToString(CultureInfo.InvariantCulture),
 
             };
 

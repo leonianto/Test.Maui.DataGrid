@@ -35,7 +35,7 @@ public partial class DataGrid
     private readonly Style _defaultSortIconStyle;
 
     private int _draggedElementIndex;
-    public Type CurrentType { get; protected set; }
+    public Type? CurrentType { get; protected set; }
     #endregion Fields
 
     #region ctor
@@ -46,20 +46,23 @@ public partial class DataGrid
         _defaultHeaderStyle = (Style)Resources["DefaultHeaderStyle"];
         _defaultSortIconStyle = (Style)Resources["DefaultSortIconStyle"];
 
-        //! move header when selection changed
-        self.PropertyChanged += (s, e) =>
+        //! move header when selection changed and platform is windows
+        if (DeviceInfo.Current.Platform == DevicePlatform.WinUI)
         {
-            if (SelectionMode == SelectionMode.Multiple)
+            self.PropertyChanged += (s, e) =>
             {
-                _headerView.Margin = new Thickness(30, 0, 0, 0);
-                HideBox.IsVisible = true;
-            }
-            else if (SelectionMode == SelectionMode.Single)
-            {
-                _headerView.Margin = new Thickness(0, 0, 0, 0);
-                HideBox.IsVisible = false;
-            }
-        };
+                if (SelectionMode == SelectionMode.Multiple)
+                {
+                    _headerView.Margin = new Thickness(28, 0, 0, 0);
+                    HideBox.IsVisible = true;
+                }
+                else if (SelectionMode == SelectionMode.Single)
+                {
+                    _headerView.Margin = new Thickness(0, 0, 0, 0);
+                    HideBox.IsVisible = false;
+                }
+            };
+        }
     }
 
     #endregion ctor
@@ -242,24 +245,25 @@ public partial class DataGrid
                 observable.CollectionChanged -= OnColumnsChanged;
             }
 
-            List<DataGridColumn> columnsCopy = new List<DataGridColumn>(Columns);
+            var columnsCopy = new List<DataGridColumn>(Columns);
 
             Columns.Clear();
 
             if (columnsCopy.Count > 0)
             {
                 //Datagrid already built one time
-                foreach (DataGridColumn columncopy in columnsCopy)
+                foreach (var columncopy in columnsCopy)
                 {
 
-                    DataGridColumn column = new DataGridColumn();
-                    column.Title = columncopy.Title;
-                    column.PropertyName = columncopy.PropertyName;
-
-                    column.Width = columncopy.Width;
-                    column.IsVisible = columncopy.IsVisible;
-                    //column.DataGrid = this;
-                    column.CellTemplate = columncopy.CellTemplate;
+                    var column = new DataGridColumn
+                    {
+                        Title = columncopy.Title,
+                        PropertyName = columncopy.PropertyName,
+                        Width = columncopy.Width,
+                        IsVisible = columncopy.IsVisible,
+                        //column.DataGrid = this;
+                        CellTemplate = columncopy.CellTemplate
+                    };
 
                     Columns.Add(column);
 
@@ -268,16 +272,29 @@ public partial class DataGrid
             else
             {
                 //Datagrid to build
-                PropertyInfo[] types = CurrentType?.GetProperties(BindingFlags.Instance | BindingFlags.Public);
-                foreach (PropertyInfo propertyinfo in types)
+                var types = CurrentType?.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+                if (types != null)
                 {
-                    DataGridColumn column = new DataGridColumn();
-                    column.Title = propertyinfo.Name;
-                    column.PropertyName = propertyinfo.Name;
-                    column.CellTemplate = (propertyinfo.PropertyType != typeof(string) &&
-                                        propertyinfo.PropertyType != typeof(int) &&
-                                        propertyinfo.PropertyType != typeof(DateTime)) ? new DataTemplate(propertyinfo.PropertyType) : null;
-                    Columns.Add(column);
+                    foreach (var propertyinfo in types)
+                    {
+                        if (propertyinfo != null)
+                        {
+                            var column = new DataGridColumn
+                            {
+                                Title = propertyinfo.Name,
+                                PropertyName = propertyinfo.Name
+                            };
+
+                            if (propertyinfo.PropertyType != typeof(string) &&
+                                propertyinfo.PropertyType != typeof(int) &&
+                                propertyinfo.PropertyType != typeof(DateTime))
+                            {
+                                column.CellTemplate = new DataTemplate(propertyinfo.PropertyType);
+                            }
+
+                            Columns.Add(column);
+                        }
+                    }
                 }
             }
 
@@ -350,37 +367,20 @@ public partial class DataGrid
    BindableProperty.Create(nameof(CanReorderItems), typeof(bool), typeof(DataGrid), false);
 
     public static readonly BindableProperty SelectionModeProperty =
-    BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(DataGrid), SelectionMode.None);
+    BindableProperty.Create(nameof(SelectionMode), typeof(SelectionMode), typeof(DataGrid), SelectionMode.None,
+        propertyChanged: (b, o, n) =>
+        {
+            var datagrid = b as DataGrid;
+            datagrid.SelectedItems?.Clear();
+            datagrid.SelectedItem = null;
+            datagrid.Reload();
+        });
 
     public bool UseAutoColumns { get => (bool)GetValue(UseAutoColumnsProperty); set => SetValue(UseAutoColumnsProperty, value); }
 
     public static readonly BindableProperty UseAutoColumnsProperty =
         BindableProperty.Create(nameof(UseAutoColumns), typeof(bool), typeof(DataGrid), defaultValue: true,
             propertyChanged: (bo, ov, nv) => (bo as DataGrid).SetAutoColumns());
-
-
-
-    public static readonly BindableProperty RowsBackgroundColorPaletteProperty =
-        BindablePropertyExtensions.Create<IColorProvider>(new PaletteCollection { Colors.White },
-            propertyChanged: (b, _, _) =>
-            {
-                var self = (DataGrid)b;
-                if (self.Columns != null && self.ItemsSource != null)
-                {
-                    self.Reload();
-                }
-            });
-
-    public static readonly BindableProperty RowsTextColorPaletteProperty =
-        BindablePropertyExtensions.Create<IColorProvider>(new PaletteCollection { Colors.Black },
-            propertyChanged: (b, _, _) =>
-            {
-                var self = (DataGrid)b;
-                if (self.Columns != null && self.ItemsSource != null)
-                {
-                    self.Reload();
-                }
-            });
 
     public static readonly BindableProperty ColumnsProperty =
         BindablePropertyExtensions.Create(new ObservableCollection<DataGridColumn>(),
@@ -424,7 +424,10 @@ public partial class DataGrid
                     return;
                 }
 
-                (b as DataGrid)._InitColumns(n);
+                if (n != null)
+                {
+                    (b as DataGrid)?._InitColumns(n);
+                }
 
                 //ObservableCollection Tracking
                 if (o is INotifyCollectionChanged oldCollection)
@@ -741,13 +744,6 @@ public partial class DataGrid
                 }
             });
 
-
-    /*public static readonly BindableProperty MaxColumnWidthProperty =
-       BindableProperty.Create(nameof(MaxColumnWidth), typeof(double), typeof(DataGrid), 1000);
-
-    public static readonly BindableProperty MinColumnWidthProperty =
-       BindableProperty.Create(nameof(MinColumnWidth), typeof(double), typeof(DataGrid), 99);*/
-
     #endregion Bindable properties
 
     #region Properties
@@ -818,24 +814,6 @@ public partial class DataGrid
     {
         get => (SelectionMode)GetValue(SelectionModeProperty);
         set => SetValue(SelectionModeProperty, value);
-    }
-
-    /// <summary>
-    /// Background color of the rows. It repeats colors consecutively for rows.
-    /// </summary>
-    public IColorProvider RowsBackgroundColorPalette
-    {
-        get => (IColorProvider)GetValue(RowsBackgroundColorPaletteProperty);
-        set => SetValue(RowsBackgroundColorPaletteProperty, value);
-    }
-
-    /// <summary>
-    /// Text color of the rows. It repeats colors consecutively for rows.
-    /// </summary>
-    public IColorProvider RowsTextColorPalette
-    {
-        get => (IColorProvider)GetValue(RowsTextColorPaletteProperty);
-        set => SetValue(RowsTextColorPaletteProperty, value);
     }
 
     /// <summary>
@@ -1208,6 +1186,11 @@ public partial class DataGrid
 
     public void Reload()
     {
+        Debug.WriteLine("Reload");
+        ///not always needed the selection cleaning
+        /*SelectedItems?.Clear();
+        SelectedItem = null;*/
+
         InitHeaderView();
 
         if (_internalItems is not null)
@@ -1337,7 +1320,7 @@ public partial class DataGrid
         _headerView.ColumnDefinitions.Clear();
         ResetSortingOrders();
 
-        _headerView.Padding = new(BorderThickness.Left, BorderThickness.Top, BorderThickness.Right, 0);
+        _headerView.Padding = new(BorderThickness.Left, BorderThickness.Top, BorderThickness.Right, BorderThickness.Bottom);
         _headerView.ColumnSpacing = BorderThickness.HorizontalThickness;
 
         if (Columns == null)
@@ -1393,10 +1376,51 @@ public partial class DataGrid
 
     private void DataGridUserPreferencesClick(object sender, EventArgs e)
     {
-
         // Navigation.PushAsync(new DataGridUserPreferencesSetup(Columns, this));
         MopupService.Instance.PushAsync(new DataGridUserPreferencesSetup(Columns, this));
     }
 
+    /// <summary>
+    /// Function for highlight the row when pointer is over
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void PointerGestureRecognizer_PointerEntered(object sender, PointerEventArgs e)
+    {
+        var f = (Border)sender;
+        if (!SelectedItems.Contains(f.BindingContext) && SelectedItem != f.BindingContext)
+        {
+            VisualStateManager.GoToState(f, "CustomPointerOver");
+        }
+    }
 
+    /// <summary>
+    /// Function for stop highlight of the row couse the pointer is exited the control
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void PointerGestureRecognizer_PointerExited(object sender, PointerEventArgs e)
+    {
+        var f = (Border)sender;
+        if (!SelectedItems.Contains(f.BindingContext) && SelectedItem != f.BindingContext)
+        {
+            VisualStateManager.GoToState(f, "Normal");
+        }
+    }
+
+    /*
+     *  Can't deselect the selected item when SelectionMode == Single
+     */
+    private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
+    {
+        /*if (SelectionMode == SelectionMode.Single)
+        {
+            var f = (Border)sender;
+            if (SelectedItem == f.BindingContext)
+            {
+                SelectedItem = null;
+                VisualStateManager.GoToState(f, "Normal");
+            }
+        }*/
+    }
 }

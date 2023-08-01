@@ -19,9 +19,9 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
 
     #region INotifyPropertyChanged implementation
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public new event PropertyChangedEventHandler PropertyChanged;
 
-    private void OnPropertyChanged(string property) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
+    private new void OnPropertyChanged(string property) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
 
     #endregion INotifyPropertyChanged implementation
 
@@ -64,7 +64,7 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
         }
     }
 
-    private List<Patient> GetPatients()
+    private static List<Patient> GetPatients()
     {
         try
         {
@@ -331,7 +331,7 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
     private async void _DataGridItemSelected(object sender, SelectionChangedEventArgs e)
     {
 
-        SelectionMode selectionMode = DataGrid.SelectionMode;
+        var selectionMode = DataGrid.SelectionMode;
         IList<object> selectedItems = new List<object>();
 
         if (selectionMode == SelectionMode.Single)
@@ -349,18 +349,33 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
 
     private void SelectionModeButtonClick(object sender, EventArgs e)
     {
-        if (SelectionModeButton.Text == "Multiple Selection")
+        FontImageSource singleSelectionImage = new FontImageSource()
+        {
+            FontFamily = "MaterialRegular",
+            Glyph = UraniumUI.Icons.MaterialIcons.MaterialRegular.Person,
+            Color = Colors.Black
+
+        };
+
+        FontImageSource multipleSelectionImage = new FontImageSource()
+        {
+            FontFamily = "MaterialRegular",
+            Glyph = UraniumUI.Icons.MaterialIcons.MaterialRegular.Group,
+            Color = Colors.Black
+
+        };
+
+        if (DataGrid.SelectionMode == SelectionMode.Single)
         {
             DataGrid.SelectionMode = SelectionMode.Multiple;
-            SelectionModeButton.Text = "Single Selection";
-            DataGrid.SelectedItems.Clear();
+            SelectionModeButton.ImageSource = singleSelectionImage;
         }
-        else if (SelectionModeButton.Text == "Single Selection")
+        else if (DataGrid.SelectionMode == SelectionMode.Multiple)
         {
-
             DataGrid.SelectionMode = SelectionMode.Single;
-            SelectionModeButton.Text = "Multiple Selection";
+            SelectionModeButton.ImageSource = multipleSelectionImage;
         }
+
     }
 
 
