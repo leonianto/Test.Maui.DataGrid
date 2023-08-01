@@ -739,13 +739,6 @@ public partial class DataGrid
                 }
             });
 
-
-    /*public static readonly BindableProperty MaxColumnWidthProperty =
-       BindableProperty.Create(nameof(MaxColumnWidth), typeof(double), typeof(DataGrid), 1000);
-
-    public static readonly BindableProperty MinColumnWidthProperty =
-       BindableProperty.Create(nameof(MinColumnWidth), typeof(double), typeof(DataGrid), 99);*/
-
     #endregion Bindable properties
 
     #region Properties
@@ -1099,24 +1092,6 @@ public partial class DataGrid
         private set => SetValue(PageCountProperty, value);
     }
 
-    /*/// <summary>
-    /// Max Width of the DataGrid Columns
-    /// </summary>
-    public double MaxColumnWidth
-    {
-        get => (double)GetValue(MaxColumnWidthProperty);
-        set => SetValue(MaxColumnWidthProperty, value);
-    }
-
-    /// <summary>
-    /// Min Width of the DataGrid Columns
-    /// </summary>
-    public double MinColumnWidth
-    {
-        get => (double)GetValue(MinColumnWidthProperty);
-        set => SetValue(MinColumnWidthProperty, value);
-    }*/
-
     public double MinColumnWidth { get; set; } = 100;
 
     public double MaxColumnWidth { get; set; } = 1000;
@@ -1326,7 +1301,7 @@ public partial class DataGrid
         _headerView.ColumnDefinitions.Clear();
         ResetSortingOrders();
 
-        _headerView.Padding = new(BorderThickness.Left, BorderThickness.Top, BorderThickness.Right, 0);
+        _headerView.Padding = new(BorderThickness.Left, BorderThickness.Top, BorderThickness.Right, BorderThickness.Bottom);
         _headerView.ColumnSpacing = BorderThickness.HorizontalThickness;
 
         if (Columns == null)
