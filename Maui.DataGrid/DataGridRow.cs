@@ -1,6 +1,7 @@
 namespace Maui.DataGrid;
 
 using System.Reflection;
+using System.Diagnostics;
 using Maui.DataGrid.Extensions;
 using Microsoft.Maui.Controls;
 
@@ -111,7 +112,6 @@ internal sealed class DataGridRow : Grid
         }
         else
         {
-            //Debug.WriteLine("Label");
             cell = new Label
             {
                 TextColor = _textColor,

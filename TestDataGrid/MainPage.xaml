@@ -3,20 +3,38 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:dg="clr-namespace:Maui.DataGrid;assembly=Maui.DataGrid"
              xmlns:local="clr-namespace:TestDataGrid"
+             xmlns:m="clr-namespace:UraniumUI.Icons.MaterialIcons;assembly=UraniumUI.Icons.MaterialIcons"
              x:Class="TestDataGrid.MainPage">
 
     <Grid RowDefinitions="Auto,*" BackgroundColor="White">
-        <FlexLayout Grid.Row="0"  BackgroundColor="Black">
-            <Button x:Name="SelectionModeButton" Text="Multiple Selection" Clicked="SelectionModeButtonClick" HeightRequest="30" VerticalOptions="Center" Margin="10"/>
-            <Button x:Name="ResizeDatagridButton" Text="Resize" Clicked="_ResizeDatagrid" HeightRequest="30" />
+        <FlexLayout Grid.Row="0"  BackgroundColor="LightGray">
+            <Button x:Name="SelectionModeButton" LineBreakMode="WordWrap" WidthRequest="70" BackgroundColor="White" Clicked="SelectionModeButtonClick" HeightRequest="50" VerticalOptions="Center" Margin="10">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="MaterialRegular" Glyph="{x:Static m:MaterialRegular.Group}" Color="Black" />
+                </Button.ImageSource>
+            </Button>
+            <Button x:Name="ResizeDatagridButton" Rotation="90" LineBreakMode="WordWrap" WidthRequest="50" BackgroundColor="White"  Clicked="_ResizeDatagrid"  HeightRequest="70" >
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="MaterialRegular" Glyph="{x:Static m:MaterialRegular.Expand}" Color="Black" />
+                </Button.ImageSource>
+            </Button>
             <SearchBar x:Name="searchBar"
                        Placeholder="Search"
                        SearchCommand="{Binding PerformSearch}"
                        SearchCommandParameter="{Binding Source={x:Reference searchBar}, Path=Text}"
                        HeightRequest="30"
                        WidthRequest="300"
-                       Margin="5,10,0,0" />
+                       Margin="10,10,0,0" />
+            <!-- Pagination -->
+            <HorizontalStackLayout IsVisible="{Binding PaginationEnabled, Source={Reference DataGrid}, Mode=TwoWay}">
+                <Label Text="# per page:" Margin="5,0,0,0" VerticalTextAlignment="Center" TextColor="black" />
+                <Picker x:Name="SizePicker" ItemsSource="{Binding PageSizeList, Source={Reference DataGrid}, Mode=OneTime}" SelectedItem="{Binding PageSize, Source={Reference DataGrid}}" TextColor="Black" />
+                <Label Text="Page:" Margin="0,0,5,0" VerticalTextAlignment="Center" TextColor="Black" />
+                <Label Text="{Binding PageNumber, Source={Reference DataGrid}}" VerticalTextAlignment="Center" TextColor="black" />
+                <Stepper x:Name="PaginationStepper" Value="{Binding PageNumber, Source={Reference DataGrid}}" Minimum="1" BackgroundColor="Wheat"/>
+            </HorizontalStackLayout>
         </FlexLayout>
+            
         <dg:DataGrid Grid.Row="1"
                      x:Name="DataGrid"
                      SelectionMode="Single" 
@@ -26,8 +44,8 @@
                      HeaderBackground="#486378"
                      HeaderBordersVisible="True"
                      ItemsSource="{Binding List}" 
-                     PaginationEnabled="False" 
-                     PageSize="5"      
+                     PaginationEnabled="True"
+                     PageSize="5"
                      ActiveRowColor="CornflowerBlue"
                      UseAutoColumns="False"
                      BorderThickness="2"

@@ -47,20 +47,23 @@ public partial class DataGrid
         _defaultHeaderStyle = (Style)Resources["DefaultHeaderStyle"];
         _defaultSortIconStyle = (Style)Resources["DefaultSortIconStyle"];
 
-        //! move header when selection changed
-        self.PropertyChanged += (s, e) =>
+        //! move header when selection changed and platform is windows
+        if (DeviceInfo.Current.Platform == DevicePlatform.WinUI)
         {
-            if (SelectionMode == SelectionMode.Multiple)
+            self.PropertyChanged += (s, e) =>
             {
-                _headerView.Margin = new Thickness(28, 0, 0, 0);
-                HideBox.IsVisible = true;
-            }
-            else if (SelectionMode == SelectionMode.Single)
-            {
-                _headerView.Margin = new Thickness(0, 0, 0, 0);
-                HideBox.IsVisible = false;
-            }
-        };
+                if (SelectionMode == SelectionMode.Multiple)
+                {
+                    _headerView.Margin = new Thickness(28, 0, 0, 0);
+                    HideBox.IsVisible = true;
+                }
+                else if (SelectionMode == SelectionMode.Single)
+                {
+                    _headerView.Margin = new Thickness(0, 0, 0, 0);
+                    HideBox.IsVisible = false;
+                }
+            };
+        }
     }
 
     #endregion ctor
@@ -482,23 +485,42 @@ public partial class DataGrid
         }
     }
 
+
+    //public static readonly BindableProperty PageCountProperty =
+    //    BindablePropertyExtensions.Create(1,
+    //        propertyChanged: (b, o, n) =>
+    //        {
+    //            if (o != n && b is DataGrid self && n > 0)
+    //            {
+    //               {
+    //                   if (n > 1)
+    //                   {
+    //                       self._paginationStepper.IsEnabled = true;
+    //                       self._paginationStepper.Maximum = n;
+    //                   }
+    //                   else
+    //                   {
+    //                       self._paginationStepper.IsEnabled = false;
+    //                   }
+    //               }
+    //              
+    //            }
+    //        });
+
     public static readonly BindableProperty PageCountProperty =
-        BindablePropertyExtensions.Create(1,
-            propertyChanged: (b, o, n) =>
+    BindablePropertyExtensions.Create(1,
+        propertyChanged: (b, o, n) =>
+        {
+            if (o != n && b is DataGrid self && n is int count && count > 0)
             {
-                if (o != n && b is DataGrid self && n > 0)
-                {
-                    if (n > 1)
-                    {
-                        self._paginationStepper.IsEnabled = true;
-                        self._paginationStepper.Maximum = n;
-                    }
-                    else
-                    {
-                        self._paginationStepper.IsEnabled = false;
-                    }
-                }
-            });
+                // Assigns the value of the PageCount property to the StepperMaximum property
+                self.StepperMaximum = count;
+            }
+        });
+
+    public static readonly BindableProperty StepperMaximumProperty =
+        BindableProperty.Create(nameof(StepperMaximum), typeof(double), typeof(DataGrid), null, BindingMode.TwoWay);
+
 
     public static readonly BindableProperty PageSizeProperty =
         BindablePropertyExtensions.Create(100,
@@ -861,7 +883,7 @@ public partial class DataGrid
     /// <summary>
     /// List of page sizes
     /// </summary>
-    public List<int> PageSizeList { get; } = new() { 5, 10, 50, 100, 200, 1000 };
+    public List<int> PageSizeList { get; } = new() { 5, 10, 25, 50, 100, 200, 1000 };
 
     /// <summary>
     /// Gets or sets whether the page size picker is visible
@@ -1057,6 +1079,33 @@ public partial class DataGrid
         get => (int)GetValue(PageCountProperty);
         private set => SetValue(PageCountProperty, value);
     }
+
+    /// <summary>
+    /// Gets maximum value for pagination stepper
+    /// </summary>
+    public double StepperMaximum
+    {
+        get => (double)GetValue(StepperMaximumProperty);
+        set => SetValue(StepperMaximumProperty, value);
+    }
+
+    /*/// <summary>
+    /// Max Width of the DataGrid Columns
+    /// </summary>
+    public double MaxColumnWidth
+    {
+        get => (double)GetValue(MaxColumnWidthProperty);
+        set => SetValue(MaxColumnWidthProperty, value);
+    }
+
+    /// <summary>
+    /// Min Width of the DataGrid Columns
+    /// </summary>
+    public double MinColumnWidth
+    {
+        get => (double)GetValue(MinColumnWidthProperty);
+        set => SetValue(MinColumnWidthProperty, value);
+    }*/
 
     public double MinColumnWidth { get; set; } = 100;
 
