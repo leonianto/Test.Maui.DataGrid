@@ -29,26 +29,27 @@
         <dg:DataGrid Grid.Row="1"
                      x:Name="DataGrid"
                      SelectionMode="Single" 
-                     BorderColor="Black"
+                     BorderColor="Gray"
                      RowHeight="70" 
                      HeaderHeight="50"      
-                     HeaderBackground="Beige"
+                     HeaderBackground="#486378"
                      HeaderBordersVisible="True"
                      ItemsSource="{Binding List}" 
                      PaginationEnabled="False" 
                      PageSize="5"      
                      ActiveRowColor="CornflowerBlue"
                      UseAutoColumns="False"
-                     BorderThickness="1"
+                     BorderThickness="2"
+                     Margin="50"
                      >
 
             <!--UNcomment with UseAutoColumns=false-->
             <dg:DataGrid.Columns >
                 <dg:DataGridColumn Title="Id" PropertyName="Id" />
                 <dg:DataGridColumn Title="Nome" PropertyName="Name" />
-                    <dg:DataGridColumn Title="Cognome" PropertyName="Surname" />
-                    <dg:DataGridColumn Title="Compleanno" PropertyName="Birthdate" />
-                    <dg:DataGridColumn Title="Icona" PropertyName="Icon">
+                <dg:DataGridColumn Title="Cognome" PropertyName="Surname" />
+                <dg:DataGridColumn Title="Compleanno" PropertyName="Birthdate" />
+                <dg:DataGridColumn Title="Icona" PropertyName="Icon">
                     <dg:DataGridColumn.CellTemplate>
                         <DataTemplate>
                             <!--<ecl:EImage Image="{Binding EImage, Source={RelativeSource AncestorType={x:Type local:Patient}} }" BackgroundColor="AliceBlue" WidthRequest="40" HeightRequest="40" ImageBackgroundColor="green" ImageColor="red"  HorizontalOptions="Center" VerticalOptions="Center"></ecl:EImage>-->
@@ -58,14 +59,7 @@
                     </dg:DataGridColumn.CellTemplate>
                 </dg:DataGridColumn>
             </dg:DataGrid.Columns>
-            
-            <dg:DataGrid.RowsBackgroundColorPalette>
-                <dg:PaletteCollection>
-                    <Color>#F2F2F2</Color>
-                    <Color>#FFFFFF</Color>
-                </dg:PaletteCollection>
-            </dg:DataGrid.RowsBackgroundColorPalette>
         </dg:DataGrid>
     </Grid>
-    
+
 </ContentPage>

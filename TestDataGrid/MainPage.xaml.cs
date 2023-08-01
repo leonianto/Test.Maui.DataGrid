@@ -349,11 +349,9 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
         {
             DataGrid.SelectionMode = SelectionMode.Multiple;
             SelectionModeButton.ImageSource = singleSelectionImage;
-            DataGrid.SelectedItems.Clear();
         }
         else if (DataGrid.SelectionMode == SelectionMode.Multiple)
         {
-
             DataGrid.SelectionMode = SelectionMode.Single;
             SelectionModeButton.ImageSource = multipleSelectionImage;
         }
