@@ -4,8 +4,10 @@ using System.Reflection;
 using System.Diagnostics;
 using Maui.DataGrid.Extensions;
 using Microsoft.Maui.Controls;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;
 
-internal sealed class DataGridRow : Grid
+internal sealed partial class DataGridRow : Grid
 {
     #region Fields
 
@@ -14,6 +16,19 @@ internal sealed class DataGridRow : Grid
     private bool _hasSelected;
 
     #endregion Fields
+
+    public DataGridRow()
+    {
+        if (DeviceInfo.Current.Platform == DevicePlatform.WinUI)
+        {
+
+            GestureRecognizers.Add(new PointerGestureRecognizer()
+            {
+                PointerEnteredCommand = PointerEnteredCommand,
+                PointerExitedCommand = PointerExitedCommand
+            });
+        }
+    }
 
     #region Properties
 
@@ -114,7 +129,7 @@ internal sealed class DataGridRow : Grid
         {
             cell = new Label
             {
-                TextColor = _textColor,
+                TextColor = Colors.White,
                 BackgroundColor = _bgColor,
                 VerticalOptions = LayoutOptions.Fill,
                 HorizontalOptions = LayoutOptions.Fill,
@@ -154,15 +169,17 @@ internal sealed class DataGridRow : Grid
         {
             return;
         }
-
+        
         //change color of the entire row based on if it's selected or not
         if (_hasSelected)
         {
-            VisualStateManager.GoToState((Parent.Parent as Border), "Selected");
+
+            VisualStateManager.GoToState(this, "Selected");
+
         }
         else
         {
-            VisualStateManager.GoToState((Parent.Parent as Border), "Normal");
+            VisualStateManager.GoToState(this, "Normal");
         }
 
     }
@@ -225,6 +242,27 @@ internal sealed class DataGridRow : Grid
         {
             UpdateColors();
         }
+    }
+
+
+    [RelayCommand]
+    private void PointerEntered()
+    {
+
+        if (!DataGrid.SelectedItems.Contains(BindingContext) && DataGrid.SelectedItem != BindingContext)
+        {
+            VisualStateManager.GoToState(this, "CustomPointerOver");
+        }
+    }
+
+    [RelayCommand]
+    private void PointerExited() {
+
+        if (!DataGrid.SelectedItems.Contains(BindingContext) && DataGrid.SelectedItem != BindingContext)
+        {
+            VisualStateManager.GoToState(this, "Normal");
+        }
+
     }
 
     #endregion Methods

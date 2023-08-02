@@ -52,8 +52,7 @@
                      ActiveRowColor="CornflowerBlue"
                      UseAutoColumns="False"
                      BorderThickness="2"
-                     Margin="50"
-                     >
+                     Margin="10">
 
             <!--UNcomment with UseAutoColumns=false-->
             <dg:DataGrid.Columns >
