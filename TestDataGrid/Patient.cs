@@ -1,6 +1,16 @@
 
 namespace TestDataGrid
 {
+    public enum PatientColumnSearch
+    {
+        All,
+        Id,
+        Name,
+        Surname,
+        Birthdate,
+        Birthplace
+    }
+
     public class Patient
     {
         public int Id { get; set; }

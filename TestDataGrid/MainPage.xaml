@@ -25,6 +25,9 @@
                        HeightRequest="30"
                        WidthRequest="300"
                        Margin="10,10,0,0" />
+
+            <Picker x:Name="columnSearch" HeightRequest="30" Margin="10,10,0,0"></Picker>
+            
             <!-- Pagination -->
             <HorizontalStackLayout IsVisible="{Binding PaginationEnabled, Source={Reference DataGrid}, Mode=TwoWay}">
                 <Label Text="# per page:" Margin="5,0,0,0" VerticalTextAlignment="Center" TextColor="black" />
