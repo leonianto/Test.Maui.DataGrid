@@ -114,9 +114,7 @@
                 </CollectionView>
             </ContentView>
         </RefreshView>
-
-        <!--Footer-->
-        <Grid Grid.Row="2" Grid.Column="1" x:Name="_footerView" IsVisible="{Binding PaginationEnabled, Source={Reference self}}" HeightRequest="{Binding FooterHeight, Source={Reference self}}" BackgroundColor="{Binding FooterBackground, Source={Reference self}}">
+        <!--<Grid Grid.Row="2" Grid.Column="1" x:Name="_footerView" IsVisible="False" HeightRequest="{Binding FooterHeight, Source={Reference self}}" BackgroundColor="{Binding FooterBackground, Source={Reference self}}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
@@ -129,9 +127,8 @@
             <HorizontalStackLayout Grid.Column="2" VerticalOptions="Center">
                 <Label Text="Page:" Margin="0,0,5,0" VerticalTextAlignment="Center" TextColor="Black" />
                 <Label Text="{Binding PageNumber, Source={Reference self}}" VerticalTextAlignment="Center" TextColor="Black" />
-                <Stepper x:Name="_paginationStepper" Value="{Binding PageNumber, Source={x:Reference self}}" Style="{StaticResource PaginationStepperStyle}" Minimum="0" />
+                <Stepper x:Name="_paginationStepper" Value="{Binding PageNumber, Source={x:Reference self}}" Style="{StaticResource PaginationStepperStyle}" Minimum="0" IsVisible="false" />
             </HorizontalStackLayout>
-        </Grid>
-        
+        </Grid>-->
     </Grid>
 </ContentView>

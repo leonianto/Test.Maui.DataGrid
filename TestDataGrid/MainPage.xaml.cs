@@ -1,6 +1,5 @@
 namespace TestDataGrid;
 
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
@@ -11,6 +10,11 @@ using Maui.DataGrid;
 public partial class MainPage : ContentPage, INotifyPropertyChanged
 {
     private List<Patient> _List = new List<Patient>();
+
+    /// <summary>
+    /// List of page sizes
+    /// </summary>
+    public List<int> PageSizeList { get; } = new() { 5, 10, 50, 100, 200, 1000 };
 
     #region INotifyPropertyChanged implementation
 
@@ -25,14 +29,41 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
         BindingContext = this;
         InitializeComponent();
         List = GetPatients();
+
+        //! ESSENTIAL FOR PAGINATION
+        //! used to update stepper maximum property
+        SizePicker.PropertyChanged += MainPage_PropertyChanged;
+        PropertyChanged += MainPage_PropertyChanged;
+
+        columnSearch.Items.Add(PatientColumnSearch.All.ToString());
+        columnSearch.Items.Add(PatientColumnSearch.Id.ToString());
+        columnSearch.Items.Add(PatientColumnSearch.Name.ToString());
+        columnSearch.Items.Add(PatientColumnSearch.Surname.ToString());
+        columnSearch.Items.Add(PatientColumnSearch.Birthdate.ToString());
+        columnSearch.Items.Add(PatientColumnSearch.Birthplace.ToString());
+        columnSearch.SelectedIndex = 0;
     }
 
-    //protected override void OnAppearing()
-    //{
-    //    base.OnAppearing();
-    //    searchBar.Text = string.Empty;
-    //    List = GetPatients();
-    //}
+    private void MainPage_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        _SetMaximumStepperValue();
+    }
+
+    /// <summary>
+    /// Function for Set the correct maximum value of the stepper when modify the pagination or the list
+    /// </summary>
+    private void _SetMaximumStepperValue()
+    {
+        if (DataGrid.StepperMaximum > 1)
+        {
+            PaginationStepper.IsEnabled = true;
+            PaginationStepper.Maximum = DataGrid.StepperMaximum;
+        }
+        else
+        {
+            PaginationStepper.IsEnabled = false;
+        }
+    }
 
     public List<Patient> List
     {
@@ -247,7 +278,15 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
     {
         List = GetPatients();
 
-        var searchResult = _GetSearchResults(query);
+        List<Patient> searchResult = null;
+        if ((string)columnSearch.SelectedItem == PatientColumnSearch.All.ToString())
+        {
+            searchResult = _GetSearchResults(query);
+        }
+        else
+        {
+            searchResult = _GetSearchResults(query, (string)columnSearch.SelectedItem);
+        }
 
         if (searchResult != null)
         {
@@ -263,54 +302,128 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
         }
     });
 
+    /// <summary>
+    /// Function for search the given text in all the visible fields
+    /// </summary>
+    /// <param name="query">string to research</param>
+    /// <returns>List of Patients that match the research</returns>
     private List<Patient> _GetSearchResults(string query)
     {
+        var result = new List<Patient>();
 
-        var results = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Id.ToString(CultureInfo.CurrentCulture)) && x.Id.ToString(CultureInfo.CurrentCulture).StartsWith(query, StringComparison.OrdinalIgnoreCase)));
-
-
-        if (results == null || results.Count <= 0)
+        foreach (var column in DataGrid.Columns)
         {
-            results = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Name) && x.Name.StartsWith(query, StringComparison.OrdinalIgnoreCase)));
-        }
-        else
-        {
-            return results;
+            result = _Search(query, result, column);
         }
 
-        if (results == null || results.Count <= 0)
+        for (var i = 0; i < result.Count; i++)
         {
-            results = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Surname) && x.Surname.StartsWith(query, StringComparison.OrdinalIgnoreCase)));
-        }
-        else
-        {
-            return results;
-        }
-
-        if (results == null || results.Count <= 0)
-        {
-            results = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Birthplace) && x.Birthplace.StartsWith(query, StringComparison.OrdinalIgnoreCase)));
-        }
-        else
-        {
-            return results;
+            for (var k = i + 1; k < result.Count; k++)
+            {
+                if (result[i] == result[k])
+                {
+                    result.Remove(result[k]);
+                    k--;
+                }
+            }
         }
 
-        if (results == null || results.Count <= 0)
-        {
-            results = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Birthdate.ToString(CultureInfo.CurrentCulture)) && x.Birthdate.ToString(CultureInfo.CurrentCulture).StartsWith(query, StringComparison.OrdinalIgnoreCase)));
-        }
-        else
-        {
-            return results;
-        }
-        return results;
-
+        return result;
     }
+
+    /// <summary>
+    /// Function for search the given text in the selected column the visible fields
+    /// </summary>
+    /// <param name="query">string to research</param>
+    /// <param name="columnWhereToSearch">column where to search</param>
+    /// <returns>List of Patients that match the research</returns>
+    private List<Patient> _GetSearchResults(string query, string columnWhereToSearch)
+    {
+        var result = new List<Patient>();
+
+        foreach (var column in DataGrid.Columns)
+        {
+            if (column.PropertyName == columnWhereToSearch)
+            {
+                result = _Search(query, result, column);
+            }
+        }
+
+        for (var i = 0; i < result.Count; i++)
+        {
+            for (var k = i + 1; k < result.Count; k++)
+            {
+                if (result[i] == result[k])
+                {
+                    result.Remove(result[k]);
+                    k--;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Function for the research on column
+    /// </summary>
+    /// <param name="query">string to research</param>
+    /// <param name="result">List of previous search results</param>
+    /// <param name="column">Column where to search</param>
+    /// <returns>List of Patients that match the research</returns>
+    private List<Patient> _Search(string query, List<Patient> result, DataGridColumn column)
+    {
+        if (column.PropertyName == "Id")
+        {
+            if (column.IsVisible)
+            {
+                var temp = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Id.ToString(CultureInfo.CurrentCulture)) && x.Id.ToString(CultureInfo.CurrentCulture).StartsWith(query, StringComparison.OrdinalIgnoreCase) || x.Id.ToString(CultureInfo.CurrentCulture).Contains(query, StringComparison.OrdinalIgnoreCase)));
+                result = result.Concat(temp).ToList();
+            }
+        }
+
+        if (column.PropertyName == "Name")
+        {
+            if (column.IsVisible)
+            {
+                var temp = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Name.ToString(CultureInfo.CurrentCulture)) && x.Name.ToString(CultureInfo.CurrentCulture).StartsWith(query, StringComparison.OrdinalIgnoreCase) || x.Name.ToString(CultureInfo.CurrentCulture).Contains(query, StringComparison.OrdinalIgnoreCase)));
+                result = result.Concat(temp).ToList();
+            }
+        }
+
+        if (column.PropertyName == "Surname")
+        {
+            if (column.IsVisible)
+            {
+                var temp = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Surname.ToString(CultureInfo.CurrentCulture)) && x.Surname.ToString(CultureInfo.CurrentCulture).StartsWith(query, StringComparison.OrdinalIgnoreCase) || x.Surname.ToString(CultureInfo.CurrentCulture).Contains(query, StringComparison.OrdinalIgnoreCase)));
+                result = result.Concat(temp).ToList();
+            }
+        }
+
+        if (column.PropertyName == "Birthplace")
+        {
+            if (column.IsVisible)
+            {
+                var temp = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Birthplace.ToString(CultureInfo.CurrentCulture)) && x.Birthplace.ToString(CultureInfo.CurrentCulture).StartsWith(query, StringComparison.OrdinalIgnoreCase) || x.Birthplace.ToString(CultureInfo.CurrentCulture).Contains(query, StringComparison.OrdinalIgnoreCase)));
+                result = result.Concat(temp).ToList();
+            }
+        }
+
+        if (column.PropertyName == "Birthdate")
+        {
+            if (column.IsVisible)
+            {
+                var temp = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Birthdate.ToString(CultureInfo.CurrentCulture)) && x.Birthdate.ToString(CultureInfo.CurrentCulture).StartsWith(query, StringComparison.OrdinalIgnoreCase) || x.Birthdate.ToString(CultureInfo.CurrentCulture).Contains(query, StringComparison.OrdinalIgnoreCase)));
+                result = result.Concat(temp).ToList();
+            }
+        }
+
+        return result;
+    }
+
 
     private async void _DataGridItemSelected(object sender, SelectionChangedEventArgs e)
     {
-
         var selectionMode = DataGrid.SelectionMode;
         IList<object> selectedItems = new List<object>();
 
@@ -366,8 +479,8 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
     /// <param name="e"></param>
     private void _ResizeDatagrid(object sender, EventArgs e)
     {
-        foreach(DataGridColumn a in DataGrid.Columns)
-        {          
+        foreach (var a in DataGrid.Columns)
+        {
             a.Width = new GridLength(1, GridUnitType.Star);
         }
 
