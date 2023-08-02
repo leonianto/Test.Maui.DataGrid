@@ -312,11 +312,22 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
         List<Patient> searchResult = null;
         if ((string)columnSearch.SelectedItem == "All")
         {
-            searchResult = _GetSearchResults(query);
+            /*var columns = new List<string>();
+            foreach (var column in DataGrid.Columns)
+            {
+                if (column.IsVisible)
+                {
+                    columns.Add(column.PropertyName);
+                }
+            }*/
+
+            //searchResult = _GetSearchResults(query);
+            searchResult = DataGrid.Search(List, query/*, columns.ToArray()*/);
         }
         else
         {
-            searchResult = _GetSearchResults(query, (string)columnSearch.SelectedItem);
+            //searchResult = _GetSearchResults(query, (string)columnSearch.SelectedItem);
+            searchResult = DataGrid.Search(List, query, (string)columnSearch.SelectedItem);
         }
 
         if (searchResult != null)
@@ -333,7 +344,7 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
         }
     });
 
-    /// <summary>
+    /*/// <summary>
     /// Function for search the given text in all the visible fields
     /// </summary>
     /// <param name="query">string to research</param>
@@ -408,7 +419,7 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
         {
             if (column.IsVisible)
             {
-                var temp = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Id.ToString(CultureInfo.CurrentCulture)) && x.Id.ToString(CultureInfo.CurrentCulture).StartsWith(query, StringComparison.OrdinalIgnoreCase) || x.Id.ToString(CultureInfo.CurrentCulture).Contains(query, StringComparison.OrdinalIgnoreCase)));
+                var temp = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Id.ToString(CultureInfo.CurrentCulture)) && x.Id.ToString(CultureInfo.CurrentCulture).Contains(query, StringComparison.OrdinalIgnoreCase)));
                 result = result.Concat(temp).ToList();
             }
         }
@@ -417,7 +428,7 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
         {
             if (column.IsVisible)
             {
-                var temp = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Name.ToString(CultureInfo.CurrentCulture)) && x.Name.ToString(CultureInfo.CurrentCulture).StartsWith(query, StringComparison.OrdinalIgnoreCase) || x.Name.ToString(CultureInfo.CurrentCulture).Contains(query, StringComparison.OrdinalIgnoreCase)));
+                var temp = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Name.ToString(CultureInfo.CurrentCulture)) && x.Name.ToString(CultureInfo.CurrentCulture).Contains(query, StringComparison.OrdinalIgnoreCase)));
                 result = result.Concat(temp).ToList();
             }
         }
@@ -426,7 +437,7 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
         {
             if (column.IsVisible)
             {
-                var temp = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Surname.ToString(CultureInfo.CurrentCulture)) && x.Surname.ToString(CultureInfo.CurrentCulture).StartsWith(query, StringComparison.OrdinalIgnoreCase) || x.Surname.ToString(CultureInfo.CurrentCulture).Contains(query, StringComparison.OrdinalIgnoreCase)));
+                var temp = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Surname.ToString(CultureInfo.CurrentCulture)) && x.Surname.ToString(CultureInfo.CurrentCulture).Contains(query, StringComparison.OrdinalIgnoreCase)));
                 result = result.Concat(temp).ToList();
             }
         }
@@ -435,7 +446,7 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
         {
             if (column.IsVisible)
             {
-                var temp = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Birthplace.ToString(CultureInfo.CurrentCulture)) && x.Birthplace.ToString(CultureInfo.CurrentCulture).StartsWith(query, StringComparison.OrdinalIgnoreCase) || x.Birthplace.ToString(CultureInfo.CurrentCulture).Contains(query, StringComparison.OrdinalIgnoreCase)));
+                var temp = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Birthplace.ToString(CultureInfo.CurrentCulture)) && x.Birthplace.ToString(CultureInfo.CurrentCulture).Contains(query, StringComparison.OrdinalIgnoreCase)));
                 result = result.Concat(temp).ToList();
             }
         }
@@ -444,14 +455,13 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
         {
             if (column.IsVisible)
             {
-                var temp = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Birthdate.ToString(CultureInfo.CurrentCulture)) && x.Birthdate.ToString(CultureInfo.CurrentCulture).StartsWith(query, StringComparison.OrdinalIgnoreCase) || x.Birthdate.ToString(CultureInfo.CurrentCulture).Contains(query, StringComparison.OrdinalIgnoreCase)));
+                var temp = new List<Patient>(List.Where(x => !string.IsNullOrWhiteSpace(x.Birthdate.ToString(CultureInfo.CurrentCulture)) && x.Birthdate.ToString(CultureInfo.CurrentCulture).Contains(query, StringComparison.OrdinalIgnoreCase)));
                 result = result.Concat(temp).ToList();
             }
         }
 
         return result;
-    }
-
+    }*/
 
     private async void _DataGridItemSelected(object sender, SelectionChangedEventArgs e)
     {
