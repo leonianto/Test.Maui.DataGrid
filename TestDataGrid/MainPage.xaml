@@ -29,7 +29,7 @@
             <Picker x:Name="columnSearch" HeightRequest="30" Margin="10,10,0,0"></Picker>
             
             <!-- Pagination -->
-            <HorizontalStackLayout IsVisible="{Binding PaginationEnabled, Source={Reference DataGrid}, Mode=TwoWay}">
+            <HorizontalStackLayout IsVisible="{Binding PaginationEnabled, Source={Reference DataGrid}, Mode=TwoWay}" VerticalOptions="Center">
                 <Label Text="# per page:" Margin="5,0,0,0" VerticalTextAlignment="Center" TextColor="black" />
                 <Picker x:Name="SizePicker" ItemsSource="{Binding PageSizeList, Source={Reference DataGrid}, Mode=OneTime}" SelectedItem="{Binding PageSize, Source={Reference DataGrid}}" TextColor="Black" />
                 <Label Text="Page:" Margin="0,0,5,0" VerticalTextAlignment="Center" TextColor="Black" />

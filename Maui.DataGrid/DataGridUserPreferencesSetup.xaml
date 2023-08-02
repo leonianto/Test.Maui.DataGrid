@@ -34,7 +34,7 @@
     </mopups:PopupPage.Animation>-->
 
 
-    <Border Stroke="Black" StrokeThickness="1" BackgroundColor="#fefae0" WidthRequest="350" HeightRequest="350">
+    <Border Stroke="Black" StrokeThickness="1" BackgroundColor="#486378" WidthRequest="350" HeightRequest="350">
         <Border.StrokeShape>
             <RoundRectangle CornerRadius="10,10,10,10"/>
         </Border.StrokeShape>
