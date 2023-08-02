@@ -451,6 +451,11 @@ public partial class DataGrid
 
                     self.PageCount = (int)Math.Ceiling(itemsSource.Count / (double)self.PageSize);
 
+                    if (self.PageCount == 0)
+                    {
+                        self.PageCount = 1;
+                    }
+
                     self.SortAndPaginate();
                 }
 
