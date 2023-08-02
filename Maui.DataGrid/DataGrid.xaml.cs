@@ -1381,47 +1381,5 @@ public partial class DataGrid
         MopupService.Instance.PushAsync(new DataGridUserPreferencesSetup(Columns, this));
     }
 
-    /// <summary>
-    /// Function for highlight the row when pointer is over
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void PointerGestureRecognizer_PointerEntered(object sender, PointerEventArgs e)
-    {
-        var f = (Border)sender;
-        if (!SelectedItems.Contains(f.BindingContext) && SelectedItem != f.BindingContext)
-        {
-            VisualStateManager.GoToState(f, "CustomPointerOver");
-        }
-    }
 
-    /// <summary>
-    /// Function for stop highlight of the row couse the pointer is exited the control
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void PointerGestureRecognizer_PointerExited(object sender, PointerEventArgs e)
-    {
-        var f = (Border)sender;
-        if (!SelectedItems.Contains(f.BindingContext) && SelectedItem != f.BindingContext)
-        {
-            VisualStateManager.GoToState(f, "Normal");
-        }
-    }
-
-    /*
-     *  Can't deselect the selected item when SelectionMode == Single
-     */
-    private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
-    {
-        /*if (SelectionMode == SelectionMode.Single)
-        {
-            var f = (Border)sender;
-            if (SelectedItem == f.BindingContext)
-            {
-                SelectedItem = null;
-                VisualStateManager.GoToState(f, "Normal");
-            }
-        }*/
-    }
 }
