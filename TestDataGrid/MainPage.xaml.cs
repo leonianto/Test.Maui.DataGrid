@@ -1,8 +1,10 @@
 namespace TestDataGrid;
 
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Windows.Input;
 using CommunityToolkit.Maui.Views;
 using Maui.DataGrid;
@@ -12,9 +14,9 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
     private List<Patient> _List = new List<Patient>();
 
     /// <summary>
-    /// List of page sizes
+    /// List for the columns names that can be selected for the specific research
     /// </summary>
-    public List<int> PageSizeList { get; } = new() { 5, 10, 50, 100, 200, 1000 };
+    public ObservableCollection<string> ColumnsWhereToSearch { get; set; } = new();
 
     #region INotifyPropertyChanged implementation
 
@@ -35,13 +37,42 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
         SizePicker.PropertyChanged += MainPage_PropertyChanged;
         PropertyChanged += MainPage_PropertyChanged;
 
-        columnSearch.Items.Add(PatientColumnSearch.All.ToString());
-        columnSearch.Items.Add(PatientColumnSearch.Id.ToString());
-        columnSearch.Items.Add(PatientColumnSearch.Name.ToString());
-        columnSearch.Items.Add(PatientColumnSearch.Surname.ToString());
-        columnSearch.Items.Add(PatientColumnSearch.Birthdate.ToString());
-        columnSearch.Items.Add(PatientColumnSearch.Birthplace.ToString());
+        ColumnsWhereToSearch.Add("All");
+        foreach (var col in DataGrid.Columns)
+        {
+            col.ColumnVisibilityChanged += Col_ColumnVisibilityChanged;
+            if (col.IsVisible)
+            {
+                ColumnsWhereToSearch.Add(col.PropertyName);
+            }
+        }
         columnSearch.SelectedIndex = 0;
+    }
+
+    /// <summary>
+    /// Function for update the Columns names list where the user can make the research when their visibility is changed
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void Col_ColumnVisibilityChanged(object sender, EventArgs e)
+    {
+        Debug.WriteLine("Col_ColumnVisibilityChanged: ");
+
+        if ((sender as DataGridColumn).IsVisible)
+        {
+            if (!ColumnsWhereToSearch.Contains((sender as DataGridColumn).PropertyName))
+            {
+                ColumnsWhereToSearch.Add((sender as DataGridColumn).PropertyName);
+            }
+        }
+        else
+        {
+            if (ColumnsWhereToSearch.Contains((sender as DataGridColumn).PropertyName))
+            {
+                ColumnsWhereToSearch.Remove((sender as DataGridColumn).PropertyName);
+            }
+        }
+
     }
 
     private void MainPage_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -279,7 +310,7 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
         List = GetPatients();
 
         List<Patient> searchResult = null;
-        if ((string)columnSearch.SelectedItem == PatientColumnSearch.All.ToString())
+        if ((string)columnSearch.SelectedItem == "All")
         {
             searchResult = _GetSearchResults(query);
         }
