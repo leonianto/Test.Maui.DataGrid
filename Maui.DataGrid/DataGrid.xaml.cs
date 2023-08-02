@@ -1394,17 +1394,17 @@ public partial class DataGrid
     /// <param name="searchTerm">String to research</param>
     /// <param name="propertyNames">Name of the property where to search</param>
     /// <returns>List of objects that match the research</returns>
-    public static List<T> Search<T>(List<T> list, string searchTerm, params string[] propertyNames) where T : ISearchable
+    public static List<T> Search<T>(List<T> list, string searchTerm, params string[] propertyNames) where T : IDataGridSearchable
     {
-        if (propertyNames == null || propertyNames.Length == 0)
+        /*if (propertyNames == null || propertyNames.Length == 0)
         {
-            /*propertyNames = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            propertyNames = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance)
                                      .Select(property => property.Name)
-                                     .ToArray();*/
+                                     .ToArray();
 
             // If no property names are specified, use all searchable properties
             propertyNames = list[0].GetSearchableList().ToArray();
-        }
+        }*/
 
         var searchableProperties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance)
                                             .Where(property => propertyNames.Contains(property.Name))
@@ -1421,9 +1421,9 @@ public partial class DataGrid
 /// <summary>
 /// Interface needed for the general research
 /// </summary>
-public interface ISearchable
+public interface IDataGridSearchable
 {
     /*string GetSearchableText();*/
 
-    public List<string> GetSearchableList();
+    /*public List<string> GetSearchableList();*/
 }

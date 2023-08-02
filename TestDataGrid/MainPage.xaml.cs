@@ -312,17 +312,8 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
         List<Patient> searchResult = null;
         if ((string)columnSearch.SelectedItem == "All")
         {
-            /*var columns = new List<string>();
-            foreach (var column in DataGrid.Columns)
-            {
-                if (column.IsVisible)
-                {
-                    columns.Add(column.PropertyName);
-                }
-            }*/
-
             //searchResult = _GetSearchResults(query);
-            searchResult = DataGrid.Search(List, query/*, columns.ToArray()*/);
+            searchResult = DataGrid.Search(List, query, columnSearch.Items.ToArray());
         }
         else
         {
