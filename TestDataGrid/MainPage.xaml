@@ -36,12 +36,11 @@
                      HeaderBordersVisible="True"
                      ItemsSource="{Binding List}" 
                      PaginationEnabled="False" 
-                     PageSize="5"      
+                     PageSize="5"
                      ActiveRowColor="CornflowerBlue"
                      UseAutoColumns="False"
                      BorderThickness="2"
-                     Margin="50"
-                     >
+                     Margin="10">
 
             <!--UNcomment with UseAutoColumns=false-->
             <dg:DataGrid.Columns >
