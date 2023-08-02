@@ -1394,7 +1394,7 @@ public partial class DataGrid
     /// <param name="searchTerm">String to research</param>
     /// <param name="propertyNames">Name of the property where to search</param>
     /// <returns>List of objects that match the research</returns>
-    public static List<T> Search<T>(List<T> list, string searchTerm, params string[] propertyNames) where T : IDataGridSearchable
+    public static List<T> Search<T>(List<T> list, string searchTerm, params string[] propertyNames)
     {
         /*if (propertyNames == null || propertyNames.Length == 0)
         {
@@ -1416,14 +1416,4 @@ public partial class DataGrid
 
         return resultList;
     }
-}
-
-/// <summary>
-/// Interface needed for the general research
-/// </summary>
-public interface IDataGridSearchable
-{
-    /*string GetSearchableText();*/
-
-    /*public List<string> GetSearchableList();*/
 }

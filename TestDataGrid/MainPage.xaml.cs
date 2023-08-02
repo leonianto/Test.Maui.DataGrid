@@ -41,7 +41,7 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
         foreach (var col in DataGrid.Columns)
         {
             col.ColumnVisibilityChanged += Col_ColumnVisibilityChanged;
-            if (col.IsVisible && new Patient().GetSearchableList().Contains(col.PropertyName))
+            if (col.IsVisible && Patient.GetSearchableFields().Contains(col.PropertyName))
             {
                 ColumnsWhereToSearch.Add(col.PropertyName);
             }
