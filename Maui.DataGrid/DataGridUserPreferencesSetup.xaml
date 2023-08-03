@@ -42,7 +42,7 @@
 
         <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center">
 
-            <CollectionView x:Name="ColumnsList" ItemsSource="{Binding ColumnsListSource, Mode=TwoWay}"  Margin="10" SelectionMode="Single" CanReorderItems="True">
+            <CollectionView x:Name="ColumnsList" ItemsSource="{Binding ColumnsListSource, Mode=TwoWay}"  Margin="10" SelectionMode="Single" CanReorderItems="True" HeightRequest="320">
                 <CollectionView.ItemTemplate >
                     <DataTemplate x:DataType="local:DataGridColumn">
                         <Border Stroke="#FFFFFFFF" BackgroundColor="White" StrokeThickness="2" StrokeShape="RoundRectangle 8,8,8,8" HorizontalOptions="Center">
