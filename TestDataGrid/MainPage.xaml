@@ -44,17 +44,12 @@
         <dg:DataGrid Grid.Row="1"
                      x:Name="DataGrid"
                      SelectionMode="Single" 
-                     BorderColor="Gray"
                      RowHeight="70" 
-                     HeaderHeight="50"      
-                     HeaderBackground="#486378"
-                     HeaderBordersVisible="True"
+                     HeaderHeight="50"
                      ItemsSource="{Binding List}" 
                      PaginationEnabled="True"
                      PageSize="5"
-                     ActiveRowColor="CornflowerBlue"
                      UseAutoColumns="False"
-                     BorderThickness="2"
                      Margin="10">
 
             <!--UNcomment with UseAutoColumns=false-->

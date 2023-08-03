@@ -316,20 +316,37 @@ public partial class DataGrid
 
     #region Bindable properties
 
-    public static readonly BindableProperty ActiveRowColorProperty =
-        BindablePropertyExtensions.Create(Color.FromRgb(128, 144, 160),
+    public static readonly BindableProperty SelectedRowColorProperty =
+        BindablePropertyExtensions.Create(Color.FromRgb(155, 187, 228),
             coerceValue: (b, v) =>
             {
                 if (!((DataGrid)b).SelectionEnabled)
                 {
-                    throw new InvalidOperationException("DataGrid must have SelectionEnabled to set ActiveRowColor");
+                    //throw new InvalidOperationException("DataGrid must have SelectionEnabled to set SelectedRowColor");
+                    return null;
                 }
 
                 return v;
             });
 
+    public static readonly BindableProperty TextRowColorProperty =
+    BindablePropertyExtensions.Create(Color.FromRgb(0, 0, 0));
+
+    public static readonly BindableProperty HoveredRowColorProperty =
+    BindablePropertyExtensions.Create(Color.FromRgb(248, 242, 220),
+        coerceValue: (b, v) =>
+        {
+            if (!((DataGrid)b).HoverEnabled)
+            {
+                //throw new InvalidOperationException("DataGrid must have HoverEnabledEnabled to set HoveredRowColor");
+                return null;
+            }
+
+            return v;
+        });
+
     public static readonly BindableProperty HeaderBackgroundProperty =
-        BindablePropertyExtensions.Create(Colors.White,
+        BindablePropertyExtensions.Create(Color.FromRgb(89, 123, 197),
             propertyChanged: (b, o, n) =>
             {
                 var self = (DataGrid)b;
@@ -346,7 +363,7 @@ public partial class DataGrid
         BindablePropertyExtensions.Create(Colors.White);
 
     public static readonly BindableProperty BorderColorProperty =
-        BindablePropertyExtensions.Create(Colors.Black,
+        BindablePropertyExtensions.Create(Color.FromRgb(255,255,255),
             propertyChanged: (b, _, n) =>
             {
                 var self = (DataGrid)b;
@@ -577,7 +594,8 @@ public partial class DataGrid
 
                 if (!self.SelectionEnabled)
                 {
-                    throw new InvalidOperationException("DataGrid must have SelectionEnabled=true to set SelectedItem");
+                    //throw new InvalidOperationException("DataGrid must have SelectionEnabled=true to set SelectedItem");
+                    return null;
                 }
 
                 if (self.InternalItems?.Contains(v) == true)
@@ -626,6 +644,9 @@ public partial class DataGrid
                     self.SelectedItem = null;
                 }
             });
+
+    public static readonly BindableProperty HoverEnabledProperty =
+    BindablePropertyExtensions.Create(true);
 
     public static readonly BindableProperty RefreshingEnabledProperty =
         BindablePropertyExtensions.Create(true,
@@ -752,10 +773,28 @@ public partial class DataGrid
     /// <summary>
     /// Selected Row color
     /// </summary>
-    public Color ActiveRowColor
+    public Color SelectedRowColor
     {
-        get => (Color)GetValue(ActiveRowColorProperty);
-        set => SetValue(ActiveRowColorProperty, value);
+        get => (Color)GetValue(SelectedRowColorProperty);
+        set => SetValue(SelectedRowColorProperty, value);
+    }
+
+    /// <summary>
+    /// Hovered Row color
+    /// </summary>
+    public Color HoveredRowColor
+    {
+        get => (Color)GetValue(HoveredRowColorProperty);
+        set => SetValue(HoveredRowColorProperty, value);
+    }
+
+    /// <summary>
+    /// Hovered Row color
+    /// </summary>
+    public Color TextRowColor
+    {
+        get => (Color)GetValue(TextRowColorProperty);
+        set => SetValue(TextRowColorProperty, value);
     }
 
     /// <summary>
@@ -957,6 +996,15 @@ public partial class DataGrid
     {
         get => (bool)GetValue(SelectionEnabledProperty);
         set => SetValue(SelectionEnabledProperty, value);
+    }
+
+    /// <summary>
+    /// Enables hover in dataGrid. Default value is True
+    /// </summary>
+    public bool HoverEnabled
+    {
+        get => (bool)GetValue(HoverEnabledProperty);
+        set => SetValue(HoverEnabledProperty, value);
     }
 
     /// <summary>

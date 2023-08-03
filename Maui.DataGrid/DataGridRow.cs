@@ -1,11 +1,9 @@
 namespace Maui.DataGrid;
 
-using System.Reflection;
-using System.Diagnostics;
 using Maui.DataGrid.Extensions;
 using Microsoft.Maui.Controls;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;
+
 
 internal sealed partial class DataGridRow : Grid
 {
@@ -112,7 +110,7 @@ internal sealed partial class DataGridRow : Grid
 
             cell = new ContentView
             {
-                BackgroundColor = _bgColor,
+               // BackgroundColor = _bgColor,
                 Content = col.CellTemplate.CreateContent() as View
 
             };
@@ -129,8 +127,8 @@ internal sealed partial class DataGridRow : Grid
         {
             cell = new Label
             {
-                TextColor = Colors.White,
-                BackgroundColor = _bgColor,
+                TextColor = DataGrid.TextRowColor,
+                //BackgroundColor = _bgColor,
                 VerticalOptions = LayoutOptions.Fill,
                 HorizontalOptions = LayoutOptions.Fill,
                 VerticalTextAlignment = col.VerticalContentAlignment.ToTextAlignment(),
@@ -174,12 +172,12 @@ internal sealed partial class DataGridRow : Grid
         if (_hasSelected)
         {
 
-            VisualStateManager.GoToState(this, "Selected");
+            VisualStateManager.GoToState(this, "SelectedRow");
 
         }
         else
         {
-            VisualStateManager.GoToState(this, "Normal");
+            VisualStateManager.GoToState(this, "NormalRow");
         }
 
     }
@@ -249,18 +247,18 @@ internal sealed partial class DataGridRow : Grid
     private void PointerEntered()
     {
 
-        if (!DataGrid.SelectedItems.Contains(BindingContext) && DataGrid.SelectedItem != BindingContext)
+        if (!DataGrid.SelectedItems.Contains(BindingContext) && DataGrid.SelectedItem != BindingContext && DataGrid.HoverEnabled)
         {
-            VisualStateManager.GoToState(this, "CustomPointerOver");
+            VisualStateManager.GoToState(this, "HoveredRow");
         }
     }
 
     [RelayCommand]
     private void PointerExited() {
 
-        if (!DataGrid.SelectedItems.Contains(BindingContext) && DataGrid.SelectedItem != BindingContext)
+        if (!DataGrid.SelectedItems.Contains(BindingContext) && DataGrid.SelectedItem != BindingContext && DataGrid.HoverEnabled)
         {
-            VisualStateManager.GoToState(this, "Normal");
+            VisualStateManager.GoToState(this, "NormalRow");
         }
 
     }
