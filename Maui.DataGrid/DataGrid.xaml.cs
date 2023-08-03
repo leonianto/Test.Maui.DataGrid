@@ -468,6 +468,11 @@ public partial class DataGrid
 
                     self.PageCount = (int)Math.Ceiling(itemsSource.Count / (double)self.PageSize);
 
+                    if (self.PageCount == 0)
+                    {
+                        self.PageCount = 1;
+                    }
+
                     self.SortAndPaginate();
                 }
 
@@ -1429,5 +1434,34 @@ public partial class DataGrid
         MopupService.Instance.PushAsync(new DataGridUserPreferencesSetup(Columns, this));
     }
 
+    /// <summary>
+    /// Function for Search in the given string in the specified columns of the dataGrid
+    /// </summary>
+    /// <typeparam name="T">Generic Type of the List objects</typeparam>
+    /// <param name="list">List of objects where to search</param>
+    /// <param name="searchTerm">String to research</param>
+    /// <param name="propertyNames">Name of the property where to search</param>
+    /// <returns>List of objects that match the research</returns>
+    public static List<T> Search<T>(List<T> list, string searchTerm, params string[] propertyNames)
+    {
+        /*if (propertyNames == null || propertyNames.Length == 0)
+        {
+            propertyNames = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                                     .Select(property => property.Name)
+                                     .ToArray();
 
+            // If no property names are specified, use all searchable properties
+            propertyNames = list[0].GetSearchableList().ToArray();
+        }*/
+
+        var searchableProperties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                                            .Where(property => propertyNames.Contains(property.Name))
+                                            .ToArray();
+
+        var resultList = list.Where(item => searchableProperties
+                                            .Any(property => property.GetValue(item)?.ToString().Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false))
+                             .ToList();
+
+        return resultList;
+    }
 }

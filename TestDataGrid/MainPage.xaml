@@ -4,7 +4,7 @@
              xmlns:dg="clr-namespace:Maui.DataGrid;assembly=Maui.DataGrid"
              xmlns:local="clr-namespace:TestDataGrid"
              xmlns:m="clr-namespace:UraniumUI.Icons.MaterialIcons;assembly=UraniumUI.Icons.MaterialIcons"
-             x:Class="TestDataGrid.MainPage">
+             x:Class="TestDataGrid.MainPage" x:Name="self">
 
     <Grid RowDefinitions="Auto,*" BackgroundColor="White">
         <FlexLayout Grid.Row="0"  BackgroundColor="LightGray" >
@@ -29,7 +29,8 @@
             <Picker x:Name="columnSearch"
                     HeightRequest="50"
                     Margin="10,10,0,0"
-                    HorizontalTextAlignment="Center"></Picker>
+                    HorizontalTextAlignment="Center" 
+                    ItemsSource="{Binding ColumnsWhereToSearch, Source={Reference self}, Mode=OneWay}"></Picker>
 
             <!-- Pagination -->
             <HorizontalStackLayout IsVisible="{Binding PaginationEnabled, Source={Reference DataGrid}, Mode=TwoWay}" VerticalOptions="Center">
@@ -57,7 +58,8 @@
                 <dg:DataGridColumn Title="Id" PropertyName="Id" />
                 <dg:DataGridColumn Title="Nome" PropertyName="Name" />
                 <dg:DataGridColumn Title="Cognome" PropertyName="Surname" />
-                <dg:DataGridColumn Title="Compleanno" PropertyName="Birthdate" />
+                <dg:DataGridColumn Title="Data di nascita" PropertyName="Birthdate"/>
+                <dg:DataGridColumn Title="Paese di nascita" PropertyName="Birthplace" />
                 <dg:DataGridColumn Title="Icona" PropertyName="Icon">
                     <dg:DataGridColumn.CellTemplate>
                         <DataTemplate>

@@ -39,6 +39,8 @@ public sealed class DataGridColumn : BindableObject, IDefinition, INotifyPropert
         remove => _sizeChangedEventManager.RemoveEventHandler(value);
     }
 
+    public event EventHandler ColumnVisibilityChanged;
+
     #endregion Events
 
     #region Bindable Properties
@@ -73,6 +75,7 @@ public sealed class DataGridColumn : BindableObject, IDefinition, INotifyPropert
                 {
                     try
                     {
+                        column.ColumnVisibilityChanged?.Invoke(column, new EventArgs());
                         column.DataGrid?.Reload();
                     }
                     catch { }
