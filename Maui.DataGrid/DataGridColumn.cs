@@ -79,10 +79,6 @@ public sealed class DataGridColumn : BindableObject, IDefinition, INotifyPropert
         BindablePropertyExtensions.Create(string.Empty,
             propertyChanged: (b, _, n) => ((DataGridColumn)b).HeaderLabel.Text = n);
 
-    public static readonly BindableProperty FormattedTitleProperty =
-        BindablePropertyExtensions.Create<FormattedString>(
-            propertyChanged: (b, _, n) => ((DataGridColumn)b).HeaderLabel.FormattedText = n);
-
     public static readonly BindableProperty PropertyNameProperty =
         BindablePropertyExtensions.Create<string>();
 
@@ -123,16 +119,6 @@ public sealed class DataGridColumn : BindableObject, IDefinition, INotifyPropert
     public static readonly BindableProperty SortingEnabledProperty =
         BindablePropertyExtensions.Create(true);
 
-    public static readonly BindableProperty HeaderLabelStyleProperty =
-        BindablePropertyExtensions.Create<Style>(
-            propertyChanged: (b, o, n) =>
-            {
-                if (o != n && b is DataGridColumn self && self.HeaderLabel != null)
-                {
-                    self.HeaderLabel.Style = n;
-                }
-            });
-
     #endregion Bindable Properties
 
     #region Properties
@@ -153,18 +139,6 @@ public sealed class DataGridColumn : BindableObject, IDefinition, INotifyPropert
         set => _columnDefinition = value;
     }
 
-    internal View? HeaderView { get; set; }
-
-    /// <summary>
-    /// Width of the column. Like Grid, you can use <c>Absolute, star, Auto</c> as unit.
-    /// </summary>
-    [TypeConverter(typeof(GridLengthTypeConverter))]
-    public GridLength Width
-    {
-        get => (GridLength)GetValue(WidthProperty);
-        set => SetValue(WidthProperty, value);
-    }
-
     /// <summary>
     /// Column title
     /// </summary>
@@ -172,25 +146,6 @@ public sealed class DataGridColumn : BindableObject, IDefinition, INotifyPropert
     {
         get => (string)GetValue(TitleProperty);
         set => SetValue(TitleProperty, value);
-    }
-
-    /// <summary>
-    /// Formatted title for column
-    /// <example>
-    /// <code>
-    ///  &lt;DataGridColumn.FormattedTitle &gt;
-    ///     &lt;FormattedString &gt;
-    ///       &lt;Span Text = "Home" TextColor="Black" FontSize="13" FontAttributes="Bold" / &gt;
-    ///       &lt;Span Text = " (won-lost)" TextColor="#333333" FontSize="11" / &gt;
-    ///     &lt;/FormattedString &gt;
-    ///  &lt;/DataGridColumn.FormattedTitle &gt;
-    /// </code>
-    /// </example>
-    /// </summary>
-    public FormattedString FormattedTitle
-    {
-        get => (string)GetValue(FormattedTitleProperty);
-        set => SetValue(FormattedTitleProperty, value);
     }
 
     /// <summary>
@@ -266,15 +221,6 @@ public sealed class DataGridColumn : BindableObject, IDefinition, INotifyPropert
         set => SetValue(SortingEnabledProperty, value);
     }
 
-    /// <summary>
-    /// Label Style of the header. <c>TargetType</c> must be Label.
-    /// </summary>
-    public Style HeaderLabelStyle
-    {
-        get => (Style)GetValue(HeaderLabelStyleProperty);
-        set => SetValue(HeaderLabelStyleProperty, value);
-    }
-
     internal Polygon SortingIcon { get; }
     internal Label HeaderLabel { get; }
     internal View SortingIconContainer { get; }
@@ -317,14 +263,5 @@ public sealed class DataGridColumn : BindableObject, IDefinition, INotifyPropert
     private void OnSizeChanged() => _sizeChangedEventManager.HandleEvent(this, EventArgs.Empty, nameof(SizeChanged));
 
     #endregion Methods
-
-
-    #region INotifyPropertyChanged implementation
-
-    public new event PropertyChangedEventHandler? PropertyChanged;
-
-    private new void OnPropertyChanged(string property) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
-
-    #endregion INotifyPropertyChanged implementation
 
 }

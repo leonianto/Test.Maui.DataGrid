@@ -29,9 +29,6 @@
                 <Setter Property="Margin" Value="5" />
             </Style>
         </ResourceDictionary>
-
-        <local:HeaderSizeConverter x:Key="HeaderSizeConverter" />
-
     </ContentView.Resources>
     <Grid CompressedLayout.IsHeadless="True">
         <Grid.RowDefinitions>
@@ -55,14 +52,12 @@
                       AnchorY="0.49"
                       Clicked="DataGridUserPreferencesClick"/>
         <!--header-->
-        <CollectionView HorizontalScrollBarVisibility="Never" x:Name="Collectionheader" ItemsSource="{Binding Columns, Source={Reference self}, Mode=OneWay}" Background="gray" CanReorderItems="True" ItemsLayout="HorizontalList"
+        <CollectionView HorizontalScrollBarVisibility="Never" x:Name="Collectionheader" ItemsSource="{Binding Columns, Source={Reference self}, Mode=OneWay}" Background="transparent" CanReorderItems="True" ItemsLayout="HorizontalList"
                         SelectionMode="Single" BindingContext="{Binding Source={Reference self}}" HeightRequest="{Binding HeaderHeight, Source={Reference self}}"  WidthRequest="{Binding WidthRequest, Source={Reference self}, Mode=TwoWay}"
                         Grid.Row="0" Grid.Column="1">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="local:DataGridColumn">
-                    <!--{Binding BindingContext, Source={RelativeSource AncestorType={x:Type CollectionView}}, Converter={StaticResource HeaderSizeConverter}, ConverterParameter={Reference HeaderCell}}-->
-                    <!--{Binding WithCol, Source={RelativeSource AncestorType={x:Type local:DataGridColumn}}, Mode=TwoWay}-->
-                    <Border x:Name="HeaderCell" BackgroundColor="DarkCyan"
+                    <Border x:Name="HeaderCell" BackgroundColor="{Binding DataGrid.HeaderBackground}"
                         WidthRequest="{Binding WidthCol}">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped_1" NumberOfTapsRequired="1"/>
@@ -71,20 +66,17 @@
                         <Grid>
                             <Label Text="{Binding PropertyName}" HorizontalOptions="Center" VerticalOptions="Center"></Label>
 
-                            <ContentView x:Name="SortingIconContainer"
+                            <!--<ContentView x:Name="SortingIconContainer"
                                          IsVisible="{Binding SortingIconContainer.IsVisible, Source={RelativeSource AncestorType={x:Type local:DataGridColumn}}}"
                                          Content="{Binding SortingIcon, Source={RelativeSource AncestorType={x:Type local:DataGridColumn}}}"
                                          WidthRequest="{Binding SortingIconContainer.WidthRequest, Source={RelativeSource AncestorType={x:Type local:DataGridColumn}}}"
                                          HeightRequest="{Binding SortingIconContainer.HeightRequest, Source={RelativeSource AncestorType={x:Type local:DataGridColumn}}}"
-                                         HorizontalOptions="End" VerticalOptions="Center"></ContentView>
+                                         HorizontalOptions="End" VerticalOptions="Center"></ContentView>-->
                         </Grid>
                     </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
-
-        <!--Header-->
-        <Grid IsVisible="false" BackgroundColor="{Binding BorderColor, Source={Reference self}, Mode=TwoWay}"  Grid.Row="1" Grid.Column="1"  x:Name="_headerView" HeightRequest="{Binding HeaderHeight, Source={Reference self}}" />
 
         <BoxView x:Name="HideBox" Grid.Row="2" Grid.Column="1"  Color="White" WidthRequest="28" IsVisible="False" ZIndex="5" HorizontalOptions="Start"></BoxView>
 
@@ -97,7 +89,7 @@
                 <CollectionView
                     x:Name="_collectionView"
                     WidthRequest="{Binding WidthRequest, Source={Reference self}, Mode=TwoWay}"
-                    Background="{Binding BorderColor, Source={Reference self}, Mode=TwoWay}"
+                    Background="{Binding DataGridRowColor, Source={Reference self}, Mode=TwoWay}"
                     SelectedItem="{Binding SelectedItem, Source={Reference self}, Mode=TwoWay}"
                     SelectedItems="{Binding SelectedItems, Source={Reference self}, Mode=TwoWay}"
                     ItemSizingStrategy="{Binding ItemSizingStrategy, Source={Reference self}, Mode=TwoWay}"
@@ -128,7 +120,7 @@
                                                         </VisualState>
                                                         <VisualState x:Name="Selected">
                                                             <VisualState.Setters>
-                                                                <Setter Property="Background" Value="#53D8FB" />
+                                                                <Setter Property="Background" Value="{Binding ActiveRowColor, Source={Reference self}}" />
                                                             </VisualState.Setters>
                                                         </VisualState>
                                                     </VisualStateGroup>
@@ -146,21 +138,5 @@
                 </CollectionView>
             </ContentView>
         </RefreshView>
-        <!--<Grid Grid.Row="2" Grid.Column="1" x:Name="_footerView" IsVisible="False" HeightRequest="{Binding FooterHeight, Source={Reference self}}" BackgroundColor="{Binding FooterBackground, Source={Reference self}}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <HorizontalStackLayout VerticalOptions="Center" IsVisible="{Binding PageSizeVisible, Source={Reference self}}">
-                <Label Text="# per page:" Margin="5,0,0,0" VerticalTextAlignment="Center" TextColor="Black" />
-                <Picker ItemsSource="{Binding PageSizeList, Source={Reference self}, Mode=OneTime}" SelectedItem="{Binding PageSize, Source={Reference self}}" TextColor="Black" />
-            </HorizontalStackLayout>
-            <HorizontalStackLayout Grid.Column="2" VerticalOptions="Center">
-                <Label Text="Page:" Margin="0,0,5,0" VerticalTextAlignment="Center" TextColor="Black" />
-                <Label Text="{Binding PageNumber, Source={Reference self}}" VerticalTextAlignment="Center" TextColor="Black" />
-                <Stepper x:Name="_paginationStepper" Value="{Binding PageNumber, Source={x:Reference self}}" Style="{StaticResource PaginationStepperStyle}" Minimum="0" IsVisible="false" />
-            </HorizontalStackLayout>
-        </Grid>-->
     </Grid>
 </ContentView>

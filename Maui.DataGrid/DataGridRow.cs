@@ -1,18 +1,13 @@
 namespace Maui.DataGrid;
-
-using System.Reflection;
-using System.Diagnostics;
+using CommunityToolkit.Mvvm.Input;
 using Maui.DataGrid.Extensions;
 using Microsoft.Maui.Controls;
-using CommunityToolkit.Mvvm.Input;
-using Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;
 
 internal sealed partial class DataGridRow : Grid
 {
     #region Fields
 
     private Color? _bgColor;
-    private Color? _textColor;
     private bool _hasSelected;
 
     #endregion Fields
@@ -21,7 +16,6 @@ internal sealed partial class DataGridRow : Grid
     {
         if (DeviceInfo.Current.Platform == DevicePlatform.WinUI)
         {
-
             GestureRecognizers.Add(new PointerGestureRecognizer()
             {
                 PointerEnteredCommand = PointerEnteredCommand,
@@ -93,13 +87,13 @@ internal sealed partial class DataGridRow : Grid
         UpdateColors();
 
         // We are using the spacing between rows to generate visible borders, and thus the background color is the border color.
-        BackgroundColor = DataGrid.BorderColor;
+        //BackgroundColor = DataGrid.BorderColor;
 
         var borderThickness = DataGrid.BorderThickness;
 
         Padding = new(borderThickness.Left, borderThickness.Top, borderThickness.Right, 0);
-        ColumnSpacing = borderThickness.HorizontalThickness;
-        Margin = new Thickness(0, 0, 0, borderThickness.Bottom); // Row Spacing
+        ColumnSpacing = 0;/*borderThickness.HorizontalThickness*/
+        Margin = new Thickness(0, 0, 0, 0); // Row Spacing
     }
 
     private View CreateCell(DataGridColumn col)
@@ -109,20 +103,16 @@ internal sealed partial class DataGridRow : Grid
 
         if (col.CellTemplate != null && propertyValue != null)
         {
-
             cell = new ContentView
             {
                 BackgroundColor = _bgColor,
                 Content = col.CellTemplate.CreateContent() as View
-
             };
-
 
             if (!string.IsNullOrWhiteSpace(col.PropertyName))
             {
                 cell.SetBinding(BindingContextProperty,
                     new Binding(col.PropertyName, source: BindingContext));
-
             }
         }
         else
@@ -169,13 +159,11 @@ internal sealed partial class DataGridRow : Grid
         {
             return;
         }
-        
+
         //change color of the entire row based on if it's selected or not
         if (_hasSelected)
         {
-
             VisualStateManager.GoToState(this, "Selected");
-
         }
         else
         {
@@ -244,7 +232,6 @@ internal sealed partial class DataGridRow : Grid
         }
     }
 
-
     [RelayCommand]
     private void PointerEntered()
     {
@@ -256,13 +243,12 @@ internal sealed partial class DataGridRow : Grid
     }
 
     [RelayCommand]
-    private void PointerExited() {
-
+    private void PointerExited()
+    {
         if (!DataGrid.SelectedItems.Contains(BindingContext) && DataGrid.SelectedItem != BindingContext)
         {
             VisualStateManager.GoToState(this, "Normal");
         }
-
     }
 
     #endregion Methods

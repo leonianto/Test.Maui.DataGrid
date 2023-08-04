@@ -58,18 +58,16 @@ public partial class DataGrid
                 {
                     if (SelectionMode == SelectionMode.Multiple)
                     {
-                        _headerView.Margin = new Thickness(28, 0, 0, 0);
                         Collectionheader.Margin = new Thickness(28, 0, 0, 0);
                         _HeaderMargin = 78;
-                        Resize(28);
+                        Resize(30);
                         HideBox.IsVisible = true;
                     }
                     else if (SelectionMode == SelectionMode.Single)
                     {
-                        _headerView.Margin = new Thickness(0, 0, 0, 0);
                         Collectionheader.Margin = new Thickness(0, 0, 0, 0);
                         _HeaderMargin = 50;
-                        Resize(-28);
+                        Resize(-30);
                         HideBox.IsVisible = false;
                     }
                 }
@@ -86,7 +84,7 @@ public partial class DataGrid
             column.WidthCol = (double)(Width - _HeaderMargin) / (double)Columns.Count;
         }
 
-        RefreshCollectionHeader();
+        Resize(0);
     }
 
     #endregion ctor
@@ -264,14 +262,7 @@ public partial class DataGrid
                 column.WidthCol = (double)(Width - _HeaderMargin) / (double)Columns.Count;
             }
         }
-        else if (totDelta < 0)
-        {
-            foreach (var column in Columns)
-            {
-                column.WidthCol += totDelta / Columns.Count;
-            }
-        }
-        else if (totDelta > 0)
+        else
         {
             foreach (var column in Columns)
             {
@@ -326,7 +317,7 @@ public partial class DataGrid
                     {
                         Title = columncopy.Title,
                         PropertyName = columncopy.PropertyName,
-                        Width = columncopy.Width,
+                        WidthCol = columncopy.WidthCol,
                         IsVisible = columncopy.IsVisible,
                         //column.DataGrid = this;
                         CellTemplate = columncopy.CellTemplate
@@ -399,28 +390,13 @@ public partial class DataGrid
             propertyChanged: (b, o, n) =>
             {
                 var self = (DataGrid)b;
-                if (o != n && self._headerView != null && !self.HeaderBordersVisible)
-                {
-                    foreach (var child in self._headerView.Children.OfType<View>())
-                    {
-                        child.BackgroundColor = n;
-                    }
-                }
             });
 
-    public static readonly BindableProperty FooterBackgroundProperty =
-        BindablePropertyExtensions.Create(Colors.White);
-
-    public static readonly BindableProperty BorderColorProperty =
+    public static readonly BindableProperty DataGridRowColorProperty =
         BindablePropertyExtensions.Create(Colors.Black,
             propertyChanged: (b, _, n) =>
             {
                 var self = (DataGrid)b;
-                if (self._headerView != null && self.HeaderBordersVisible)
-                {
-                    self._headerView.BackgroundColor = n;
-                }
-
                 if (self.Columns != null && self.ItemsSource != null)
                 {
                     self.Reload();
@@ -742,11 +718,6 @@ public partial class DataGrid
                 }
             });
 
-    public static readonly BindableProperty HeaderBordersVisibleProperty =
-        BindablePropertyExtensions.Create(true,
-            propertyChanged: (b, _, n) => ((DataGrid)b)._headerView.BackgroundColor =
-                n ? ((DataGrid)b).BorderColor : ((DataGrid)b).HeaderBackground);
-
     public static readonly BindableProperty SortedColumnIndexProperty =
         BindablePropertyExtensions.Create<SortData>(null, BindingMode.TwoWay,
             (b, v) =>
@@ -840,23 +811,13 @@ public partial class DataGrid
     }
 
     /// <summary>
-    /// BackgroundColor of the footer that comtains pagination elements
-    /// Default value is White
-    /// </summary>
-    public Color FooterBackground
-    {
-        get => (Color)GetValue(FooterBackgroundProperty);
-        set => SetValue(FooterBackgroundProperty, value);
-    }
-
-    /// <summary>
     /// Border color
     /// Default Value is Black
     /// </summary>
-    public Color BorderColor
+    public Color DataGridRowColor
     {
-        get => (Color)GetValue(BorderColorProperty);
-        set => SetValue(BorderColorProperty, value);
+        get => (Color)GetValue(DataGridRowColorProperty);
+        set => SetValue(DataGridRowColorProperty, value);
     }
 
     /// <summary>
@@ -1085,16 +1046,6 @@ public partial class DataGrid
     }
 
     /// <summary>
-    /// Determines to show the borders of header cells.
-    /// Default value is <c>true</c>
-    /// </summary>
-    public bool HeaderBordersVisible
-    {
-        get => (bool)GetValue(HeaderBordersVisibleProperty);
-        set => SetValue(HeaderBordersVisibleProperty, value);
-    }
-
-    /// <summary>
     /// Column index and sorting order for the DataGrid
     /// </summary>
     public SortData? SortedColumnIndex
@@ -1137,7 +1088,6 @@ public partial class DataGrid
     /// </summary>
     public View NoDataView
     {
-
         get => (View)GetValue(NoDataViewProperty);
         set => SetValue(NoDataViewProperty, value);
     }
@@ -1264,125 +1214,12 @@ public partial class DataGrid
 
     #region Header Creation Methods
 
-    public View GetHeaderViewForColumn(DataGridColumn column)
-    {
-        column.HeaderLabel.Style = column.HeaderLabelStyle ?? HeaderLabelStyle ?? _defaultHeaderStyle;
-
-        if (!IsSortable || !column.SortingEnabled || !column.IsSortable(this))
-        {
-            return new ContentView
-            {
-                Content = column.HeaderLabel,
-                GestureRecognizers =
-                {
-                    new DragGestureRecognizer
-                    {
-                        DragStartingCommand = new Command((s) =>
-                        {
-                           _draggedElementIndex = Columns.IndexOf(column);
-                        })
-                    },
-                    new DropGestureRecognizer
-                    {
-                        DropCommand = new Command(() =>
-                        {
-                             _MoveColumns(column);
-                        })
-                    }
-
-                }
-            };
-        }
-
-        var sortIconSize = HeaderHeight * 0.3;
-        column.SortingIconContainer.HeightRequest = sortIconSize;
-        column.SortingIconContainer.WidthRequest = sortIconSize;
-        column.SortingIcon.Style = SortIconStyle ?? _defaultSortIconStyle;
-
-        var grid = new Grid
-        {
-            ColumnSpacing = 0,
-            Padding = new(0, 0, 4, 0),
-            ColumnDefinitions = HeaderColumnDefinitions,
-            Children = { column.HeaderLabel, column.SortingIconContainer },
-            GestureRecognizers =
-                {
-                    new TapGestureRecognizer
-                    {
-                        Command = new Command(() =>
-                        {
-                            // This is to invert SortOrder when the user taps on a column.
-                            var order = column.SortingOrder == SortingOrder.Ascendant
-                                ? SortingOrder.Descendant
-                                : SortingOrder.Ascendant;
-
-                            var index = Columns.IndexOf(column);
-
-                            SortedColumnIndex = new(index, order);
-
-                            column.SortingOrder = order;
-                        }, () => column.SortingEnabled)
-                    },
-                    new DragGestureRecognizer
-                    {
-                        DragStartingCommand = new Command((s) =>
-                        {
-                           _draggedElementIndex = Columns.IndexOf(column);
-                        }),
-                    },
-                    new DropGestureRecognizer
-                    {
-                        DropCommand = new Command(() =>
-                        {
-                            _MoveColumns(column);
-                        })
-                    }
-                }
-        };
-
-        Grid.SetColumn(column.SortingIconContainer, 1);
-        return grid;
-    }
-
-    /// <summary>
-    /// Function for Move the dragged column and all the others that have been affected
-    /// </summary>
-    /// <param name="column">Dragged column</param>
-    private void _MoveColumns(DataGridColumn column)
-    {
-        var currentIndex = Columns.IndexOf(column);
-        var cellToDrop = Columns[_draggedElementIndex];
-
-        if (Columns is INotifyCollectionChanged observable)
-        {
-            observable.CollectionChanged -= OnColumnsChanged;
-        }
-
-        Columns.Move(_draggedElementIndex, currentIndex);
-
-        if (Columns is INotifyCollectionChanged observable2)
-        {
-            observable2.CollectionChanged += OnColumnsChanged;
-        }
-
-        //reload only if it's needed
-        if (_draggedElementIndex != currentIndex)
-        {
-            Reload();
-        }
-    }
-
     private void InitHeaderView()
     {
         Debug.WriteLine("InitHeaderView");
         SetColumnsBindingContext();
 
-        _headerView.Children.Clear();
-        _headerView.ColumnDefinitions.Clear();
         ResetSortingOrders();
-
-        _headerView.Padding = new(BorderThickness.Left, BorderThickness.Top, BorderThickness.Right, BorderThickness.Bottom);
-        _headerView.ColumnSpacing = BorderThickness.HorizontalThickness;
 
         if (Columns == null)
         {
@@ -1393,24 +1230,14 @@ public partial class DataGrid
         {
             var col = Columns[i];
 
-            col.ColumnDefinition ??= new(col.Width);
+            col.ColumnDefinition ??= new(col.WidthCol);
 
             col.DataGrid ??= this;
-
-            _headerView.ColumnDefinitions.Add(col.ColumnDefinition);
 
             if (!col.IsVisible)
             {
                 continue;
             }
-
-            col.HeaderView ??= GetHeaderViewForColumn(col);
-
-            col.HeaderView.SetBinding(BackgroundColorProperty, new Binding(nameof(HeaderBackground), source: this));
-
-            Grid.SetColumn(col.HeaderView, i);
-            _headerView.Children.Add(col.HeaderView);
-
         }
     }
 
@@ -1496,28 +1323,5 @@ public partial class DataGrid
 
             column.SortingOrder = order;
         }
-    }
-}
-
-public class HeaderSizeConverter : IValueConverter
-{
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        double width = 0;
-        if (value is DataGrid obj)
-        {
-            width = (double)(obj.Width - 50) / (double)obj.Columns.Count;
-            if (width > 1)
-            {
-                ((parameter as Border).BindingContext as DataGridColumn).Width = width;
-            }
-        }
-        Debug.WriteLine(width);
-        return (int)width;
-    }
-
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        return null;
     }
 }
