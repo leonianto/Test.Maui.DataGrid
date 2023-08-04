@@ -8,7 +8,7 @@
       CompressedLayout.IsHeadless="True">
     <ContentView.Resources>
         <ResourceDictionary>
-            
+
             <!--Default Header Style-->
             <Style x:Key="DefaultHeaderStyle" TargetType="Label">
                 <Setter Property="FontAttributes" Value="Bold" />
@@ -30,9 +30,12 @@
             </Style>
         </ResourceDictionary>
 
+        <local:HeaderSizeConverter x:Key="HeaderSizeConverter" />
+
     </ContentView.Resources>
     <Grid CompressedLayout.IsHeadless="True">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
@@ -51,13 +54,42 @@
                       AnchorX="0.49"
                       AnchorY="0.49"
                       Clicked="DataGridUserPreferencesClick"/>
-        <!--Header-->
-        <Grid BackgroundColor="{Binding BorderColor, Source={Reference self}, Mode=TwoWay}"  Grid.Row="0" Grid.Column="1"  x:Name="_headerView" HeightRequest="{Binding HeaderHeight, Source={Reference self}}" />
+        <!--header-->
+        <CollectionView HorizontalScrollBarVisibility="Never" x:Name="Collectionheader" ItemsSource="{Binding Columns, Source={Reference self}, Mode=OneWay}" Background="gray" CanReorderItems="True" ItemsLayout="HorizontalList"
+                        SelectionMode="Single" BindingContext="{Binding Source={Reference self}}" HeightRequest="{Binding HeaderHeight, Source={Reference self}}"  WidthRequest="{Binding WidthRequest, Source={Reference self}, Mode=TwoWay}"
+                        Grid.Row="0" Grid.Column="1">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="local:DataGridColumn">
+                    <!--{Binding BindingContext, Source={RelativeSource AncestorType={x:Type CollectionView}}, Converter={StaticResource HeaderSizeConverter}, ConverterParameter={Reference HeaderCell}}-->
+                    <!--{Binding WithCol, Source={RelativeSource AncestorType={x:Type local:DataGridColumn}}, Mode=TwoWay}-->
+                    <Border x:Name="HeaderCell" BackgroundColor="DarkCyan"
+                        WidthRequest="{Binding WidthCol}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped_1" NumberOfTapsRequired="1"/>
+                        </Border.GestureRecognizers>
 
-        <BoxView x:Name="HideBox" Grid.Row="1" Grid.Column="1"  Color="White" WidthRequest="28" IsVisible="False" ZIndex="5" HorizontalOptions="Start"></BoxView>
+                        <Grid>
+                            <Label Text="{Binding PropertyName}" HorizontalOptions="Center" VerticalOptions="Center"></Label>
+
+                            <ContentView x:Name="SortingIconContainer"
+                                         IsVisible="{Binding SortingIconContainer.IsVisible, Source={RelativeSource AncestorType={x:Type local:DataGridColumn}}}"
+                                         Content="{Binding SortingIcon, Source={RelativeSource AncestorType={x:Type local:DataGridColumn}}}"
+                                         WidthRequest="{Binding SortingIconContainer.WidthRequest, Source={RelativeSource AncestorType={x:Type local:DataGridColumn}}}"
+                                         HeightRequest="{Binding SortingIconContainer.HeightRequest, Source={RelativeSource AncestorType={x:Type local:DataGridColumn}}}"
+                                         HorizontalOptions="End" VerticalOptions="Center"></ContentView>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!--Header-->
+        <Grid IsVisible="false" BackgroundColor="{Binding BorderColor, Source={Reference self}, Mode=TwoWay}"  Grid.Row="1" Grid.Column="1"  x:Name="_headerView" HeightRequest="{Binding HeaderHeight, Source={Reference self}}" />
+
+        <BoxView x:Name="HideBox" Grid.Row="2" Grid.Column="1"  Color="White" WidthRequest="28" IsVisible="False" ZIndex="5" HorizontalOptions="Start"></BoxView>
 
         <!--Body-->
-        <RefreshView Grid.Row="1" Grid.Column="1"  x:Name="_refreshView" Grid.RowSpan="2" Command="{Binding PullToRefreshCommand, Source={Reference self}}"
+        <RefreshView Grid.Row="2" Grid.Column="1"  x:Name="_refreshView" Grid.RowSpan="2" Command="{Binding PullToRefreshCommand, Source={Reference self}}"
                      IsRefreshing="{Binding IsRefreshing, Source={x:Reference self}, Mode=TwoWay}" IsEnabled="{Binding RefreshingEnabled, Source={Reference self}}">
             <!--  Remove ContentView when this pull request is merged https://github.com/dotnet/maui/pull/14302  -->
             <ContentView>

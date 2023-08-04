@@ -3,6 +3,8 @@ namespace Maui.DataGrid;
 using Maui.DataGrid.Extensions;
 using Microsoft.Maui.Controls.Shapes;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Security.Cryptography;
 
 /// <summary>
 /// Specifies each column of the DataGrid.
@@ -44,6 +46,23 @@ public sealed class DataGridColumn : BindableObject, IDefinition, INotifyPropert
     #endregion Events
 
     #region Bindable Properties
+
+
+    public static readonly BindableProperty WidthColProperty = BindablePropertyExtensions.Create<double>(100,
+        propertyChanged: (b, o, n) =>
+        {
+            if (!o.Equals(n) && b is DataGridColumn self)
+            {
+                self.ColumnDefinition = new(n);
+                //self.OnSizeChanged();
+            }
+        });
+    public double WidthCol
+    {
+        get => (double)GetValue(WidthColProperty);
+        set { SetValue(WidthColProperty, value); }
+    }
+
 
     public static readonly BindableProperty WidthProperty =
         BindablePropertyExtensions.Create(GridLength.Star,

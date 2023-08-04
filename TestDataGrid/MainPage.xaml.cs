@@ -511,12 +511,16 @@ public partial class MainPage : ContentPage, INotifyPropertyChanged
     /// <param name="e"></param>
     private void _ResizeDatagrid(object sender, EventArgs e)
     {
-        foreach (var a in DataGrid.Columns)
+        /*foreach (var a in DataGrid.Columns)
         {
             a.Width = new GridLength(1, GridUnitType.Star);
+            a.WidthCol = (DataGrid.Width - 50) / DataGrid.Columns.Count;
         }
+        DataGrid.RefreshCollectionHeader();
 
-        DataGrid.Reload();
+        DataGrid.Reload();*/
+
+        DataGrid.Resize(0);
     }
 }
 

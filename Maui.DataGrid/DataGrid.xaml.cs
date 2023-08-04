@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Reflection;
 using System.Windows.Input;
 using Maui.DataGrid.Extensions;
@@ -44,6 +45,7 @@ public partial class DataGrid
     public DataGrid()
     {
         InitializeComponent();
+        Loaded += DataGrid_Loaded;
         _defaultHeaderStyle = (Style)Resources["DefaultHeaderStyle"];
         _defaultSortIconStyle = (Style)Resources["DefaultSortIconStyle"];
 
@@ -52,18 +54,39 @@ public partial class DataGrid
         {
             self.PropertyChanged += (s, e) =>
             {
-                if (SelectionMode == SelectionMode.Multiple)
+                if (e.PropertyName == "SelectionMode")
                 {
-                    _headerView.Margin = new Thickness(28, 0, 0, 0);
-                    HideBox.IsVisible = true;
-                }
-                else if (SelectionMode == SelectionMode.Single)
-                {
-                    _headerView.Margin = new Thickness(0, 0, 0, 0);
-                    HideBox.IsVisible = false;
+                    if (SelectionMode == SelectionMode.Multiple)
+                    {
+                        _headerView.Margin = new Thickness(28, 0, 0, 0);
+                        Collectionheader.Margin = new Thickness(28, 0, 0, 0);
+                        _HeaderMargin = 78;
+                        Resize(28);
+                        HideBox.IsVisible = true;
+                    }
+                    else if (SelectionMode == SelectionMode.Single)
+                    {
+                        _headerView.Margin = new Thickness(0, 0, 0, 0);
+                        Collectionheader.Margin = new Thickness(0, 0, 0, 0);
+                        _HeaderMargin = 50;
+                        Resize(-28);
+                        HideBox.IsVisible = false;
+                    }
                 }
             };
         }
+    }
+
+    private int _HeaderMargin = 50;
+
+    private void DataGrid_Loaded(object? sender, EventArgs e)
+    {
+        foreach (var column in Columns)
+        {
+            column.WidthCol = (double)(Width - _HeaderMargin) / (double)Columns.Count;
+        }
+
+        RefreshCollectionHeader();
     }
 
     #endregion ctor
@@ -228,6 +251,50 @@ public partial class DataGrid
     #region Methods
 
     /// <summary>
+    /// Function for resize columns when changing width
+    /// </summary>
+    /// <param name="totDelta">if < 0 datagridMargin going from 78 to 50 = -28, if > 0 datagridMargin going from 50 to 78 = +28</param>
+    public void Resize(int totDelta)
+    {
+        //return to columns with all the same width
+        if (totDelta == 0)
+        {
+            foreach (var column in Columns)
+            {
+                column.WidthCol = (double)(Width - _HeaderMargin) / (double)Columns.Count;
+            }
+        }
+        else if (totDelta < 0)
+        {
+            foreach (var column in Columns)
+            {
+                column.WidthCol += totDelta / Columns.Count;
+            }
+        }
+        else if (totDelta > 0)
+        {
+            foreach (var column in Columns)
+            {
+                column.WidthCol -= totDelta / Columns.Count;
+            }
+        }
+
+        RefreshCollectionHeader();
+        Reload();
+    }
+
+    /// <summary>
+    /// Function for refresh the CollectionHeader ItemsSource for render the updated datas
+    /// </summary>
+    public void RefreshCollectionHeader()
+    {
+        //Refresh the CollectionView ItemsSource
+        var temp = Columns;
+        Collectionheader.ItemsSource = null;
+        Collectionheader.ItemsSource = temp;
+    }
+
+    /// <summary>
     /// Scrolls to the row
     /// </summary>
     /// <param name="item">Item to scroll</param>
@@ -237,10 +304,9 @@ public partial class DataGrid
 
     private void SetAutoColumns()
     {
-
-        Debug.WriteLine("SetAutoColumns");
         if (UseAutoColumns)
         {
+            Debug.WriteLine("SetAutoColumns");
             if (Columns is INotifyCollectionChanged observable)
             {
                 observable.CollectionChanged -= OnColumnsChanged;
@@ -380,7 +446,7 @@ public partial class DataGrid
     public bool UseAutoColumns { get => (bool)GetValue(UseAutoColumnsProperty); set => SetValue(UseAutoColumnsProperty, value); }
 
     public static readonly BindableProperty UseAutoColumnsProperty =
-        BindableProperty.Create(nameof(UseAutoColumns), typeof(bool), typeof(DataGrid), defaultValue: true,
+        BindableProperty.Create(nameof(UseAutoColumns), typeof(bool), typeof(DataGrid), defaultValue: false,
             propertyChanged: (bo, ov, nv) => (bo as DataGrid).SetAutoColumns());
 
     public static readonly BindableProperty ColumnsProperty =
@@ -1094,27 +1160,19 @@ public partial class DataGrid
         set => SetValue(StepperMaximumProperty, value);
     }
 
-    /*/// <summary>
-    /// Max Width of the DataGrid Columns
-    /// </summary>
-    public double MaxColumnWidth
-    {
-        get => (double)GetValue(MaxColumnWidthProperty);
-        set => SetValue(MaxColumnWidthProperty, value);
-    }
+    //if works is for resizable datagrid
+    /*public static new readonly BindableProperty WidthProperty =
+            BindableProperty.Create(nameof(Width), typeof(double), typeof(DataGrid), 500,
+            propertyChanged: (b, o, n) =>
+            {
+                (b as DataGrid).RefreshCollectionHeader();
+            });
 
-    /// <summary>
-    /// Min Width of the DataGrid Columns
-    /// </summary>
-    public double MinColumnWidth
+    public new double Width
     {
-        get => (double)GetValue(MinColumnWidthProperty);
-        set => SetValue(MinColumnWidthProperty, value);
+        get => (double)GetValue(WidthProperty);
+        set => SetValue(WidthProperty, value);
     }*/
-
-    public double MinColumnWidth { get; set; } = 100;
-
-    public double MaxColumnWidth { get; set; } = 1000;
 
     #endregion Properties
 
@@ -1193,9 +1251,6 @@ public partial class DataGrid
     public void Reload()
     {
         Debug.WriteLine("Reload");
-        ///not always needed the selection cleaning
-        /*SelectedItems?.Clear();
-        SelectedItem = null;*/
 
         InitHeaderView();
 
@@ -1415,5 +1470,54 @@ public partial class DataGrid
                              .ToList();
 
         return resultList;
+    }
+
+    private void TapGestureRecognizer_Tapped_1(object sender, TappedEventArgs e)
+    {
+        var column = ((sender as Border).BindingContext as DataGridColumn);
+
+        //(((sender as Border).Content as Grid).Children[1] as ContentView).Content = column.SortingIcon;
+
+        if (column.IsSortable(this))
+        {
+            var sortIconSize = HeaderHeight * 0.3;
+            column.SortingIconContainer.HeightRequest = sortIconSize;
+            column.SortingIconContainer.WidthRequest = sortIconSize;
+            column.SortingIcon.Style = SortIconStyle ?? _defaultSortIconStyle;
+
+            // This is to invert SortOrder when the user taps on a column.
+            var order = column.SortingOrder == SortingOrder.Ascendant
+                ? SortingOrder.Descendant
+                : SortingOrder.Ascendant;
+
+            var index = Columns.IndexOf(column);
+
+            SortedColumnIndex = new(index, order);
+
+            column.SortingOrder = order;
+        }
+    }
+}
+
+public class HeaderSizeConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        double width = 0;
+        if (value is DataGrid obj)
+        {
+            width = (double)(obj.Width - 50) / (double)obj.Columns.Count;
+            if (width > 1)
+            {
+                ((parameter as Border).BindingContext as DataGridColumn).Width = width;
+            }
+        }
+        Debug.WriteLine(width);
+        return (int)width;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        return null;
     }
 }

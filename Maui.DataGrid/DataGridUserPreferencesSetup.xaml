@@ -34,7 +34,7 @@
     </mopups:PopupPage.Animation>-->
 
 
-    <Border Stroke="Black" StrokeThickness="1" BackgroundColor="#486378" WidthRequest="350" HeightRequest="350">
+    <Border Stroke="Black" StrokeThickness="1" BackgroundColor="#486378" WidthRequest="400" HeightRequest="400">
         <Border.StrokeShape>
             <RoundRectangle CornerRadius="10,10,10,10"/>
         </Border.StrokeShape>
@@ -42,15 +42,15 @@
 
         <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center">
 
-            <CollectionView x:Name="ColumnsList" ItemsSource="{Binding ColumnsListSource, Mode=TwoWay}"  Margin="10" SelectionMode="Single" CanReorderItems="True">
+            <CollectionView x:Name="ColumnsList" ItemsSource="{Binding ColumnsListSource}"  Margin="5" SelectionMode="Single" CanReorderItems="True">
                 <CollectionView.ItemTemplate >
                     <DataTemplate x:DataType="local:DataGridColumn">
                         <Border Stroke="#FFFFFFFF" BackgroundColor="White" StrokeThickness="2" StrokeShape="RoundRectangle 8,8,8,8" HorizontalOptions="Center">
                             <HorizontalStackLayout>
                                 <CheckBox IsChecked="{Binding IsVisible}" />
                                 <Label Text="{Binding Title}" FontSize="16" HeightRequest="40" VerticalTextAlignment="Center" Margin="5" TextColor="Black" LineBreakMode="WordWrap" WidthRequest="150"></Label>
-                                <dtgrid:CustomStepper x:Name="stepper" Minimum="0.1" Maximum="6" Increment="0.1"  Value="{Binding Width.Value, Mode=OneWay}" Tag="{Binding}" WidthRequest="80" ValueChanged="Stepper_ValueChanged"/>
-                                <Label Text="{Binding Source={x:Reference stepper}, Path=Value}" FontSize="16" VerticalTextAlignment="Center" HeightRequest="40" Margin="5"  TextColor="Black" WidthRequest="50"></Label>
+                                <dtgrid:CustomStepper x:Name="stepper" Minimum="90" Maximum="750" Increment="10"  Value="{Binding WidthCol, Mode=OneWay}" Tag="{Binding}" WidthRequest="80" ValueChanged="Stepper_ValueChanged"/>
+                                <Label Text="{Binding Source={x:Reference stepper}, Path=Value, StringFormat=size: '{0:N0}'}" FontSize="16" VerticalTextAlignment="Center" HeightRequest="40" Margin="5" TextColor="Black" WidthRequest="70"></Label>
                             </HorizontalStackLayout>
                         </Border>
                     </DataTemplate>
