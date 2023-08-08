@@ -18,6 +18,7 @@ public partial class DataGridUserPreferencesSetup
         InitializeComponent();
 
         ColumnsListSource = columns;
+        ColumnsList.ItemsSource = ColumnsListSource;
 
         BindingContext = this;
 
@@ -29,7 +30,6 @@ public partial class DataGridUserPreferencesSetup
         if ((DataGridColumn)((CustomStepper)sender).Tag != null)
         {
             var dataGridColumn = (DataGridColumn)((CustomStepper)sender).Tag;
-            //dataGridColumn.Width = new GridLength(e.NewValue, GridUnitType.Star);
 
             dataGridColumn.WidthCol = e.NewValue;
             var DeltaForOtherColumns = (sender as CustomStepper).Increment / (ColumnsListSource.Count - 1);
@@ -41,8 +41,9 @@ public partial class DataGridUserPreferencesSetup
                 AddOrRemove = false;
             }
 
-            foreach (var col in ColumnsListSource)
+            for (var i = 0; i < ColumnsListSource.Count; i++)
             {
+                var col = ColumnsListSource[i];
                 if (col != dataGridColumn)
                 {
                     if (AddOrRemove)
@@ -59,12 +60,13 @@ public partial class DataGridUserPreferencesSetup
                             col.WidthCol -= DeltaForOtherColumns;
                         }
                     }
+                    /*ColumnsListSource[i] = col;*/
                 }
             }
 
-            var temp = ColumnsList.ItemsSource;
+            /*var temp = ColumnsList.ItemsSource;
             ColumnsList.ItemsSource = null;
-            ColumnsList.ItemsSource = temp;
+            ColumnsList.ItemsSource = temp;*/
 
             _CurrentDataGrid.RefreshCollectionHeader();
 

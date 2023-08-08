@@ -47,14 +47,14 @@ public sealed class DataGridColumn : BindableObject, IDefinition, INotifyPropert
 
     #region Bindable Properties
 
-
-    public static readonly BindableProperty WidthColProperty = BindablePropertyExtensions.Create<double>(100,
+    public static readonly BindableProperty WidthColProperty =
+        BindablePropertyExtensions.Create<double>(100,
         propertyChanged: (b, o, n) =>
         {
             if (!o.Equals(n) && b is DataGridColumn self)
             {
                 self.ColumnDefinition = new(n);
-                //self.OnSizeChanged();
+                self.OnSizeChanged();
             }
         });
     public double WidthCol
@@ -90,6 +90,15 @@ public sealed class DataGridColumn : BindableObject, IDefinition, INotifyPropert
                 {
                     try
                     {
+                        /*if (n)
+                        {
+                            column.DataGrid.ColumnsHeader.Add(column);
+                        }
+                        else
+                        {
+                            column.DataGrid.ColumnsHeader.Remove(column);
+                        }*/
+
                         column.ColumnVisibilityChanged?.Invoke(column, new EventArgs());
                         column.DataGrid?.Reload();
                     }

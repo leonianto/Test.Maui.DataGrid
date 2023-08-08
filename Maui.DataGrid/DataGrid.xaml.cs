@@ -454,7 +454,49 @@ public partial class DataGrid
                     }
                 }
 
+                /*self.ColumnsHeader.Clear();
+                for (var i = 0; i < n.Count; i++)
+                {
+                    if (n[i].IsVisible)
+                    {
+                        self.ColumnsHeader.Add(n[i]);
+                    }
+                }*/
+
                 self.Reload();
+            },
+            defaultValueCreator: _ => new ObservableCollection<DataGridColumn>());
+
+    public static readonly BindableProperty ColumnsHeaderProperty =
+        BindablePropertyExtensions.Create(new ObservableCollection<DataGridColumn>(),
+            propertyChanged: (b, o, n) =>
+            {
+                /*if (n == o || b is not DataGrid self)
+                {
+                    return;
+                }
+
+                if (o != null)
+                {
+                    o.CollectionChanged -= self.OnColumnsChanged;
+
+                    foreach (var oldColumn in o)
+                    {
+                        oldColumn.SizeChanged -= self.OnColumnSizeChanged;
+                    }
+                }
+
+                if (n != null)
+                {
+                    n.CollectionChanged += self.OnColumnsChanged;
+
+                    foreach (var newColumn in n)
+                    {
+                        newColumn.SizeChanged += self.OnColumnSizeChanged;
+                    }
+                }
+
+                self.Reload();*/
             },
             defaultValueCreator: _ => new ObservableCollection<DataGridColumn>());
 
@@ -881,6 +923,13 @@ public partial class DataGrid
         get => (ObservableCollection<DataGridColumn>)GetValue(ColumnsProperty);
         set => SetValue(ColumnsProperty, value);
     }
+
+    public ObservableCollection<DataGridColumn> ColumnsHeader
+    {
+        get => (ObservableCollection<DataGridColumn>)GetValue(ColumnsHeaderProperty);
+        set => SetValue(ColumnsHeaderProperty, value);
+    }
+
 
     /// <summary>
     /// Font size of the cells.
