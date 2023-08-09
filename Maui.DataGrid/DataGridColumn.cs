@@ -27,7 +27,7 @@ public sealed class DataGridColumn : BindableObject, IDefinition, INotifyPropert
         SortingIconContainer = new ContentView
         {
             IsVisible = false,
-            Content = SortingIcon,
+            //Content = SortingIcon,
             HorizontalOptions = LayoutOptions.End,
             VerticalOptions = LayoutOptions.Center,
         };
@@ -57,23 +57,12 @@ public sealed class DataGridColumn : BindableObject, IDefinition, INotifyPropert
                 self.OnSizeChanged();
             }
         });
+
     public double WidthCol
     {
         get => (double)GetValue(WidthColProperty);
         set { SetValue(WidthColProperty, value); }
     }
-
-
-    public static readonly BindableProperty WidthProperty =
-        BindablePropertyExtensions.Create(GridLength.Star,
-            propertyChanged: (b, o, n) =>
-            {
-                if (!o.Equals(n) && b is DataGridColumn self)
-                {
-                    self.ColumnDefinition = new(n);
-                    self.OnSizeChanged();
-                }
-            });
 
     public static readonly BindableProperty TitleProperty =
         BindablePropertyExtensions.Create(string.Empty,
@@ -88,25 +77,42 @@ public sealed class DataGridColumn : BindableObject, IDefinition, INotifyPropert
             {
                 if (o != n && b is DataGridColumn column)
                 {
+                    Debug.WriteLine("IsVisiblePropertyChange");
                     try
                     {
-                        /*if (n)
+                        if (n)
                         {
-                            column.DataGrid.ColumnsHeader.Add(column);
+                            for (var i = 0; i < column.DataGrid.Columns.Count; i++)
+                            {
+                                if (column.DataGrid.Columns[i].PropertyName == column.PropertyName)
+                                {
+                                    /* if (i < column.DataGrid.ColumnsHeader.Count)
+                                     {
+                                         column.DataGrid.ColumnsHeader.Insert(i, column);
+                                     }
+                                     else
+                                     {*/
+                                    column.DataGrid.Columns.RemoveAt(i);                    //
+                                    column.DataGrid.Columns.Add(column);                    // DOPO AVER FATTO 1 ADD, SIA CHE NE VOGLIO FARE UN'ALTRO O UN REMOVE, PARTE IL LOOP
+                                    column.DataGrid.ColumnsHeader.Add(column);              //
+                                    //}
+                                    break;
+                                }
+                            }
                         }
                         else
                         {
                             column.DataGrid.ColumnsHeader.Remove(column);
-                        }*/
-
+                        }
+                        column.DataGrid.Resize(0);
                         column.ColumnVisibilityChanged?.Invoke(column, new EventArgs());
-                        column.DataGrid?.Reload();
+                        //column.DataGrid?.Reload();
                     }
                     catch { }
-                    finally
+                    /*finally
                     {
                         column.OnSizeChanged();
-                    }
+                    }*/
                 }
             });
 
@@ -232,7 +238,7 @@ public sealed class DataGridColumn : BindableObject, IDefinition, INotifyPropert
 
     internal Polygon SortingIcon { get; }
     internal Label HeaderLabel { get; }
-    internal View SortingIconContainer { get; }
+    internal View SortingIconContainer { get; set; }
     internal SortingOrder SortingOrder { get; set; }
 
     #endregion Properties

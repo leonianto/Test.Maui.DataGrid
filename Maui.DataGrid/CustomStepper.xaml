@@ -13,7 +13,7 @@
 
     <Button x:Name="removeBtn" Grid.Column="0" Grid.Row="0" Margin="5" WidthRequest="10" HeightRequest="10" Text="-" Clicked="removeBtn_Clicked"></Button>
 
-    <Label Grid.Column="1" Grid.Row="0" Margin="2" Text="{Binding Value, Source={Reference self}, StringFormat='{0:N0}', Mode=TwoWay}" VerticalOptions="Center" HorizontalOptions="Center" FontSize="16"></Label>
+    <Label Grid.Column="1" Grid.Row="0" Margin="2" Text="{Binding Value, Source={Reference self}, StringFormat='{0:N0}', Mode=OneWay}" VerticalOptions="Center" HorizontalOptions="Center" FontSize="16"></Label>
 
     <Button x:Name="addBtn" Grid.Column="2" Grid.Row="0" Margin="5" WidthRequest="10" HeightRequest="10" Text="+" Clicked="addBtn_Clicked"></Button>
 

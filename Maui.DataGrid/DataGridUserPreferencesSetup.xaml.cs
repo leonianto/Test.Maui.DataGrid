@@ -1,6 +1,7 @@
 namespace Maui.DataGrid;
 
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 public partial class DataGridUserPreferencesSetup
 {
@@ -29,6 +30,7 @@ public partial class DataGridUserPreferencesSetup
     {
         if ((DataGridColumn)((CustomStepper)sender).Tag != null)
         {
+            Debug.WriteLine("Stepper_ValueChanged");
             var dataGridColumn = (DataGridColumn)((CustomStepper)sender).Tag;
 
             dataGridColumn.WidthCol = e.NewValue;
@@ -68,7 +70,7 @@ public partial class DataGridUserPreferencesSetup
             ColumnsList.ItemsSource = null;
             ColumnsList.ItemsSource = temp;*/
 
-            _CurrentDataGrid.RefreshCollectionHeader();
+            //_CurrentDataGrid.RefreshCollectionHeader();
 
             _CurrentDataGrid.Reload();
         }

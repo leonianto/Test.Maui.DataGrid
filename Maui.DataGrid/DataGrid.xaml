@@ -52,8 +52,9 @@
                       AnchorY="0.49"
                       Clicked="DataGridUserPreferencesClick"/>
         <!--header-->
-        <CollectionView HorizontalScrollBarVisibility="Never" x:Name="Collectionheader" ItemsSource="{Binding Columns, Source={Reference self}, Mode=OneWay}" Background="transparent" CanReorderItems="True" ItemsLayout="HorizontalList"
+        <CollectionView HorizontalScrollBarVisibility="Never" x:Name="Collectionheader" ItemsSource="{Binding ColumnsHeader, Source={Reference self}, Mode=OneWay}" Background="transparent" CanReorderItems="True" ItemsLayout="HorizontalList"
                         SelectionMode="Single" BindingContext="{Binding Source={Reference self}}" HeightRequest="{Binding HeaderHeight, Source={Reference self}}"  WidthRequest="{Binding WidthRequest, Source={Reference self}, Mode=TwoWay}"
+                        ReorderCompleted="Collectionheader_ReorderCompleted"
                         Grid.Row="0" Grid.Column="1">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="local:DataGridColumn">
@@ -66,12 +67,7 @@
                         <Grid>
                             <Label Text="{Binding PropertyName}" HorizontalOptions="Center" VerticalOptions="Center"></Label>
 
-                            <!--<ContentView x:Name="SortingIconContainer"
-                                         IsVisible="{Binding SortingIconContainer.IsVisible, Source={RelativeSource AncestorType={x:Type local:DataGridColumn}}}"
-                                         Content="{Binding SortingIcon, Source={RelativeSource AncestorType={x:Type local:DataGridColumn}}}"
-                                         WidthRequest="{Binding SortingIconContainer.WidthRequest, Source={RelativeSource AncestorType={x:Type local:DataGridColumn}}}"
-                                         HeightRequest="{Binding SortingIconContainer.HeightRequest, Source={RelativeSource AncestorType={x:Type local:DataGridColumn}}}"
-                                         HorizontalOptions="End" VerticalOptions="Center"></ContentView>-->
+                            <ContentView x:Name="SortingIconContainer" HorizontalOptions="End" VerticalOptions="Center"></ContentView>
                         </Grid>
                     </Border>
                 </DataTemplate>

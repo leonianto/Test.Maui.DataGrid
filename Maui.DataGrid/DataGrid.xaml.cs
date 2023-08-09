@@ -6,9 +6,9 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Globalization;
 using System.Reflection;
 using System.Windows.Input;
+using CommunityToolkit.Maui.Core.Extensions;
 using Maui.DataGrid.Extensions;
 using Microsoft.Maui.Controls.Shapes;
 using Microsoft.Maui.Graphics;
@@ -79,10 +79,10 @@ public partial class DataGrid
 
     private void DataGrid_Loaded(object? sender, EventArgs e)
     {
-        foreach (var column in Columns)
+        /*foreach (var column in Columns)
         {
             column.WidthCol = (double)(Width - _HeaderMargin) / (double)Columns.Count;
-        }
+        }*/
 
         Resize(0);
     }
@@ -254,36 +254,47 @@ public partial class DataGrid
     /// <param name="totDelta">if < 0 datagridMargin going from 78 to 50 = -28, if > 0 datagridMargin going from 50 to 78 = +28</param>
     public void Resize(int totDelta)
     {
+        Debug.WriteLine("Resize");
         //return to columns with all the same width
         if (totDelta == 0)
         {
             foreach (var column in Columns)
             {
-                column.WidthCol = (double)(Width - _HeaderMargin) / (double)Columns.Count;
+                column.WidthCol = (double)(Width - _HeaderMargin) / (double)ColumnsHeader.Count;
             }
         }
         else
         {
             foreach (var column in Columns)
             {
-                column.WidthCol -= totDelta / Columns.Count;
+                column.WidthCol -= totDelta / ColumnsHeader.Count;
             }
         }
 
-        RefreshCollectionHeader();
+        //RefreshCollectionHeader();
         Reload();
     }
 
-    /// <summary>
+    /*/// <summary>
     /// Function for refresh the CollectionHeader ItemsSource for render the updated datas
     /// </summary>
     public void RefreshCollectionHeader()
     {
+        Debug.WriteLine("RefreshCollectionHeader");
+        //ColumnsHeader.Clear();
+        //for (var i = 0; i < Columns.Count; i++)
+        //{
+        //    if (Columns[i].IsVisible)
+        //    {
+        //        ColumnsHeader.Add(Columns[i]);
+        //    }
+        //}
+
         //Refresh the CollectionView ItemsSource
-        var temp = Columns;
-        Collectionheader.ItemsSource = null;
-        Collectionheader.ItemsSource = temp;
-    }
+        //var temp = Collectionheader.ItemsSource;
+        //Collectionheader.ItemsSource = null;
+        //Collectionheader.ItemsSource = temp;
+    }*/
 
     /// <summary>
     /// Scrolls to the row
@@ -454,14 +465,14 @@ public partial class DataGrid
                     }
                 }
 
-                /*self.ColumnsHeader.Clear();
+                self.ColumnsHeader.Clear();
                 for (var i = 0; i < n.Count; i++)
                 {
                     if (n[i].IsVisible)
                     {
                         self.ColumnsHeader.Add(n[i]);
                     }
-                }*/
+                }
 
                 self.Reload();
             },
@@ -471,32 +482,7 @@ public partial class DataGrid
         BindablePropertyExtensions.Create(new ObservableCollection<DataGridColumn>(),
             propertyChanged: (b, o, n) =>
             {
-                /*if (n == o || b is not DataGrid self)
-                {
-                    return;
-                }
-
-                if (o != null)
-                {
-                    o.CollectionChanged -= self.OnColumnsChanged;
-
-                    foreach (var oldColumn in o)
-                    {
-                        oldColumn.SizeChanged -= self.OnColumnSizeChanged;
-                    }
-                }
-
-                if (n != null)
-                {
-                    n.CollectionChanged += self.OnColumnsChanged;
-
-                    foreach (var newColumn in n)
-                    {
-                        newColumn.SizeChanged += self.OnColumnSizeChanged;
-                    }
-                }
-
-                self.Reload();*/
+                Debug.WriteLine("ColumnsHeader change");
             },
             defaultValueCreator: _ => new ObservableCollection<DataGridColumn>());
 
@@ -551,6 +537,7 @@ public partial class DataGrid
 
     private void _InitColumns(object n)
     {
+        Debug.WriteLine("_InitColumns");
         var sourceType = n.GetType();
         if (sourceType.GenericTypeArguments.Length != 1)
         {
@@ -560,6 +547,15 @@ public partial class DataGrid
         CurrentType = sourceType.GenericTypeArguments.First();
 
         var columnsAreReady = Columns?.Any() ?? false;
+
+        ColumnsHeader.Clear();
+        for (var i = 0; i < Columns.Count; i++)
+        {
+            if (Columns[i].IsVisible)
+            {
+                ColumnsHeader.Add(Columns[i]);
+            }
+        }
 
         SetAutoColumns();
     }
@@ -1159,20 +1155,6 @@ public partial class DataGrid
         set => SetValue(StepperMaximumProperty, value);
     }
 
-    //if works is for resizable datagrid
-    /*public static new readonly BindableProperty WidthProperty =
-            BindableProperty.Create(nameof(Width), typeof(double), typeof(DataGrid), 500,
-            propertyChanged: (b, o, n) =>
-            {
-                (b as DataGrid).RefreshCollectionHeader();
-            });
-
-    public new double Width
-    {
-        get => (double)GetValue(WidthProperty);
-        set => SetValue(WidthProperty, value);
-    }*/
-
     #endregion Properties
 
     #region UI Methods
@@ -1233,11 +1215,22 @@ public partial class DataGrid
         InitHeaderView();
     }
 
-    private void OnColumnsChanged(object? sender, NotifyCollectionChangedEventArgs e) => Reload();
+    private void OnColumnsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        Debug.WriteLine("OnColumnsChanged");
+        /*Reload();*/
+    }
 
-    private void OnColumnSizeChanged(object? sender, EventArgs e) => Reload();
+    private void OnColumnSizeChanged(object? sender, EventArgs e)
+    {
+        Debug.WriteLine("OnColumnSizeChanged");
+        /*Reload();*/
+    }
 
-    private void OnRefreshing(object? sender, EventArgs e) => _refreshingEventManager.HandleEvent(this, e, nameof(Refreshing));
+    private void OnRefreshing(object? sender, EventArgs e)
+    {
+        _refreshingEventManager.HandleEvent(this, e, nameof(Refreshing));
+    }
 
     private void OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
@@ -1352,8 +1345,6 @@ public partial class DataGrid
     {
         var column = ((sender as Border).BindingContext as DataGridColumn);
 
-        //(((sender as Border).Content as Grid).Children[1] as ContentView).Content = column.SortingIcon;
-
         if (column.IsSortable(this))
         {
             var sortIconSize = HeaderHeight * 0.3;
@@ -1371,6 +1362,80 @@ public partial class DataGrid
             SortedColumnIndex = new(index, order);
 
             column.SortingOrder = order;
+            (column.SortingIconContainer as ContentView).Content = column.SortingIcon;
+            try
+            {
+                (((sender as Border).Content as Grid).Children[1]) = column.SortingIconContainer;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message + ex.StackTrace);
+            }
         }
+
+        /*if (column.IsSortable(this))
+        {
+            var sortIconSize = HeaderHeight * 0.3;
+            (((sender as Border).Content as Grid).Children[1] as ContentView).HeightRequest = sortIconSize;
+            (((sender as Border).Content as Grid).Children[1] as ContentView).WidthRequest = sortIconSize;
+            column.SortingIcon.Style = SortIconStyle ?? _defaultSortIconStyle;
+
+            // This is to invert SortOrder when the user taps on a column.
+            var order = column.SortingOrder == SortingOrder.Ascendant
+                ? SortingOrder.Descendant
+                : SortingOrder.Ascendant;
+
+            var index = Columns.IndexOf(column);
+
+            SortedColumnIndex = new(index, order);
+
+            column.SortingOrder = order;
+            try
+            {
+                (((sender as Border).Content as Grid).Children[1] as ContentView).Content = column.SortingIcon;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Errore: " + ex.Message + "" + ex.StackTrace);
+            }
+        }*/
+    }
+
+
+    private void Collectionheader_ReorderCompleted(object sender, EventArgs e)
+    {
+        //if all columns visible, just reorder
+        if (ColumnsHeader.Count == Columns.Count)
+        {
+            Columns.Clear();
+            for (var i = 0; i < ColumnsHeader.Count; i++)
+            {
+                /*if (ColumnsHeader[i].SortingOrder != SortingOrder.None)
+                {
+                    SortedColumnIndex.Index = i;
+                }*/
+                Columns.Add(ColumnsHeader[i]);
+            }
+        }
+        else
+        {
+            var tempArray = new DataGridColumn[Columns.Count];
+            Columns.CopyTo(tempArray, 0);
+            var temp = tempArray.ToObservableCollection();
+
+            Columns.Clear();
+            for (var i = 0; i < ColumnsHeader.Count; i++)
+            {
+                Columns.Add(ColumnsHeader[i]);
+                temp.Remove(ColumnsHeader[i]);
+            }
+
+            foreach (var col in temp)
+            {
+                Columns.Add(col);
+            }
+        }
+
+        Reload();
     }
 }

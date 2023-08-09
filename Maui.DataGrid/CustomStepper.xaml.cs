@@ -38,7 +38,7 @@ public partial class CustomStepper : Grid
     public double Value
     {
         get => (double)GetValue(ValueProperty);
-        set { OnValueChanged(Value, value); SetValue(ValueProperty, value); }
+        set { /*OnValueChanged(Value, value);*/ SetValue(ValueProperty, value); }
     }
 
     public event EventHandler<ValueChangedEventArgs> ValueChanged;
@@ -49,7 +49,7 @@ public partial class CustomStepper : Grid
         InitializeComponent();
     }
 
-    /// <summary>
+    /*/// <summary>
     /// Function fired when Value is changed
     /// </summary>
     /// <param name="oldValue"></param>
@@ -82,7 +82,7 @@ public partial class CustomStepper : Grid
                 }
             }
         }
-    }
+    }*/
 
     /// <summary>
     /// Function for the decrease the Value of the Stepper by the Increment Value
