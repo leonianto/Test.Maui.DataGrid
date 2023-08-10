@@ -1319,7 +1319,11 @@ public partial class DataGrid
         return resultList;
     }
 
-
+    /// <summary>
+    /// Function for sort the itemsSource of the Datagrid on the selected column datas
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void TapGestureRecognizer_Tapped_1(object sender, TappedEventArgs e)
     {
         var column = ((sender as Border).BindingContext as DataGridColumn);
@@ -1374,7 +1378,11 @@ public partial class DataGrid
         }*/
     }
 
-
+    /// <summary>
+    /// Function for re order the DataGridColumns after they were moved from the header
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void Collectionheader_ReorderCompleted(object sender, EventArgs e)
     {
         //if all columns visible, just reorder

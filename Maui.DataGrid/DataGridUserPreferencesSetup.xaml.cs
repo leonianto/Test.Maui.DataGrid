@@ -2,6 +2,7 @@ namespace Maui.DataGrid;
 
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using CommunityToolkit.Maui.Core.Extensions;
 
 public partial class DataGridUserPreferencesSetup
 {
@@ -129,5 +130,53 @@ public partial class DataGridUserPreferencesSetup
         {
             ((sender as CheckBox).BindingContext as DataGridColumn).IsVisible = true;
         }
+    }
+
+    private void ColumnsList_ReorderCompleted(object sender, EventArgs e)
+    {
+        var temporaryColumns = new ObservableCollection<DataGridColumn>();
+
+        for (var i = 0; i < ColumnsListSource.Count; i++)
+        {
+            for (var k = 0; k < _CurrentDataGrid.ColumnsHeader.Count; k++)
+            {
+                if (ColumnsListSource[i].Title == _CurrentDataGrid.ColumnsHeader[k].Title)
+                {
+                    temporaryColumns.Add(_CurrentDataGrid.ColumnsHeader[k]);
+                }
+            }
+        }
+
+        _CurrentDataGrid.ColumnsHeader = temporaryColumns;
+
+        //if all columns visible, just reorder
+        if (_CurrentDataGrid.ColumnsHeader.Count == _CurrentDataGrid.Columns.Count)
+        {
+            _CurrentDataGrid.Columns.Clear();
+            for (var i = 0; i < _CurrentDataGrid.ColumnsHeader.Count; i++)
+            {
+                _CurrentDataGrid.Columns.Add(_CurrentDataGrid.ColumnsHeader[i]);
+            }
+        }
+        else
+        {
+            var tempArray = new DataGridColumn[_CurrentDataGrid.Columns.Count];
+            _CurrentDataGrid.Columns.CopyTo(tempArray, 0);
+            var temp = tempArray.ToObservableCollection();
+
+            _CurrentDataGrid.Columns.Clear();
+            for (var i = 0; i < _CurrentDataGrid.ColumnsHeader.Count; i++)
+            {
+                _CurrentDataGrid.Columns.Add(_CurrentDataGrid.ColumnsHeader[i]);
+                temp.Remove(_CurrentDataGrid.ColumnsHeader[i]);
+            }
+
+            foreach (var col in temp)
+            {
+                _CurrentDataGrid.Columns.Add(col);
+            }
+        }
+
+        _CurrentDataGrid.Reload();
     }
 }
