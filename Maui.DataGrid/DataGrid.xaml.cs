@@ -36,7 +36,6 @@ public partial class DataGrid
     private readonly Style _defaultHeaderStyle;
     private readonly Style _defaultSortIconStyle;
 
-    private int _draggedElementIndex;
     public Type? CurrentType { get; protected set; }
     #endregion Fields
 
@@ -59,19 +58,27 @@ public partial class DataGrid
                     if (SelectionMode == SelectionMode.Multiple)
                     {
                         Collectionheader.Margin = new Thickness(28, 0, 0, 0);
-                        _HeaderMargin = 78;
+                        _HeaderMargin = 28;
                         Resize(30);
                         HideBox.IsVisible = true;
                     }
                     else if (SelectionMode == SelectionMode.Single)
                     {
                         Collectionheader.Margin = new Thickness(0, 0, 0, 0);
-                        _HeaderMargin = 50;
+                        _HeaderMargin = 0;
                         Resize(-30);
                         HideBox.IsVisible = false;
                     }
                 }
             };
+
+            //add the rightClick gesture on the DataGridHeader if it's on Windowss
+            var tapGesture = new TapGestureRecognizer() { Buttons = ButtonsMask.Secondary };
+            tapGesture.Tapped += TapGestureRecognizer_Tapped;
+            Collectionheader.GestureRecognizers.Add(tapGesture);
+
+            DGUserPreferences.IsVisible = false;
+            MainGrid.ColumnDefinitions.RemoveAt(0);
         }
     }
 
@@ -271,30 +278,8 @@ public partial class DataGrid
             }
         }
 
-        //RefreshCollectionHeader();
         Reload();
     }
-
-    /*/// <summary>
-    /// Function for refresh the CollectionHeader ItemsSource for render the updated datas
-    /// </summary>
-    public void RefreshCollectionHeader()
-    {
-        Debug.WriteLine("RefreshCollectionHeader");
-        //ColumnsHeader.Clear();
-        //for (var i = 0; i < Columns.Count; i++)
-        //{
-        //    if (Columns[i].IsVisible)
-        //    {
-        //        ColumnsHeader.Add(Columns[i]);
-        //    }
-        //}
-
-        //Refresh the CollectionView ItemsSource
-        //var temp = Collectionheader.ItemsSource;
-        //Collectionheader.ItemsSource = null;
-        //Collectionheader.ItemsSource = temp;
-    }*/
 
     /// <summary>
     /// Scrolls to the row
@@ -380,7 +365,6 @@ public partial class DataGrid
     }
 
     #endregion Methods
-
 
     #region Bindable properties
 
@@ -503,7 +487,7 @@ public partial class DataGrid
                 //ObservableCollection Tracking
                 if (o is INotifyCollectionChanged oldCollection)
                 {
-                    oldCollection.CollectionChanged -= self.HandleItemsSourceCollectionChanged;
+                    oldCollection.CollectionChanged -= self.OnItemsSourceCollectionChanged;
                 }
 
                 if (n == null)
@@ -514,7 +498,7 @@ public partial class DataGrid
                 {
                     if (n is INotifyCollectionChanged newCollection)
                     {
-                        newCollection.CollectionChanged += self.HandleItemsSourceCollectionChanged;
+                        newCollection.CollectionChanged += self.OnItemsSourceCollectionChanged;
                     }
 
                     var itemsSource = n.Cast<object>().ToList();
@@ -560,7 +544,7 @@ public partial class DataGrid
         SetAutoColumns();
     }
 
-    private void HandleItemsSourceCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    private void OnItemsSourceCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         SortAndPaginate();
 
@@ -1164,28 +1148,22 @@ public partial class DataGrid
     {
         base.OnParentSet();
 
-        if (SelectionEnabled)
+        if (Parent is null)
         {
-            if (Parent is null)
-            {
-                _collectionView.SelectionChanged -= OnSelectionChanged;
-            }
-            else
-            {
-                _collectionView.SelectionChanged += OnSelectionChanged;
-            }
+            _collectionView.SelectionChanged -= OnSelectionChanged;
+        }
+        else if (SelectionEnabled)
+        {
+            _collectionView.SelectionChanged += OnSelectionChanged;
         }
 
-        if (RefreshingEnabled)
+        if (Parent is null)
         {
-            if (Parent is null)
-            {
-                _refreshView.Refreshing -= OnRefreshing;
-            }
-            else
-            {
-                _refreshView.Refreshing += OnRefreshing;
-            }
+            _refreshView.Refreshing -= OnRefreshing;
+        }
+        else if (RefreshingEnabled)
+        {
+            _refreshView.Refreshing += OnRefreshing;
         }
 
         if (Parent is null)
@@ -1341,6 +1319,7 @@ public partial class DataGrid
         return resultList;
     }
 
+
     private void TapGestureRecognizer_Tapped_1(object sender, TappedEventArgs e)
     {
         var column = ((sender as Border).BindingContext as DataGridColumn);
@@ -1365,7 +1344,7 @@ public partial class DataGrid
             (column.SortingIconContainer as ContentView).Content = column.SortingIcon;
             try
             {
-                (((sender as Border).Content as Grid).Children[1]) = column.SortingIconContainer;
+                ((sender as Border).Content as Grid).Children[1] = column.SortingIconContainer;
             }
             catch (Exception ex)
             {
@@ -1390,14 +1369,8 @@ public partial class DataGrid
             SortedColumnIndex = new(index, order);
 
             column.SortingOrder = order;
-            try
-            {
-                (((sender as Border).Content as Grid).Children[1] as ContentView).Content = column.SortingIcon;
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("Errore: " + ex.Message + "" + ex.StackTrace);
-            }
+
+            (((sender as Border).Content as Grid).Children[1] as ContentView).Content = column.SortingIcon;
         }*/
     }
 
@@ -1410,10 +1383,6 @@ public partial class DataGrid
             Columns.Clear();
             for (var i = 0; i < ColumnsHeader.Count; i++)
             {
-                /*if (ColumnsHeader[i].SortingOrder != SortingOrder.None)
-                {
-                    SortedColumnIndex.Index = i;
-                }*/
                 Columns.Add(ColumnsHeader[i]);
             }
         }
@@ -1437,5 +1406,15 @@ public partial class DataGrid
         }
 
         Reload();
+    }
+
+    /// <summary>
+    /// Function for enter in the setup menu when user rightClicks on the DataGridHeader
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
+    {
+        MopupService.Instance.PushAsync(new DataGridUserPreferencesSetup(Columns, this));
     }
 }

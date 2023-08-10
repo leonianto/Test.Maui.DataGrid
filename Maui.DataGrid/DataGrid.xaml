@@ -30,7 +30,7 @@
             </Style>
         </ResourceDictionary>
     </ContentView.Resources>
-    <Grid CompressedLayout.IsHeadless="True">
+    <Grid CompressedLayout.IsHeadless="True" x:Name="MainGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -65,8 +65,10 @@
                         </Border.GestureRecognizers>
 
                         <Grid>
-                            <Label Text="{Binding PropertyName}" HorizontalOptions="Center" VerticalOptions="Center"></Label>
+                            <Label Text="{Binding Title}" HorizontalOptions="Center" VerticalOptions="Center"></Label>
 
+                            <!--IsVisible="{Binding SortingIconContainer.IsVisible}" Content="{Binding SortingIconContainer.Content}"-->
+                            <!--WidthRequest="{Binding SortingIconContainer.WidthRequest}" HeightRequest="{Binding SortingIconContainer.HeightRequest}"-->
                             <ContentView x:Name="SortingIconContainer" HorizontalOptions="End" VerticalOptions="Center"></ContentView>
                         </Grid>
                     </Border>

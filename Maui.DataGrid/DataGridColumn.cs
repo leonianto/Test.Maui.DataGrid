@@ -86,16 +86,9 @@ public sealed class DataGridColumn : BindableObject, IDefinition, INotifyPropert
                             {
                                 if (column.DataGrid.Columns[i].PropertyName == column.PropertyName)
                                 {
-                                    /* if (i < column.DataGrid.ColumnsHeader.Count)
-                                     {
-                                         column.DataGrid.ColumnsHeader.Insert(i, column);
-                                     }
-                                     else
-                                     {*/
-                                    column.DataGrid.Columns.RemoveAt(i);                    //
-                                    column.DataGrid.Columns.Add(column);                    // DOPO AVER FATTO 1 ADD, SIA CHE NE VOGLIO FARE UN'ALTRO O UN REMOVE, PARTE IL LOOP
-                                    column.DataGrid.ColumnsHeader.Add(column);              //
-                                    //}
+                                    column.DataGrid.Columns.RemoveAt(i);
+                                    column.DataGrid.Columns.Add(column);
+                                    column.DataGrid.ColumnsHeader.Add(column);
                                     break;
                                 }
                             }
@@ -106,7 +99,6 @@ public sealed class DataGridColumn : BindableObject, IDefinition, INotifyPropert
                         }
                         column.DataGrid.Resize(0);
                         column.ColumnVisibilityChanged?.Invoke(column, new EventArgs());
-                        //column.DataGrid?.Reload();
                     }
                     catch { }
                     /*finally
@@ -238,7 +230,16 @@ public sealed class DataGridColumn : BindableObject, IDefinition, INotifyPropert
 
     internal Polygon SortingIcon { get; }
     internal Label HeaderLabel { get; }
-    internal View SortingIconContainer { get; set; }
+    //internal View SortingIconContainer { get; }
+
+    public ContentView SortingIconContainer
+    {
+        get => (ContentView)GetValue(SortingIconContainerProperty);
+        set => SetValue(SortingIconContainerProperty, value);
+    }
+
+    public static readonly BindableProperty SortingIconContainerProperty = BindablePropertyExtensions.Create(new ContentView(), BindingMode.TwoWay);
+
     internal SortingOrder SortingOrder { get; set; }
 
     #endregion Properties

@@ -43,6 +43,32 @@ public partial class DataGridUserPreferencesSetup
                 AddOrRemove = false;
             }
 
+            var numberOfColumnToResize = (ColumnsListSource.Count - 1);
+
+            for (var i = 0; i < ColumnsListSource.Count; i++)
+            {
+                var col = ColumnsListSource[i];
+                if (col != dataGridColumn)
+                {
+                    if (AddOrRemove)
+                    {
+                        if (col.WidthCol + DeltaForOtherColumns >= (sender as CustomStepper).Maximum)
+                        {
+                            numberOfColumnToResize--;
+                            DeltaForOtherColumns = (sender as CustomStepper).Increment / numberOfColumnToResize;
+                        }
+                    }
+                    else
+                    {
+                        if (col.WidthCol - DeltaForOtherColumns <= (sender as CustomStepper).Minimum)
+                        {
+                            numberOfColumnToResize--;
+                            DeltaForOtherColumns = (sender as CustomStepper).Increment / numberOfColumnToResize;
+                        }
+                    }
+                }
+            }
+
             for (var i = 0; i < ColumnsListSource.Count; i++)
             {
                 var col = ColumnsListSource[i];
@@ -76,4 +102,32 @@ public partial class DataGridUserPreferencesSetup
         }
     }
 
+    private void TapGestureRecognizer_Tapped(object sender, EventArgs e)
+    {
+        if (!(sender as CheckBox).IsChecked)
+        {
+            var visibleColumns = 0;
+            for (var i = 0; i < ColumnsListSource.Count; i++)
+            {
+                if (ColumnsListSource[i].IsVisible)
+                {
+                    visibleColumns++;
+                }
+            }
+
+            if (visibleColumns > 1)
+            {
+                (sender as CheckBox).IsChecked = false;
+                ((sender as CheckBox).BindingContext as DataGridColumn).IsVisible = false;
+            }
+            else
+            {
+                (sender as CheckBox).IsChecked = true;
+            }
+        }
+        else
+        {
+            ((sender as CheckBox).BindingContext as DataGridColumn).IsVisible = true;
+        }
+    }
 }

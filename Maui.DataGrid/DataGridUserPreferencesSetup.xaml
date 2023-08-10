@@ -46,12 +46,13 @@
                     <DataTemplate x:DataType="local:DataGridColumn">
                         <Border Stroke="#FFFFFFFF" BackgroundColor="White" StrokeThickness="2" StrokeShape="RoundRectangle 8,8,8,8" HorizontalOptions="Center">
                             <HorizontalStackLayout>
-                                <CheckBox IsChecked="{Binding IsVisible}" />
+                                <CheckBox IsChecked="{Binding IsVisible, Mode=OneWay}">
+                                    <CheckBox.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"></TapGestureRecognizer>
+                                    </CheckBox.GestureRecognizers>
+                                </CheckBox>
                                 <Label Text="{Binding Title}" FontSize="16" HeightRequest="40" VerticalTextAlignment="Center" Margin="5" TextColor="Black" LineBreakMode="WordWrap" WidthRequest="150"></Label>
-                                <!--<dtgrid:CustomStepper x:Name="stepper" Minimum="90" Maximum="750" Increment="10" Value="{Binding WidthCol, Mode=OneWay}" Tag="{Binding}" WidthRequest="80" ValueChanged="Stepper_ValueChanged"/>-->
                                 <local:CustomStepper x:Name="stepper" Minimum="90" Maximum="750" Increment="10" Value="{Binding WidthCol, Mode=TwoWay}" Tag="{Binding}" WidthRequest="150" ValueChanged="Stepper_ValueChanged"/>
-                                <!--<Label Text="{Binding WidthCol, StringFormat=size: '{0:N0}'}" FontSize="16" VerticalTextAlignment="Center" HeightRequest="40" Margin="5" TextColor="Black" WidthRequest="70"></Label>-->
-                                <!--{Binding Source={x:Reference stepper}, Path=Value, StringFormat=size: '{0:N0}'}-->
                             </HorizontalStackLayout>
                         </Border>
                     </DataTemplate>
