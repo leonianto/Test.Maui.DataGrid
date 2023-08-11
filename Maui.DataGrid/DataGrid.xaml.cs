@@ -169,7 +169,7 @@ public partial class DataGrid
         return true;
     }
 
-    private IList<object> GetSortedItems(IList<object> unsortedItems, SortData sortData)
+    private IEnumerable<object> GetSortedItems(IEnumerable<object> unsortedItems, SortData sortData)
     {
         var columnToSort = Columns[sortData.Index];
 
@@ -178,7 +178,14 @@ public partial class DataGrid
             if (column == columnToSort)
             {
                 column.SortingOrder = sortData.Order;
-                column.SortingIconContainer.IsVisible = true;
+                if (sortData.Order == SortingOrder.None)
+                {
+                    column.SortingIconContainer.IsVisible = false;
+                }
+                else
+                {
+                    column.SortingIconContainer.IsVisible = true;
+                }
             }
             else
             {
@@ -187,16 +194,19 @@ public partial class DataGrid
             }
         }
 
-        IEnumerable<object> items;
+        //IEnumerable<object> items;
+        List<object> items = new List<object>(unsortedItems);
 
         switch (sortData.Order)
         {
             case SortingOrder.Ascendant:
-                items = unsortedItems.OrderBy(x => x.GetValueByPath(columnToSort.PropertyName));
+                //items = unsortedItems.OrderBy(x => x.GetValueByPath(columnToSort.PropertyName));
+                items.Sort((x, y) => Comparer.Default.Compare(x.GetValueByPath(columnToSort.PropertyName), y.GetValueByPath(columnToSort.PropertyName)));
                 _ = columnToSort.SortingIcon.RotateTo(0);
                 break;
             case SortingOrder.Descendant:
-                items = unsortedItems.OrderByDescending(x => x.GetValueByPath(columnToSort.PropertyName));
+                //items = unsortedItems.OrderByDescending(x => x.GetValueByPath(columnToSort.PropertyName));
+                items.Sort((x, y) => Comparer.Default.Compare(y.GetValueByPath(columnToSort.PropertyName), x.GetValueByPath(columnToSort.PropertyName)));
                 _ = columnToSort.SortingIcon.RotateTo(180);
                 break;
             case SortingOrder.None:
@@ -226,28 +236,49 @@ public partial class DataGrid
             return;
         }
 
-        sortData ??= SortedColumnIndex;
-
-        var originalItems = ItemsSource.Cast<object>().ToList();
-
-        IList<object> sortedItems;
-
-        if (sortData != null && CanSort(sortData))
+        if (sortData != null && InternalItems != null && InternalItems.Count != 0)
         {
-            sortedItems = GetSortedItems(originalItems, sortData);
-        }
-        else
-        {
-            sortedItems = originalItems;
-        }
+            var originalItems = InternalItems.Cast<object>().ToList();
 
-        if (PaginationEnabled)
-        {
-            InternalItems = GetPaginatedItems(sortedItems).ToList();
-        }
-        else
-        {
+            IList<object> sortedItems;
+
+            if (sortData != null && CanSort(sortData))
+            {
+                sortedItems = GetSortedItems(originalItems, sortData).ToList();
+            }
+            else
+            {
+                sortedItems = originalItems;
+            }
+
             InternalItems = sortedItems;
+        }
+        else
+        {
+            sortData = new SortData(0, SortingOrder.None);
+            sortData ??= SortedColumnIndex;
+
+            var originalItems = ItemsSource.Cast<object>().ToList();
+
+            IList<object> sortedItems;
+
+            if (sortData != null && CanSort(sortData))
+            {
+                sortedItems = GetSortedItems(originalItems, sortData).ToList();
+            }
+            else
+            {
+                sortedItems = originalItems;
+            }
+
+            if (PaginationEnabled)
+            {
+                InternalItems = GetPaginatedItems(sortedItems).ToList();
+            }
+            else
+            {
+                InternalItems = sortedItems;
+            }
         }
     }
 
