@@ -31,7 +31,7 @@
         </ResourceDictionary>
 
     </ContentView.Resources>
-    <Grid CompressedLayout.IsHeadless="True">
+    <Grid CompressedLayout.IsHeadless="True" x:Name="MainGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />

@@ -67,6 +67,14 @@ public partial class DataGrid
                     HideBox.IsVisible = false;
                 }
             };
+
+            //add the rightClick gesture on the DataGridHeader if it's on Windowss
+            var tapGesture = new TapGestureRecognizer() { Buttons = ButtonsMask.Secondary };
+            tapGesture.Tapped += TapGestureRecognizer_Tapped;
+            _headerView.GestureRecognizers.Add(tapGesture);
+
+            DGUserPreferences.IsVisible = false;
+            MainGrid.ColumnDefinitions.RemoveAt(0);
         }
     }
 
@@ -1532,5 +1540,15 @@ public partial class DataGrid
                              .ToList();
 
         return resultList;
+    }
+
+    /// <summary>
+    /// Function for enter in the setup menu when user rightClicks on the DataGridHeader
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
+    {
+        MopupService.Instance.PushAsync(new DataGridUserPreferencesSetup(Columns, this));
     }
 }
