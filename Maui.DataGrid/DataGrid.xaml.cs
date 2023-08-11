@@ -37,6 +37,10 @@ public partial class DataGrid
 
     private int _draggedElementIndex;
     public Type? CurrentType { get; protected set; }
+
+    //To keep track of sorting criteria per page
+    private SortData[] _PageSortingColumnIndex;
+
     #endregion Fields
 
     #region ctor
@@ -150,7 +154,17 @@ public partial class DataGrid
             if (column == columnToSort)
             {
                 column.SortingOrder = sortData.Order;
-                column.SortingIconContainer.IsVisible = true;
+
+                //If order is none no icon is showed
+                if (sortData.Order == SortingOrder.None)
+                {
+                    column.SortingIconContainer.IsVisible = false;
+                }
+                else
+                {
+                    column.SortingIconContainer.IsVisible = true;
+
+                }
             }
             else
             {
@@ -164,11 +178,50 @@ public partial class DataGrid
         switch (sortData.Order)
         {
             case SortingOrder.Ascendant:
-                items = unsortedItems.OrderBy(x => x.GetValueByPath(columnToSort.PropertyName));
+                if (PaginationEnabled && unsortedItems.Count > 0)
+                {
+
+                    List<object> unsortedItemsList = (List<object>)unsortedItems;
+
+                    //Getting ordered rows of the current page
+                    IEnumerable<object> pageSortedItems = unsortedItemsList.GetRange((PageNumber - 1) * PageSize, PageSize).OrderBy(x => x.GetValueByPath(columnToSort.PropertyName));
+
+                    //Removing rows of the current page
+                    unsortedItemsList.RemoveRange((PageNumber - 1) * PageSize, PageSize);
+
+                    //Adding ordered rows in the same place of the old ones
+                    unsortedItemsList.InsertRange((PageNumber - 1) * PageSize, pageSortedItems);
+
+                    //replacing item list
+                    items = unsortedItemsList;
+                }
+                else
+                {
+                    items = unsortedItems.OrderBy(x => x.GetValueByPath(columnToSort.PropertyName));
+                }
                 _ = columnToSort.SortingIcon.RotateTo(0);
                 break;
             case SortingOrder.Descendant:
-                items = unsortedItems.OrderByDescending(x => x.GetValueByPath(columnToSort.PropertyName));
+                if (PaginationEnabled && unsortedItems.Count > 0)
+                {
+                    List<object> unsortedItemsList = (List<object>)unsortedItems;
+
+                    //Getting ordered rows of the current page
+                    IEnumerable<object> pageSortedItems = unsortedItemsList.GetRange((PageNumber - 1) * PageSize, PageSize).OrderByDescending(x => x.GetValueByPath(columnToSort.PropertyName));
+
+                    //Removing rows of the current page
+                    unsortedItemsList.RemoveRange((PageNumber - 1) * PageSize, PageSize);
+
+                    //Adding ordered rows in the same place of the old ones
+                    unsortedItemsList.InsertRange((PageNumber - 1) * PageSize, pageSortedItems);
+
+                    //replacing item list
+                    items = unsortedItemsList;
+                }
+                else
+                {
+                    items = unsortedItems.OrderByDescending(x => x.GetValueByPath(columnToSort.PropertyName));
+                }
                 _ = columnToSort.SortingIcon.RotateTo(180);
                 break;
             case SortingOrder.None:
@@ -363,7 +416,7 @@ public partial class DataGrid
         BindablePropertyExtensions.Create(Colors.White);
 
     public static readonly BindableProperty BorderColorProperty =
-        BindablePropertyExtensions.Create(Color.FromRgb(255,255,255),
+        BindablePropertyExtensions.Create(Color.FromRgb(255, 255, 255),
             propertyChanged: (b, _, n) =>
             {
                 var self = (DataGrid)b;
@@ -474,6 +527,9 @@ public partial class DataGrid
                     }
 
                     self.SortAndPaginate();
+
+                    //Array of sorting data has length equal to the numb of pages
+                    self._PageSortingColumnIndex = new SortData[self.PageCount];
                 }
 
                 if (self.SelectedItem != null && self.InternalItems?.Contains(self.SelectedItem) != true)
@@ -554,6 +610,9 @@ public partial class DataGrid
                     if (self.ItemsSource != null)
                     {
                         self.PageCount = (int)Math.Ceiling(self.ItemsSource.Cast<object>().Count() / (double)self.PageSize);
+
+                        //if page size changes also number of sorting data elements changes
+                        self._PageSortingColumnIndex = new SortData[self.PageCount];
                     }
                     self.SortAndPaginate();
                 }
@@ -730,6 +789,7 @@ public partial class DataGrid
                 if (b is DataGrid self)
                 {
                     return v == 1 || v <= self.PageCount;
+
                 }
 
                 return false;
@@ -738,6 +798,36 @@ public partial class DataGrid
             {
                 if (o != n && b is DataGrid self && self.ItemsSource?.Cast<object>().Any() == true)
                 {
+                    //Saving old sorted column index in the array 
+                    self._PageSortingColumnIndex[o - 1] = self.SortedColumnIndex;
+
+                    //if the new sorted column Index exists in the array, restores it
+                    if (self._PageSortingColumnIndex[n - 1] != null)
+                    {
+
+                        self.SortedColumnIndex = self._PageSortingColumnIndex[n - 1];
+                        self.InitHeaderView();
+
+                    }
+                    else
+                    {
+
+                        //otherwise no sorting is set
+                        try
+                        {
+                            self.SortedColumnIndex = new SortData(0, SortingOrder.None);
+                        }
+                        catch (Exception e)
+                        {
+                            if (e.InnerException != null)
+                            {
+                                string err = e.InnerException.Message;
+                                Debug.WriteLine(err);
+                            }
+                        }
+
+                    }
+
                     self.SortAndPaginate();
                 }
             });
@@ -1142,27 +1232,6 @@ public partial class DataGrid
         set => SetValue(StepperMaximumProperty, value);
     }
 
-    /*/// <summary>
-    /// Max Width of the DataGrid Columns
-    /// </summary>
-    public double MaxColumnWidth
-    {
-        get => (double)GetValue(MaxColumnWidthProperty);
-        set => SetValue(MaxColumnWidthProperty, value);
-    }
-
-    /// <summary>
-    /// Min Width of the DataGrid Columns
-    /// </summary>
-    public double MinColumnWidth
-    {
-        get => (double)GetValue(MinColumnWidthProperty);
-        set => SetValue(MinColumnWidthProperty, value);
-    }*/
-
-    public double MinColumnWidth { get; set; } = 100;
-
-    public double MaxColumnWidth { get; set; } = 1000;
 
     #endregion Properties
 
