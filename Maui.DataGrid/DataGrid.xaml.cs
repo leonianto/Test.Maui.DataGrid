@@ -192,10 +192,10 @@ public partial class DataGrid
                     List<object> unsortedItemsList = (List<object>)unsortedItems;
 
                     //Getting ordered rows of the current page
-                    IEnumerable<object> pageSortedItems = unsortedItemsList.GetRange((PageNumber - 1) * PageSize, PageSize).OrderBy(x => x.GetValueByPath(columnToSort.PropertyName));
+                    IEnumerable<object> pageSortedItems = unsortedItemsList.GetRange((PageNumber - 1) * PageSize, (unsortedItems.Count - (PageNumber - 1) * PageSize ) >= PageSize ? PageSize : (unsortedItems.Count - (PageNumber - 1) * PageSize)).OrderBy(x => x.GetValueByPath(columnToSort.PropertyName));
 
                     //Removing rows of the current page
-                    unsortedItemsList.RemoveRange((PageNumber - 1) * PageSize, PageSize);
+                    unsortedItemsList.RemoveRange((PageNumber - 1) * PageSize, (unsortedItems.Count - (PageNumber - 1) * PageSize) >= PageSize ? PageSize : (unsortedItems.Count - (PageNumber - 1) * PageSize));
 
                     //Adding ordered rows in the same place of the old ones
                     unsortedItemsList.InsertRange((PageNumber - 1) * PageSize, pageSortedItems);
@@ -215,10 +215,10 @@ public partial class DataGrid
                     List<object> unsortedItemsList = (List<object>)unsortedItems;
 
                     //Getting ordered rows of the current page
-                    IEnumerable<object> pageSortedItems = unsortedItemsList.GetRange((PageNumber - 1) * PageSize, PageSize).OrderByDescending(x => x.GetValueByPath(columnToSort.PropertyName));
+                    IEnumerable<object> pageSortedItems = unsortedItemsList.GetRange((PageNumber - 1) * PageSize, (unsortedItems.Count - (PageNumber - 1) * PageSize) >= PageSize ? PageSize : (unsortedItems.Count - (PageNumber - 1) * PageSize)).OrderByDescending(x => x.GetValueByPath(columnToSort.PropertyName));
 
                     //Removing rows of the current page
-                    unsortedItemsList.RemoveRange((PageNumber - 1) * PageSize, PageSize);
+                    unsortedItemsList.RemoveRange((PageNumber - 1) * PageSize, (unsortedItems.Count - (PageNumber - 1) * PageSize) >= PageSize ? PageSize : (unsortedItems.Count - (PageNumber - 1) * PageSize));
 
                     //Adding ordered rows in the same place of the old ones
                     unsortedItemsList.InsertRange((PageNumber - 1) * PageSize, pageSortedItems);
