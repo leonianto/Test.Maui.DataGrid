@@ -5,7 +5,7 @@
       xmlns:local="clr-namespace:Maui.DataGrid;assembly=Maui.DataGrid"
       x:Class="Maui.DataGrid.DataGrid"
       x:DataType="local:DataGrid"
-      CompressedLayout.IsHeadless="True">
+      CompressedLayout.IsHeadless="True" HeightRequest="500">
     <ContentView.Resources>
         <ResourceDictionary>
 

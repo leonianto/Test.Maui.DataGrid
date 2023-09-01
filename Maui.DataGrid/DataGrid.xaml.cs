@@ -181,6 +181,7 @@ public partial class DataGrid
             {
                 column.SortingOrder = sortData.Order;
                 column.SortingIconContainer.IsVisible = true;
+                column.SortingIcon.IsVisible = true;
             }
             else
             {
@@ -263,7 +264,7 @@ public partial class DataGrid
     /// <param name="totDelta">if < 0 datagridMargin going from 78 to 50 = -28, if > 0 datagridMargin going from 50 to 78 = +28</param>
     public void Resize(int totDelta)
     {
-        Debug.WriteLine("Resize");
+        /*Debug.WriteLine("Resize");
         //return to columns with all the same width
         if (totDelta == 0)
         {
@@ -277,6 +278,49 @@ public partial class DataGrid
             foreach (var column in Columns)
             {
                 column.WidthCol -= totDelta / ColumnsHeader.Count;
+            }
+        }
+
+        Reload();*/
+
+        Debug.WriteLine("Resize");
+
+        var lockedColumns = new List<DataGridColumn>();
+        foreach (var col in Columns)
+        {
+            if (col.IsLocked)
+            {
+                lockedColumns.Add(col);
+            }
+        }
+
+        //return to columns with all the same width
+        if (totDelta == 0)
+        {
+            foreach (var column in Columns)
+            {
+                if (!column.IsLocked && lockedColumns.Count != 0)
+                {
+                    column.WidthCol = (double)(Width - _HeaderMargin) / (double)lockedColumns.Count;
+                }
+                else if (lockedColumns.Count == 0)
+                {
+                    column.WidthCol = (double)(Width - _HeaderMargin) / (double)ColumnsHeader.Count;
+                }
+            }
+        }
+        else
+        {
+            foreach (var column in Columns)
+            {
+                if (!column.IsLocked && lockedColumns.Count != 0)
+                {
+                    column.WidthCol -= totDelta / lockedColumns.Count;
+                }
+                else if (lockedColumns.Count == 0)
+                {
+                    column.WidthCol -= totDelta / ColumnsHeader.Count;
+                }
             }
         }
 
@@ -468,7 +512,7 @@ public partial class DataGrid
         BindablePropertyExtensions.Create(new ObservableCollection<DataGridColumn>(),
             propertyChanged: (b, o, n) =>
             {
-                Debug.WriteLine("ColumnsHeader change");
+                Debug.WriteLine("ColumnsHeader CHANGE");
             },
             defaultValueCreator: _ => new ObservableCollection<DataGridColumn>());
 
