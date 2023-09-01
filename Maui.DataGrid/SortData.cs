@@ -5,7 +5,6 @@ using System.ComponentModel;
 /// <summary>
 /// Creates SortData for DataGrid
 /// </summary>
-[TypeConverter(typeof(SortDataTypeConverter))]
 public sealed class SortData
 {
     public static implicit operator SortData(int index) => new()

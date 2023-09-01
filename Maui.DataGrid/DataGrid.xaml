@@ -66,9 +66,6 @@
 
                         <Grid>
                             <Label Text="{Binding Title}" HorizontalOptions="Center" VerticalOptions="Center"></Label>
-
-                            <!--IsVisible="{Binding SortingIconContainer.IsVisible}" Content="{Binding SortingIconContainer.Content}"-->
-                            <!--WidthRequest="{Binding SortingIconContainer.WidthRequest}" HeightRequest="{Binding SortingIconContainer.HeightRequest}"-->
                             <ContentView x:Name="SortingIconContainer" HorizontalOptions="End" VerticalOptions="Center"></ContentView>
                         </Grid>
                     </Border>

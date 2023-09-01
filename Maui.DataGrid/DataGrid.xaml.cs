@@ -1391,37 +1391,17 @@ public partial class DataGrid
             SortedColumnIndex = new(index, order);
 
             column.SortingOrder = order;
-            (column.SortingIconContainer as ContentView).Content = column.SortingIcon;
+            column.SortingIconContainer.Content = column.SortingIcon;
             try
             {
                 ((sender as Border).Content as Grid).Children[1] = column.SortingIconContainer;
+                //(((sender as Border).Content as Grid).Children[1] as ContentView).Content = column.SortingIcon;
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message + ex.StackTrace);
             }
         }
-
-        /*if (column.IsSortable(this))
-        {
-            var sortIconSize = HeaderHeight * 0.3;
-            (((sender as Border).Content as Grid).Children[1] as ContentView).HeightRequest = sortIconSize;
-            (((sender as Border).Content as Grid).Children[1] as ContentView).WidthRequest = sortIconSize;
-            column.SortingIcon.Style = SortIconStyle ?? _defaultSortIconStyle;
-
-            // This is to invert SortOrder when the user taps on a column.
-            var order = column.SortingOrder == SortingOrder.Ascendant
-                ? SortingOrder.Descendant
-                : SortingOrder.Ascendant;
-
-            var index = Columns.IndexOf(column);
-
-            SortedColumnIndex = new(index, order);
-
-            column.SortingOrder = order;
-
-            (((sender as Border).Content as Grid).Children[1] as ContentView).Content = column.SortingIcon;
-        }*/
     }
 
     /// <summary>
