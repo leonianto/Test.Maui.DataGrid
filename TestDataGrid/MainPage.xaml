@@ -6,7 +6,7 @@
              xmlns:m="clr-namespace:UraniumUI.Icons.MaterialIcons;assembly=UraniumUI.Icons.MaterialIcons"
              x:Class="TestDataGrid.MainPage" x:Name="self">
 
-    <Grid RowDefinitions="Auto,*" BackgroundColor="White">
+    <Grid RowDefinitions="Auto,Auto" BackgroundColor="White">
         <FlexLayout Grid.Row="0"  BackgroundColor="LightGray" >
             <Button x:Name="SelectionModeButton" LineBreakMode="WordWrap" WidthRequest="70" BackgroundColor="White" Clicked="SelectionModeButtonClick" HeightRequest="50" VerticalOptions="Center" Margin="10">
                 <Button.ImageSource>

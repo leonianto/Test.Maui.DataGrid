@@ -90,8 +90,10 @@ public partial class DataGrid
         {
             column.WidthCol = (double)(Width - _HeaderMargin) / (double)Columns.Count;
         }*/
-
-        Resize(0);
+        if (DeviceInfo.Current.Platform == DevicePlatform.WinUI)
+        {
+            Resize(0);
+        }
     }
 
     #endregion ctor

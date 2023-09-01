@@ -1,5 +1,6 @@
 namespace Maui.DataGrid;
 
+using System.Runtime.CompilerServices;
 using Maui.DataGrid.Extensions;
 using Microsoft.Maui.Controls;
 
@@ -38,7 +39,7 @@ public partial class CustomStepper : Grid
     public double Value
     {
         get => (double)GetValue(ValueProperty);
-        set { /*OnValueChanged(Value, value);*/ SetValue(ValueProperty, value); }
+        set { /*OnValueChanged(Value, value);*/ SetValue(ValueProperty, value);}
     }
 
     public event EventHandler<ValueChangedEventArgs> ValueChanged;
@@ -47,6 +48,7 @@ public partial class CustomStepper : Grid
     public CustomStepper()
     {
         InitializeComponent();
+        
     }
 
     /*/// <summary>
@@ -83,7 +85,7 @@ public partial class CustomStepper : Grid
             }
         }
     }*/
-
+   
     /// <summary>
     /// Function for the decrease the Value of the Stepper by the Increment Value
     /// </summary>
@@ -100,6 +102,7 @@ public partial class CustomStepper : Grid
             }
 
             ValueChanged?.Invoke(this, new ValueChangedEventArgs(Value, Value - Increment));
+
         }
 
     }
@@ -119,6 +122,15 @@ public partial class CustomStepper : Grid
             }
 
             ValueChanged?.Invoke(this, new ValueChangedEventArgs(Value, Value + Increment));
+
         }
+    }
+
+    private void WidthColTextLostFocus(object sender, FocusEventArgs e)
+    {
+        
+        ValueChanged?.Invoke(this, new ValueChangedEventArgs(Value, int.Parse(((Entry) sender).Text)));
+
+
     }
 }

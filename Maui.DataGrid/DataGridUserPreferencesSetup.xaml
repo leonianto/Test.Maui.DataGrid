@@ -33,11 +33,10 @@
     </mopups:PopupPage.Animation>-->
 
 
-    <Border Stroke="Black" StrokeThickness="1" BackgroundColor="#486378" WidthRequest="400" HeightRequest="400">
+    <Border Stroke="Black" StrokeThickness="1" BackgroundColor="#486378" WidthRequest="500" HeightRequest="400">
         <Border.StrokeShape>
             <RoundRectangle CornerRadius="10,10,10,10"/>
         </Border.StrokeShape>
-
 
         <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center">
 
@@ -52,13 +51,25 @@
                                     </CheckBox.GestureRecognizers>
                                 </CheckBox>
                                 <Label Text="{Binding Title}" FontSize="16" HeightRequest="40" VerticalTextAlignment="Center" Margin="5" TextColor="Black" LineBreakMode="WordWrap" WidthRequest="150"></Label>
-                                <local:CustomStepper x:Name="stepper" Minimum="90" Maximum="750" Increment="10" Value="{Binding WidthCol, Mode=TwoWay}" Tag="{Binding}" WidthRequest="150" ValueChanged="Stepper_ValueChanged"/>
+                                <!--<local:CustomStepper x:Name="stepper" Minimum="90" Maximum="500" Increment="10" Value="{Binding WidthCol, Mode=TwoWay}" Tag="{Binding}" WidthRequest="150" ValueChanged="Stepper_ValueChanged"/>-->
+                                <Stepper x:Name="stepper" Minimum="90" Maximum="500" Increment="10" Value="{Binding WidthCol, Mode=TwoWay}" WidthRequest="150" ValueChanged="Stepper_ValueChanged" Loaded="ColumnStepperLoaded"></Stepper>
+                                <Entry Text="{Binding WidthCol, StringFormat='{0:N0}', Mode=OneWay}"
+               HorizontalOptions="Center"
+               VerticalOptions="Center" Completed="EntryCompleted"  />
+                                <ImageButton HeightRequest="40"
+                                             x:Name="ImgBtn"
+                                             Loaded="ImageButtonLoaded"
+                                             Clicked="LockButtonClick">
+                                </ImageButton>
+
                             </HorizontalStackLayout>
+
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
-
             </CollectionView>
+
+
 
         </VerticalStackLayout>
     </Border>

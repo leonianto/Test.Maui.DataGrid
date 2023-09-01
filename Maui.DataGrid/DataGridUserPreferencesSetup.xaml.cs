@@ -29,42 +29,55 @@ public partial class DataGridUserPreferencesSetup
 
     private void Stepper_ValueChanged(object sender, ValueChangedEventArgs e)
     {
-        if ((DataGridColumn)((CustomStepper)sender).Tag != null)
+        if (((Stepper)sender).BindingContext != null)
         {
+
             Debug.WriteLine("Stepper_ValueChanged");
-            var dataGridColumn = (DataGridColumn)((CustomStepper)sender).Tag;
-
-            dataGridColumn.WidthCol = e.NewValue;
-            var DeltaForOtherColumns = (sender as CustomStepper).Increment / (ColumnsListSource.Count - 1);
-
-            //true=ADD, false=REMOVE
-            var AddOrRemove = true;
-            if (e.NewValue > e.OldValue)
+            if (e.OldValue <= (sender as Stepper).Minimum || e.NewValue <= (sender as Stepper).Minimum)
             {
-                AddOrRemove = false;
+                return;
             }
+            var dataGridColumn = (DataGridColumn)((Stepper)sender).BindingContext;
 
-            var numberOfColumnToResize = (ColumnsListSource.Count - 1);
+            //Get count of columns not locked
+            var numberOfColumnToResize = ColumnsListSource.Where(x => x.IsLocked == false).ToList().Count;
+
+            //dataGridColumn.WidthCol = e.NewValue;
+
+            //var DeltaForOtherColumns = (sender as Stepper).Increment / (numberOfColumnToResize - 1);
+            //var DeltaForOtherColumns = (e.OldValue - e.NewValue) / (numberOfColumnToResize - 1);
+            //true=ADD, false=REMOVE
+            var incrementRemainingColumns = e.OldValue > e.NewValue;
+
+
+            var DeltaForOtherColumns = 0;
+            if (incrementRemainingColumns)
+            {
+                DeltaForOtherColumns = (int)((e.OldValue - e.NewValue) / (numberOfColumnToResize - 1));
+            } else
+            {
+                DeltaForOtherColumns = (int)((e.NewValue - e.OldValue) / (numberOfColumnToResize - 1));
+            }
 
             for (var i = 0; i < ColumnsListSource.Count; i++)
             {
                 var col = ColumnsListSource[i];
-                if (col != dataGridColumn)
+                if (col != dataGridColumn && !col.IsLocked)
                 {
-                    if (AddOrRemove)
+                    if (incrementRemainingColumns)
                     {
-                        if (col.WidthCol + DeltaForOtherColumns >= (sender as CustomStepper).Maximum)
+                        if (col.WidthCol + DeltaForOtherColumns >= (sender as Stepper).Maximum)
                         {
                             numberOfColumnToResize--;
-                            DeltaForOtherColumns = (sender as CustomStepper).Increment / numberOfColumnToResize;
+                            DeltaForOtherColumns = (int)((e.OldValue - e.NewValue) / numberOfColumnToResize);
                         }
                     }
                     else
                     {
-                        if (col.WidthCol - DeltaForOtherColumns <= (sender as CustomStepper).Minimum)
+                        if (col.WidthCol - DeltaForOtherColumns <= (sender as Stepper).Minimum)
                         {
                             numberOfColumnToResize--;
-                            DeltaForOtherColumns = (sender as CustomStepper).Increment / numberOfColumnToResize;
+                            DeltaForOtherColumns = (int)((e.NewValue - e.OldValue) / numberOfColumnToResize);
                         }
                     }
                 }
@@ -73,20 +86,26 @@ public partial class DataGridUserPreferencesSetup
             for (var i = 0; i < ColumnsListSource.Count; i++)
             {
                 var col = ColumnsListSource[i];
-                if (col != dataGridColumn)
+                if (col != dataGridColumn && !col.IsLocked)
                 {
-                    if (AddOrRemove)
+                    if (incrementRemainingColumns)
                     {
-                        if (col.WidthCol + DeltaForOtherColumns < (sender as CustomStepper).Maximum)
+                        if (col.WidthCol + DeltaForOtherColumns < (sender as Stepper).Maximum && col.ColumnStepper != null)
                         {
+
+                            col.ColumnStepper.ValueChanged -= Stepper_ValueChanged;
+                            
                             col.WidthCol += DeltaForOtherColumns;
+                            col.ColumnStepper.ValueChanged += Stepper_ValueChanged;
                         }
                     }
                     else
                     {
-                        if (col.WidthCol - DeltaForOtherColumns > (sender as CustomStepper).Minimum)
+                        if (col.WidthCol - DeltaForOtherColumns > (sender as Stepper).Minimum && col.ColumnStepper != null)
                         {
+                            col.ColumnStepper.ValueChanged -= Stepper_ValueChanged;
                             col.WidthCol -= DeltaForOtherColumns;
+                            col.ColumnStepper.ValueChanged += Stepper_ValueChanged;
                         }
                     }
                     /*ColumnsListSource[i] = col;*/
@@ -178,5 +197,67 @@ public partial class DataGridUserPreferencesSetup
         }
 
         _CurrentDataGrid.Reload();
+        var t = ColumnsList.ItemsSource;
+        ColumnsList.ItemsSource = null;
+        ColumnsList.ItemsSource = t;
+    }
+
+    private void LockButtonClick(object sender, EventArgs e)
+    {
+        HorizontalStackLayout parent = ((ImageButton)sender).Parent as HorizontalStackLayout;
+
+        if (parent != null)
+        {
+            Stepper stepper = (Stepper)parent.Children[2];
+            if (stepper != null && stepper.BindingContext is DataGridColumn)
+            {
+                var dataGridColumn = (DataGridColumn)stepper.BindingContext;
+                if (dataGridColumn != null)
+                {
+                    if (dataGridColumn.IsLocked)
+                    {
+                        dataGridColumn.IsLocked = false;
+                        ((ImageButton)sender).Source = "unlock.png";
+                    }
+                    else
+                    {
+                        dataGridColumn.IsLocked = true;
+                        ((ImageButton)sender).Source = "lock.png";
+                    }
+                }
+            }
+        }
+    }
+
+    private void ImageButtonLoaded(object sender, EventArgs e)
+    {
+        
+        Debug.WriteLine("Loaded");
+        var imageButton = (ImageButton)sender;
+        var binding = imageButton.BindingContext;
+
+        if (((DataGridColumn)binding).IsLocked){
+
+            imageButton.Source = "lock.png";
+        } else
+        {
+            imageButton.Source = "unlock.png";
+        }
+
+    }
+
+
+    private void ColumnStepperLoaded(object sender, EventArgs e)
+    {
+        DataGridColumn dataGridColumn = ((Stepper) sender).BindingContext as DataGridColumn;
+
+        dataGridColumn.ColumnStepper = sender as Stepper;
+    }
+
+    private void EntryCompleted(object sender, EventArgs e)
+    {
+        int newValue = int.Parse(((Entry)sender).Text);
+        DataGridColumn dataGridColumn = (DataGridColumn)((Entry)sender).BindingContext;
+        dataGridColumn.WidthCol = newValue;
     }
 }
