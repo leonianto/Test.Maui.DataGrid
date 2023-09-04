@@ -255,7 +255,6 @@ public sealed class DataGridColumn : BindableObject, IDefinition, INotifyPropert
     internal SortingOrder SortingOrder { get; set; }
 
     public bool IsLocked { get; set; }
-    public Stepper ColumnStepper { get; set; }
 
     #endregion Properties
 
