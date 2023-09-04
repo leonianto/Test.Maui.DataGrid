@@ -182,6 +182,7 @@ public partial class DataGrid
             {
                 column.SortingOrder = sortData.Order;
                 column.SortingIconContainer.IsVisible = true;
+                column.SortingIcon.IsVisible = true;
             }
             else
             {
