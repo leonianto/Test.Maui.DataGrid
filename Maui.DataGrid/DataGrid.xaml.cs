@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Reflection;
 using System.Windows.Input;
@@ -264,63 +265,24 @@ public partial class DataGrid
     /// <param name="totDelta">if < 0 datagridMargin going from 78 to 50 = -28, if > 0 datagridMargin going from 50 to 78 = +28</param>
     public void Resize(int totDelta)
     {
-        /*Debug.WriteLine("Resize");
-        //return to columns with all the same width
-        if (totDelta == 0)
-        {
-            foreach (var column in Columns)
-            {
-                column.WidthCol = (double)(Width - _HeaderMargin) / (double)ColumnsHeader.Count;
-            }
-        }
-        else
-        {
-            foreach (var column in Columns)
-            {
-                column.WidthCol -= totDelta / ColumnsHeader.Count;
-            }
-        }
-
-        Reload();*/
-
         Debug.WriteLine("Resize");
-
-        var lockedColumns = new List<DataGridColumn>();
-        foreach (var col in Columns)
-        {
-            if (col.IsLocked)
-            {
-                lockedColumns.Add(col);
-            }
-        }
-
         //return to columns with all the same width
         if (totDelta == 0)
         {
             foreach (var column in Columns)
             {
-                if (!column.IsLocked && lockedColumns.Count != 0)
-                {
-                    column.WidthCol = (double)(Width - _HeaderMargin) / (double)lockedColumns.Count;
-                }
-                else if (lockedColumns.Count == 0)
-                {
-                    column.WidthCol = (double)(Width - _HeaderMargin) / (double)ColumnsHeader.Count;
-                }
+                column.SizeChanged -= OnColumnSizeChanged;
+                column.WidthCol = (double)(Width - _HeaderMargin) / (double)ColumnsHeader.Count;
+                column.SizeChanged += OnColumnSizeChanged;
             }
         }
         else
         {
             foreach (var column in Columns)
             {
-                if (!column.IsLocked && lockedColumns.Count != 0)
-                {
-                    column.WidthCol -= totDelta / lockedColumns.Count;
-                }
-                else if (lockedColumns.Count == 0)
-                {
-                    column.WidthCol -= totDelta / ColumnsHeader.Count;
-                }
+                column.SizeChanged -= OnColumnSizeChanged;
+                column.WidthCol -= totDelta / ColumnsHeader.Count;
+                column.SizeChanged += OnColumnSizeChanged;
             }
         }
 
@@ -512,7 +474,13 @@ public partial class DataGrid
         BindablePropertyExtensions.Create(new ObservableCollection<DataGridColumn>(),
             propertyChanged: (b, o, n) =>
             {
-                Debug.WriteLine("ColumnsHeader CHANGE");
+                Debug.WriteLine("ColumnsHeader change");
+                if (n == o || b is not DataGrid self)
+                {
+                    return;
+                }
+
+                self.Reload();
             },
             defaultValueCreator: _ => new ObservableCollection<DataGridColumn>());
 
@@ -1245,10 +1213,102 @@ public partial class DataGrid
         /*Reload();*/
     }
 
+
+    /// <summary>
+    /// Adjust size of the remaining unlocked columns
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void OnColumnSizeChanged(object? sender, EventArgs e)
     {
         Debug.WriteLine("OnColumnSizeChanged");
-        /*Reload();*/
+        DataGridColumn.SizeChangedEventArgs sizeChangedEventArgs = ((DataGridColumn.SizeChangedEventArgs)e);
+
+        if(sizeChangedEventArgs.OldSize != sizeChangedEventArgs.NewSize)
+        {
+            if (sizeChangedEventArgs.OldSize <= 92 || sizeChangedEventArgs.NewSize <= 92)
+            {
+                return;
+            }
+            var dataGridColumn = (DataGridColumn)sender;
+
+            //Get count of columns not locked
+            var numberOfColumnToResize = Columns.Where(x => x.IsLocked == false).ToList().Count;
+
+            //dataGridColumn.WidthCol = e.NewValue;
+
+            //var DeltaForOtherColumns = (sender as Stepper).Increment / (numberOfColumnToResize - 1);
+            //var DeltaForOtherColumns = (e.OldValue - e.NewValue) / (numberOfColumnToResize - 1);
+            //true=ADD, false=REMOVE
+            var incrementRemainingColumns = sizeChangedEventArgs.OldSize > sizeChangedEventArgs.NewSize;
+
+
+            var DeltaForOtherColumns = 0;
+            if (incrementRemainingColumns)
+            {
+                DeltaForOtherColumns = (int)((sizeChangedEventArgs.OldSize - sizeChangedEventArgs.NewSize) / (numberOfColumnToResize - 1));
+            }
+            else
+            {
+                DeltaForOtherColumns = (int)((sizeChangedEventArgs.NewSize - sizeChangedEventArgs.OldSize) / (numberOfColumnToResize - 1));
+            }
+
+            for (var i = 0; i < Columns.Count; i++)
+            {
+                var col = Columns[i];
+                if (col != dataGridColumn && !col.IsLocked)
+                {
+                    if (incrementRemainingColumns)
+                    {
+                        if (col.WidthCol + DeltaForOtherColumns >= 500)
+                        {
+                            numberOfColumnToResize--;
+                            DeltaForOtherColumns = (int)((sizeChangedEventArgs.OldSize - sizeChangedEventArgs.NewSize) / numberOfColumnToResize);
+                        }
+                    }
+                    else
+                    {
+                        if (col.WidthCol - DeltaForOtherColumns <= 92)
+                        {
+                            numberOfColumnToResize--;
+                            DeltaForOtherColumns = (int)((sizeChangedEventArgs.NewSize - sizeChangedEventArgs.OldSize) / numberOfColumnToResize);
+                        }
+                    }
+                }
+            }
+
+            for (var i = 0; i < Columns.Count; i++)
+            {
+                var col = Columns[i];
+                if (col != dataGridColumn && !col.IsLocked)
+                {
+                    if (incrementRemainingColumns)
+                    {
+                        if (col.WidthCol + DeltaForOtherColumns < 500)
+                        {
+
+                            col.SizeChanged -= OnColumnSizeChanged;
+                            col.WidthCol += DeltaForOtherColumns;
+                            col.SizeChanged += OnColumnSizeChanged;
+                        }
+                    }
+                    else
+                    {
+                        if (col.WidthCol - DeltaForOtherColumns > 92)
+                        {
+                            col.SizeChanged -= OnColumnSizeChanged;
+                            col.WidthCol -= DeltaForOtherColumns;
+                            col.SizeChanged += OnColumnSizeChanged;
+                        }
+                    }
+
+                }
+            }
+
+           Reload();
+        }
+
+
     }
 
     private void OnRefreshing(object? sender, EventArgs e)

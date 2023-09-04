@@ -42,6 +42,15 @@ public sealed class DataGridColumn : BindableObject, IDefinition, INotifyPropert
         remove => _sizeChangedEventManager.RemoveEventHandler(value);
     }
 
+    /// <summary>
+    /// Parameter class for size changed event
+    /// </summary>
+    public class SizeChangedEventArgs : EventArgs
+    {
+        public double OldSize { get; set; }
+        public double NewSize { get; set; }
+    }
+
     public event EventHandler ColumnVisibilityChanged;
 
     #endregion Events
@@ -49,13 +58,15 @@ public sealed class DataGridColumn : BindableObject, IDefinition, INotifyPropert
     #region Bindable Properties
 
     public static readonly BindableProperty WidthColProperty =
-        BindablePropertyExtensions.Create<double>(100,
+        BindablePropertyExtensions.Create<double>(
         propertyChanged: (b, o, n) =>
         {
             if (!o.Equals(n) && b is DataGridColumn self)
             {
+
                 self.ColumnDefinition = new(n);
-                self.OnSizeChanged();
+                self.OnSizeChanged(new SizeChangedEventArgs() { OldSize = o, NewSize = n });
+
             }
         });
 
@@ -280,7 +291,7 @@ public sealed class DataGridColumn : BindableObject, IDefinition, INotifyPropert
         return _isSortable ?? false;
     }
 
-    private void OnSizeChanged() => _sizeChangedEventManager.HandleEvent(this, EventArgs.Empty, nameof(SizeChanged));
+    private void OnSizeChanged(SizeChangedEventArgs sizeChangedEventArgs) => _sizeChangedEventManager.HandleEvent(this, sizeChangedEventArgs, nameof(SizeChanged));
 
     #endregion Methods
 
