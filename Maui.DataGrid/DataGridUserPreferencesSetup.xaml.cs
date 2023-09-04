@@ -27,100 +27,6 @@ public partial class DataGridUserPreferencesSetup
         _CurrentDataGrid = datagrid;
     }
 
-    private void Stepper_ValueChanged(object sender, ValueChangedEventArgs e)
-    {
-        if (((Stepper)sender).BindingContext != null)
-        {
-
-            Debug.WriteLine("Stepper_ValueChanged");
-            if (e.OldValue <= (sender as Stepper).Minimum || e.NewValue <= (sender as Stepper).Minimum)
-            {
-                return;
-            }
-            var dataGridColumn = (DataGridColumn)((Stepper)sender).BindingContext;
-
-            //Get count of columns not locked
-            var numberOfColumnToResize = ColumnsListSource.Where(x => x.IsLocked == false).ToList().Count;
-
-            //dataGridColumn.WidthCol = e.NewValue;
-
-            //var DeltaForOtherColumns = (sender as Stepper).Increment / (numberOfColumnToResize - 1);
-            //var DeltaForOtherColumns = (e.OldValue - e.NewValue) / (numberOfColumnToResize - 1);
-            //true=ADD, false=REMOVE
-            var incrementRemainingColumns = e.OldValue > e.NewValue;
-
-
-            var DeltaForOtherColumns = 0;
-            if (incrementRemainingColumns)
-            {
-                DeltaForOtherColumns = (int)((e.OldValue - e.NewValue) / (numberOfColumnToResize - 1));
-            } else
-            {
-                DeltaForOtherColumns = (int)((e.NewValue - e.OldValue) / (numberOfColumnToResize - 1));
-            }
-
-            for (var i = 0; i < ColumnsListSource.Count; i++)
-            {
-                var col = ColumnsListSource[i];
-                if (col != dataGridColumn && !col.IsLocked)
-                {
-                    if (incrementRemainingColumns)
-                    {
-                        if (col.WidthCol + DeltaForOtherColumns >= (sender as Stepper).Maximum)
-                        {
-                            numberOfColumnToResize--;
-                            DeltaForOtherColumns = (int)((e.OldValue - e.NewValue) / numberOfColumnToResize);
-                        }
-                    }
-                    else
-                    {
-                        if (col.WidthCol - DeltaForOtherColumns <= (sender as Stepper).Minimum)
-                        {
-                            numberOfColumnToResize--;
-                            DeltaForOtherColumns = (int)((e.NewValue - e.OldValue) / numberOfColumnToResize);
-                        }
-                    }
-                }
-            }
-
-            for (var i = 0; i < ColumnsListSource.Count; i++)
-            {
-                var col = ColumnsListSource[i];
-                if (col != dataGridColumn && !col.IsLocked)
-                {
-                    if (incrementRemainingColumns)
-                    {
-                        if (col.WidthCol + DeltaForOtherColumns < (sender as Stepper).Maximum && col.ColumnStepper != null)
-                        {
-
-                            col.ColumnStepper.ValueChanged -= Stepper_ValueChanged;
-                            
-                            col.WidthCol += DeltaForOtherColumns;
-                            col.ColumnStepper.ValueChanged += Stepper_ValueChanged;
-                        }
-                    }
-                    else
-                    {
-                        if (col.WidthCol - DeltaForOtherColumns > (sender as Stepper).Minimum && col.ColumnStepper != null)
-                        {
-                            col.ColumnStepper.ValueChanged -= Stepper_ValueChanged;
-                            col.WidthCol -= DeltaForOtherColumns;
-                            col.ColumnStepper.ValueChanged += Stepper_ValueChanged;
-                        }
-                    }
-                    /*ColumnsListSource[i] = col;*/
-                }
-            }
-
-            /*var temp = ColumnsList.ItemsSource;
-            ColumnsList.ItemsSource = null;
-            ColumnsList.ItemsSource = temp;*/
-
-            //_CurrentDataGrid.RefreshCollectionHeader();
-
-            _CurrentDataGrid.Reload();
-        }
-    }
 
     private void TapGestureRecognizer_Tapped(object sender, EventArgs e)
     {
@@ -197,11 +103,14 @@ public partial class DataGridUserPreferencesSetup
         }
 
         _CurrentDataGrid.Reload();
-        var t = ColumnsList.ItemsSource;
-        ColumnsList.ItemsSource = null;
-        ColumnsList.ItemsSource = t;
+
     }
 
+    /// <summary>
+    /// Lock/Unlock column size to allow or not resizing
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void LockButtonClick(object sender, EventArgs e)
     {
         HorizontalStackLayout parent = ((ImageButton)sender).Parent as HorizontalStackLayout;
@@ -229,35 +138,49 @@ public partial class DataGridUserPreferencesSetup
         }
     }
 
+    /// <summary>
+    /// Load image of the lock/unlock button during control initialization
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void ImageButtonLoaded(object sender, EventArgs e)
     {
-        
+
         Debug.WriteLine("Loaded");
         var imageButton = (ImageButton)sender;
         var binding = imageButton.BindingContext;
 
-        if (((DataGridColumn)binding).IsLocked){
+        if (((DataGridColumn)binding).IsLocked)
+        {
 
             imageButton.Source = "lock.png";
-        } else
+        }
+        else
         {
             imageButton.Source = "unlock.png";
         }
 
     }
 
-
-    private void ColumnStepperLoaded(object sender, EventArgs e)
-    {
-        DataGridColumn dataGridColumn = ((Stepper) sender).BindingContext as DataGridColumn;
-
-        dataGridColumn.ColumnStepper = sender as Stepper;
-    }
-
+    /// <summary>
+    /// Set the new widthCol value after user press return on the entry button
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void EntryCompleted(object sender, EventArgs e)
     {
         int newValue = int.Parse(((Entry)sender).Text);
-        DataGridColumn dataGridColumn = (DataGridColumn)((Entry)sender).BindingContext;
-        dataGridColumn.WidthCol = newValue;
+
+        if (newValue >= 92 && newValue <= 500)
+        {
+            DataGridColumn dataGridColumn = (DataGridColumn)((Entry)sender).BindingContext;
+            dataGridColumn.WidthCol = newValue;
+
+        }
+        else
+        {
+            //reset entry value if exceed limits
+            ((Entry)sender).Text = ((DataGridColumn)((Entry)sender).BindingContext).WidthCol.ToString();
+        }
     }
 }
