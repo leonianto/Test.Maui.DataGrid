@@ -117,7 +117,7 @@ public partial class DataGridUserPreferencesSetup
 
         if (parent != null)
         {
-            Stepper stepper = (Stepper)parent.Children[2];
+            CustomStepper stepper = (CustomStepper)parent.Children[2];
             if (stepper != null && stepper.BindingContext is DataGridColumn)
             {
                 var dataGridColumn = (DataGridColumn)stepper.BindingContext;
@@ -162,25 +162,5 @@ public partial class DataGridUserPreferencesSetup
 
     }
 
-    /// <summary>
-    /// Set the new widthCol value after user press return on the entry button
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void EntryCompleted(object sender, EventArgs e)
-    {
-        int newValue = int.Parse(((Entry)sender).Text);
-
-        if (newValue >= 92 && newValue <= 500)
-        {
-            DataGridColumn dataGridColumn = (DataGridColumn)((Entry)sender).BindingContext;
-            dataGridColumn.WidthCol = newValue;
-
-        }
-        else
-        {
-            //reset entry value if exceed limits
-            ((Entry)sender).Text = ((DataGridColumn)((Entry)sender).BindingContext).WidthCol.ToString();
-        }
-    }
+    
 }
