@@ -272,7 +272,7 @@ public partial class DataGrid
             foreach (var column in Columns)
             {
                 column.SizeChanged -= OnColumnSizeChanged;
-                column.WidthCol = (double)(Width - _HeaderMargin) / (double)ColumnsHeader.Count;
+                column.WidthCol = (Width - _HeaderMargin) / ColumnsHeader.Count;
                 column.SizeChanged += OnColumnSizeChanged;
             }
         }
