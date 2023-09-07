@@ -10,7 +10,6 @@ using System.Reflection;
 using System.Windows.Input;
 using CommunityToolkit.Maui.Core.Extensions;
 using Maui.DataGrid.Extensions;
-using Microsoft.Maui.Controls.Shapes;
 using Microsoft.Maui.Graphics;
 using Mopups.Services;
 using Color = Color;
@@ -267,50 +266,38 @@ public partial class DataGrid
             return;
         }
         var lockedColumns = new List<DataGridColumn>();
+        double totLockedColumnsWidth = 0;
         foreach (var col in Columns)
         {
             if (col.IsLocked)
             {
                 lockedColumns.Add(col);
+                totLockedColumnsWidth += col.WidthCol;
             }
         }
 
         //return to columns with all the same width
         if (totDelta == 0)
         {
-            foreach (var column in Columns)
+            foreach (var column in ColumnsHeader)
             {
                 column.SizeChanged -= OnColumnSizeChanged;
-                if (!column.IsLocked && lockedColumns.Count != 0)
+                if (!column.IsLocked)
                 {
-
-                    column.WidthCol = (double)(Width - _HeaderMargin) / (double)lockedColumns.Count;
-
-                }
-                else if (lockedColumns.Count == 0)
-                {
-
-                    column.WidthCol = (double)(Width - _HeaderMargin) / (double)ColumnsHeader.Count;
-
+                    column.WidthCol = (double)(Width - _HeaderMargin - totLockedColumnsWidth) / (ColumnsHeader.Count - lockedColumns.Count);
                 }
                 column.SizeChanged += OnColumnSizeChanged;
             }
         }
         else
         {
-            foreach (var column in Columns)
+            foreach (var column in ColumnsHeader)
             {
                 column.SizeChanged -= OnColumnSizeChanged;
-
-                if (!column.IsLocked && lockedColumns.Count != 0)
+                if (!column.IsLocked)
                 {
-                    column.WidthCol -= totDelta / lockedColumns.Count;
+                    column.WidthCol -= (double)totDelta / (ColumnsHeader.Count - lockedColumns.Count);
                 }
-                else if (lockedColumns.Count == 0)
-                {
-                    column.WidthCol -= totDelta / ColumnsHeader.Count;
-                }
-
                 column.SizeChanged += OnColumnSizeChanged;
             }
         }
@@ -1199,94 +1186,89 @@ public partial class DataGrid
     /// <param name="e"></param>
     private void OnColumnSizeChanged(object? sender, EventArgs e)
     {
-        Debug.WriteLine("OnColumnSizeChanged");
-        DataGridColumn.SizeChangedEventArgs sizeChangedEventArgs = ((DataGridColumn.SizeChangedEventArgs)e);
-
-        if (sizeChangedEventArgs.OldSize != sizeChangedEventArgs.NewSize)
+        var dataGridColumn = (DataGridColumn)sender;
+        if (dataGridColumn.IsVisible)
         {
-            if (sizeChangedEventArgs.OldSize <= 92 || sizeChangedEventArgs.NewSize <= 92)
+            Debug.WriteLine("OnColumnSizeChanged");
+            DataGridColumn.SizeChangedEventArgs sizeChangedEventArgs = ((DataGridColumn.SizeChangedEventArgs)e);
+
+            if (sizeChangedEventArgs.OldSize != sizeChangedEventArgs.NewSize)
             {
-                return;
-            }
-            var dataGridColumn = (DataGridColumn)sender;
-
-            //Get count of columns not locked
-            var numberOfColumnToResize = Columns.Where(x => x.IsLocked == false).ToList().Count;
-
-            //dataGridColumn.WidthCol = e.NewValue;
-
-            //var DeltaForOtherColumns = (sender as Stepper).Increment / (numberOfColumnToResize - 1);
-            //var DeltaForOtherColumns = (e.OldValue - e.NewValue) / (numberOfColumnToResize - 1);
-            //true=ADD, false=REMOVE
-            var incrementRemainingColumns = sizeChangedEventArgs.OldSize > sizeChangedEventArgs.NewSize;
-
-
-            var DeltaForOtherColumns = 0;
-            if (incrementRemainingColumns)
-            {
-                DeltaForOtherColumns = (int)((sizeChangedEventArgs.OldSize - sizeChangedEventArgs.NewSize) / (numberOfColumnToResize - 1));
-            }
-            else
-            {
-                DeltaForOtherColumns = (int)((sizeChangedEventArgs.NewSize - sizeChangedEventArgs.OldSize) / (numberOfColumnToResize - 1));
-            }
-
-            for (var i = 0; i < Columns.Count; i++)
-            {
-                var col = Columns[i];
-                if (col != dataGridColumn && !col.IsLocked)
+                if (sizeChangedEventArgs.OldSize <= 92 || sizeChangedEventArgs.NewSize <= 92)
                 {
-                    if (incrementRemainingColumns)
+                    return;
+                }
+
+                //Get count of columns not locked
+                var numberOfColumnToResize = ColumnsHeader.Where(x => x.IsLocked == false).ToList().Count - 1;
+
+                //true=ADD, false=REMOVE
+                var incrementRemainingColumns = sizeChangedEventArgs.OldSize > sizeChangedEventArgs.NewSize;
+
+
+                double DeltaForOtherColumns = 0;
+                if (incrementRemainingColumns)
+                {
+                    DeltaForOtherColumns = (double)((sizeChangedEventArgs.OldSize - sizeChangedEventArgs.NewSize) / numberOfColumnToResize);
+                }
+                else
+                {
+                    DeltaForOtherColumns = (double)((sizeChangedEventArgs.NewSize - sizeChangedEventArgs.OldSize) / numberOfColumnToResize);
+                }
+
+                //Control for width limits
+                for (var i = 0; i < ColumnsHeader.Count; i++)
+                {
+                    var col = ColumnsHeader[i];
+                    if (col != dataGridColumn && !col.IsLocked)
                     {
-                        if (col.WidthCol + DeltaForOtherColumns >= 500)
+                        if (incrementRemainingColumns)
                         {
-                            numberOfColumnToResize--;
-                            DeltaForOtherColumns = (int)((sizeChangedEventArgs.OldSize - sizeChangedEventArgs.NewSize) / numberOfColumnToResize);
+                            if (col.WidthCol + DeltaForOtherColumns >= 500)
+                            {
+                                numberOfColumnToResize--;
+                                DeltaForOtherColumns = (double)((sizeChangedEventArgs.OldSize - sizeChangedEventArgs.NewSize) / numberOfColumnToResize);
+                            }
                         }
-                    }
-                    else
-                    {
-                        if (col.WidthCol - DeltaForOtherColumns <= 92)
+                        else
                         {
-                            numberOfColumnToResize--;
-                            DeltaForOtherColumns = (int)((sizeChangedEventArgs.NewSize - sizeChangedEventArgs.OldSize) / numberOfColumnToResize);
+                            if (col.WidthCol - DeltaForOtherColumns <= 92)
+                            {
+                                numberOfColumnToResize--;
+                                DeltaForOtherColumns = (double)((sizeChangedEventArgs.NewSize - sizeChangedEventArgs.OldSize) / numberOfColumnToResize);
+                            }
                         }
                     }
                 }
-            }
 
-            for (var i = 0; i < Columns.Count; i++)
-            {
-                var col = Columns[i];
-                if (col != dataGridColumn && !col.IsLocked)
+                for (var i = 0; i < ColumnsHeader.Count; i++)
                 {
-                    if (incrementRemainingColumns)
+                    var col = ColumnsHeader[i];
+                    if (col != dataGridColumn && !col.IsLocked)
                     {
-                        if (col.WidthCol + DeltaForOtherColumns < 500)
+                        if (incrementRemainingColumns)
                         {
-
-                            col.SizeChanged -= OnColumnSizeChanged;
-                            col.WidthCol += DeltaForOtherColumns;
-                            col.SizeChanged += OnColumnSizeChanged;
+                            if (col.WidthCol + DeltaForOtherColumns < 500)
+                            {
+                                col.SizeChanged -= OnColumnSizeChanged;
+                                col.WidthCol += DeltaForOtherColumns;
+                                col.SizeChanged += OnColumnSizeChanged;
+                            }
+                        }
+                        else
+                        {
+                            if (col.WidthCol - DeltaForOtherColumns > 92)
+                            {
+                                col.SizeChanged -= OnColumnSizeChanged;
+                                col.WidthCol -= DeltaForOtherColumns;
+                                col.SizeChanged += OnColumnSizeChanged;
+                            }
                         }
                     }
-                    else
-                    {
-                        if (col.WidthCol - DeltaForOtherColumns > 92)
-                        {
-                            col.SizeChanged -= OnColumnSizeChanged;
-                            col.WidthCol -= DeltaForOtherColumns;
-                            col.SizeChanged += OnColumnSizeChanged;
-                        }
-                    }
-
                 }
+                Reload();
             }
-
-            Reload();
         }
-
-
     }
 
     private void OnRefreshing(object? sender, EventArgs e)
@@ -1411,18 +1393,18 @@ public partial class DataGrid
     private void SortHeaderTap(object sender, TappedEventArgs e)
     {
         var column = (DataGridColumn)((sender as Border).BindingContext);
-        var index = Columns.IndexOf(column);
+        var index = ColumnsHeader.IndexOf(column);
 
-        if (Columns[index].IsSortable(this))
+        if (ColumnsHeader[index].IsSortable(this))
         {
             // This is to invert SortOrder when the user taps on a column.
-            var order = Columns[index].SortingOrder == SortingOrder.Ascendant
+            var order = ColumnsHeader[index].SortingOrder == SortingOrder.Ascendant
                                                     ? SortingOrder.Descendant
                                                     : SortingOrder.Ascendant;
 
             SortedColumnIndex = new(index, order);
 
-            Columns[index].SortingOrder = order;
+            ColumnsHeader[index].SortingOrder = order;
 
         }
     }
