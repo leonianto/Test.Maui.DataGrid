@@ -128,7 +128,7 @@ public partial class CustomStepper : Grid
     /// <param name="e"></param>
     private void _EntryUnfocus(object sender, EventArgs e)
     {
-        int newValue = int.Parse(((Entry)sender).Text);
+        double newValue = Double.Parse(((Entry)sender).Text);
         DataGridColumn dataGridColumn = (DataGridColumn)((Entry)sender).BindingContext;
 
         if (newValue >= Minimum && newValue <= Maximum)
@@ -148,5 +148,7 @@ public partial class CustomStepper : Grid
         }
 
     }
+
+
 
 }
