@@ -17,21 +17,20 @@ public sealed class DataGridColumn : BindableObject, IDefinition, INotifyPropert
     private ColumnDefinition? _columnDefinition;
     private readonly ColumnDefinition _invisibleColumnDefinition = new(0);
     private readonly WeakEventManager _sizeChangedEventManager = new();
-
+    private double _SortIconSize;
     #endregion Fields
 
     public DataGridColumn()
     {
+        BindingContext = this;
         HeaderLabel = new();
-        SortingIcon = new();
-        SortingIconContainer = new ContentView
+        SortingIcon = new Image
         {
+            Source = ImageSource.FromFile("sorticon.png"),
             IsVisible = false,
-            //Content = SortingIcon,
-            HorizontalOptions = LayoutOptions.End,
-            VerticalOptions = LayoutOptions.Center,
         };
         IsLocked = false;
+
     }
 
     #region Events
@@ -240,21 +239,13 @@ public sealed class DataGridColumn : BindableObject, IDefinition, INotifyPropert
         set => SetValue(SortingEnabledProperty, value);
     }
 
-    internal Polygon SortingIcon { get; }
+    public Image SortingIcon { get; set; }
     internal Label HeaderLabel { get; }
-    //internal View SortingIconContainer { get; }
-
-    public ContentView SortingIconContainer
-    {
-        get => (ContentView)GetValue(SortingIconContainerProperty);
-        set => SetValue(SortingIconContainerProperty, value);
-    }
-
-    public static readonly BindableProperty SortingIconContainerProperty = BindablePropertyExtensions.Create(new ContentView(), BindingMode.TwoWay);
 
     internal SortingOrder SortingOrder { get; set; }
 
     public bool IsLocked { get; set; }
+    public double SortIconSize { get => _SortIconSize; set => _SortIconSize = value; }
 
     #endregion Properties
 

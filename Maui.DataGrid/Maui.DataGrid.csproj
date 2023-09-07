@@ -28,13 +28,23 @@
 	<ItemGroup>
 	  <None Remove="Resources\Images\gear.png" />
 	  <None Remove="Resources\Images\lock.png" />
+	  <None Remove="Resources\Images\sorticon.png" />
 	  <None Remove="Resources\Images\unlock.png" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiImage Include="Resources\Images\gear.png" />
-	  <MauiImage Include="Resources\Images\lock.png" />
-	  <MauiImage Include="Resources\Images\unlock.png" />
+	  <MauiImage Include="Resources\Images\gear.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </MauiImage>
+	  <MauiImage Include="Resources\Images\lock.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </MauiImage>
+	  <MauiImage Include="Resources\Images\sorticon.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </MauiImage>
+	  <MauiImage Include="Resources\Images\unlock.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </MauiImage>
 	</ItemGroup>
 
 	<ItemGroup>
