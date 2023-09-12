@@ -28,81 +28,9 @@ public partial class DataGridUserPreferencesSetup
     }
 
 
-    private void TapGestureRecognizer_Tapped(object sender, EventArgs e)
-    {
-        if (!(sender as CheckBox).IsChecked)
-        {
-            var visibleColumns = 0;
-            for (var i = 0; i < ColumnsListSource.Count; i++)
-            {
-                if (ColumnsListSource[i].IsVisible)
-                {
-                    visibleColumns++;
-                }
-            }
-
-            if (visibleColumns > 1)
-            {
-                (sender as CheckBox).IsChecked = false;
-                ((sender as CheckBox).BindingContext as DataGridColumn).IsVisible = false;
-            }
-            else
-            {
-                (sender as CheckBox).IsChecked = true;
-            }
-        }
-        else
-        {
-            ((sender as CheckBox).BindingContext as DataGridColumn).IsVisible = true;
-        }
-    }
-
     private void ColumnsList_ReorderCompleted(object sender, EventArgs e)
     {
-        var temporaryColumns = new ObservableCollection<DataGridColumn>();
-
-        for (var i = 0; i < ColumnsListSource.Count; i++)
-        {
-            for (var k = 0; k < _CurrentDataGrid.ColumnsHeader.Count; k++)
-            {
-                if (ColumnsListSource[i].Title == _CurrentDataGrid.ColumnsHeader[k].Title)
-                {
-                    temporaryColumns.Add(_CurrentDataGrid.ColumnsHeader[k]);
-                }
-            }
-        }
-
-        _CurrentDataGrid.ColumnsHeader = temporaryColumns;
-
-        //if all columns visible, just reorder
-        if (_CurrentDataGrid.ColumnsHeader.Count == _CurrentDataGrid.Columns.Count)
-        {
-            _CurrentDataGrid.Columns.Clear();
-            for (var i = 0; i < _CurrentDataGrid.ColumnsHeader.Count; i++)
-            {
-                _CurrentDataGrid.Columns.Add(_CurrentDataGrid.ColumnsHeader[i]);
-            }
-        }
-        else
-        {
-            var tempArray = new DataGridColumn[_CurrentDataGrid.Columns.Count];
-            _CurrentDataGrid.Columns.CopyTo(tempArray, 0);
-            var temp = tempArray.ToObservableCollection();
-
-            _CurrentDataGrid.Columns.Clear();
-            for (var i = 0; i < _CurrentDataGrid.ColumnsHeader.Count; i++)
-            {
-                _CurrentDataGrid.Columns.Add(_CurrentDataGrid.ColumnsHeader[i]);
-                temp.Remove(_CurrentDataGrid.ColumnsHeader[i]);
-            }
-
-            foreach (var col in temp)
-            {
-                _CurrentDataGrid.Columns.Add(col);
-            }
-        }
-
-        _CurrentDataGrid.Reload();
+        _CurrentDataGrid.ColumnsHeader = _CurrentDataGrid.ColumnsHeader.OrderBy(c => _CurrentDataGrid.Columns.IndexOf(c)).ToObservableCollection();
 
     }
 
@@ -162,5 +90,42 @@ public partial class DataGridUserPreferencesSetup
 
     }
 
-    
+    /// <summary>
+    /// Change visibility of a column only if there is more than 1 column visible (on checkbox value change)
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void ColumnCheckedChanged(object sender, CheckedChangedEventArgs e)
+    {
+        //if new value == false
+        if (!(sender as CheckBox).IsChecked)
+        {
+            var visibleColumns = 0;
+            for (var i = 0; i < ColumnsListSource.Count; i++)
+            {
+                if (ColumnsListSource[i].IsVisible)
+                {
+                    visibleColumns++;
+                }
+            }
+            //if there is more than 1 column visible keep new value = false 
+            if (visibleColumns > 1)
+            {
+                ((sender as CheckBox).BindingContext as DataGridColumn).IsVisible = false;
+
+            }
+            else
+            {
+                //otherwise force checkbox value to be true
+                (sender as CheckBox).CheckedChanged -= ColumnCheckedChanged;
+                (sender as CheckBox).IsChecked = true;
+                (sender as CheckBox).CheckedChanged += ColumnCheckedChanged;
+            }
+        }
+        else
+        {
+            //new value true is always allowed
+            ((sender as CheckBox).BindingContext as DataGridColumn).IsVisible = true;
+        }
+    }
 }

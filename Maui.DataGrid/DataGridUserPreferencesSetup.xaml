@@ -19,6 +19,7 @@
                     </Trigger>
                 </Style.Triggers>
             </Style>
+            <local:DoubleToIntConverter x:Key="DoubleToIntConverter"/>
         </ResourceDictionary>
     </ContentPage.Resources>
 
@@ -40,18 +41,17 @@
 
         <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center">
 
-            <CollectionView x:Name="ColumnsList" ItemsSource="{Binding ColumnsListSource, Source={Reference this}, Mode=TwoWay}"  Margin="5" SelectionMode="Single" CanReorderItems="True" ReorderCompleted="ColumnsList_ReorderCompleted">
+            <CollectionView x:Name="ColumnsList"  ItemsSource="{Binding ColumnsListSource, Source={Reference this}, Mode=TwoWay}"  Margin="5" SelectionMode="Single" CanReorderItems="True" ReorderCompleted="ColumnsList_ReorderCompleted">
                 <CollectionView.ItemTemplate >
                     <DataTemplate x:DataType="local:DataGridColumn">
                         <Border Stroke="#FFFFFFFF" BackgroundColor="White" StrokeThickness="2" StrokeShape="RoundRectangle 8,8,8,8" HorizontalOptions="Center">
                             <HorizontalStackLayout>
-                                <CheckBox IsChecked="{Binding IsVisible, Mode=OneWay}">
-                                    <CheckBox.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"></TapGestureRecognizer>
-                                    </CheckBox.GestureRecognizers>
+                                <CheckBox IsChecked="{Binding IsVisible, Mode=OneWay}" CheckedChanged="ColumnCheckedChanged">
+
                                 </CheckBox>
                                 <Label Text="{Binding Title}" FontSize="16" HeightRequest="40" VerticalTextAlignment="Center" Margin="5" TextColor="Black" LineBreakMode="WordWrap" WidthRequest="150"></Label>
-                                <local:CustomStepper x:Name="stepper" Minimum="92" Maximum="500" Increment="10" Value="{Binding WidthCol, Mode=TwoWay}" Tag="{Binding}" WidthRequest="150"/>
+                                <local:CustomStepper x:Name="stepper" Minimum="92" Maximum="500" Increment="10" Value="{Binding WidthCol, Mode=TwoWay, Converter={StaticResource DoubleToIntConverter}}" Tag="{Binding}"/>
+
 
                                 <!--<Stepper x:Name="stepper" Minimum="92" Maximum="500" Increment="10" Value="{Binding WidthCol, Mode=TwoWay}" WidthRequest="150" ></Stepper>--> <!--ValueChanged="Stepper_ValueChanged" Loaded="ColumnStepperLoaded"-->
                                 <!--<Entry x:Name="entryWidth" Text="{Binding WidthCol, StringFormat='{0:N0}', Mode=OneWay}"                         

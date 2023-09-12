@@ -7,7 +7,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
-using System.Windows.Input;
 using CommunityToolkit.Maui.Core.Extensions;
 using Maui.DataGrid.Extensions;
 using Microsoft.Maui.Graphics;
@@ -75,22 +74,19 @@ public partial class DataGrid
 
             DGUserPreferences.IsVisible = false;
             MainGrid.ColumnDefinitions.RemoveAt(0);
-            SortIconSize = HeaderHeight * 0.3;
+
         }
+        SortIconSize = HeaderHeight * 0.3;
+
     }
 
-    private int _HeaderMargin = 50;
+    private int _HeaderMargin = -1;
 
     private void DataGrid_Loaded(object? sender, EventArgs e)
     {
-        /*foreach (var column in Columns)
-        {
-            column.WidthCol = (double)(Width - _HeaderMargin) / (double)Columns.Count;
-        }*/
-        if (DeviceInfo.Current.Platform == DevicePlatform.WinUI)
-        {
-            Resize(0);
-        }
+
+        Resize(0);
+
     }
 
     #endregion ctor
@@ -261,13 +257,13 @@ public partial class DataGrid
     public void Resize(int totDelta)
     {
         Debug.WriteLine("Resize");
-        if (Columns.Count == 0)
+        if (ColumnsHeader.Count == 0)
         {
             return;
         }
         var lockedColumns = new List<DataGridColumn>();
         double totLockedColumnsWidth = 0;
-        foreach (var col in Columns)
+        foreach (var col in ColumnsHeader)
         {
             if (col.IsLocked)
             {
@@ -705,36 +701,36 @@ public partial class DataGrid
                 }
             });
 
-    public static readonly BindableProperty RefreshingEnabledProperty =
-        BindablePropertyExtensions.Create(true,
-            propertyChanged: (b, o, n) =>
-            {
-                if (o != n)
-                {
-                    var self = (DataGrid)b;
-                    _ = self.PullToRefreshCommand?.CanExecute(() => n);
-                }
-            });
+    //public static readonly BindableProperty RefreshingEnabledProperty =
+    //    BindablePropertyExtensions.Create(true,
+    //        propertyChanged: (b, o, n) =>
+    //        {
+    //            if (o != n)
+    //            {
+    //                var self = (DataGrid)b;
+    //                _ = self.PullToRefreshCommand?.CanExecute(() => n);
+    //            }
+    //        });
 
-    public static readonly BindableProperty PullToRefreshCommandProperty =
-        BindablePropertyExtensions.Create<ICommand>(
-            propertyChanged: (b, o, n) =>
-            {
-                if (o == n || b is not DataGrid self)
-                {
-                    return;
-                }
+    //public static readonly BindableProperty PullToRefreshCommandProperty =
+    //    BindablePropertyExtensions.Create<ICommand>(
+    //        propertyChanged: (b, o, n) =>
+    //        {
+    //            if (o == n || b is not DataGrid self)
+    //            {
+    //                return;
+    //            }
 
-                if (n == null)
-                {
-                    self._refreshView.Command = null;
-                }
-                else
-                {
-                    self._refreshView.Command = n;
-                    _ = self._refreshView.Command?.CanExecute(self.RefreshingEnabled);
-                }
-            });
+    //            if (n == null)
+    //            {
+    //                self._refreshView.Command = null;
+    //            }
+    //            else
+    //            {
+    //                self._refreshView.Command = n;
+    //                _ = self._refreshView.Command?.CanExecute(self.RefreshingEnabled);
+    //            }
+    //        });
 
     public static readonly BindableProperty IsRefreshingProperty =
         BindablePropertyExtensions.Create(false, BindingMode.TwoWay);
@@ -1034,11 +1030,11 @@ public partial class DataGrid
     /// <summary>
     /// Executes the command when refreshing via pull
     /// </summary>
-    public ICommand PullToRefreshCommand
-    {
-        get => (ICommand)GetValue(PullToRefreshCommandProperty);
-        set => SetValue(PullToRefreshCommandProperty, value);
-    }
+    //public ICommand PullToRefreshCommand
+    //{
+    //    get => (ICommand)GetValue(PullToRefreshCommandProperty);
+    //    set => SetValue(PullToRefreshCommandProperty, value);
+    //}
 
     /// <summary>
     /// Displays an ActivityIndicator when is refreshing
@@ -1049,14 +1045,14 @@ public partial class DataGrid
         set => SetValue(IsRefreshingProperty, value);
     }
 
-    /// <summary>
-    /// Enables refreshing the DataGrid by a pull down command
-    /// </summary>
-    public bool RefreshingEnabled
-    {
-        get => (bool)GetValue(RefreshingEnabledProperty);
-        set => SetValue(RefreshingEnabledProperty, value);
-    }
+    ///// <summary>
+    ///// Enables refreshing the DataGrid by a pull down command
+    ///// </summary>
+    //public bool RefreshingEnabled
+    //{
+    //    get => (bool)GetValue(RefreshingEnabledProperty);
+    //    set => SetValue(RefreshingEnabledProperty, value);
+    //}
 
     /// <summary>
     /// Border thickness for header &amp; each cell
@@ -1136,14 +1132,14 @@ public partial class DataGrid
             _collectionView.SelectionChanged += OnSelectionChanged;
         }
 
-        if (Parent is null)
-        {
-            _refreshView.Refreshing -= OnRefreshing;
-        }
-        else if (RefreshingEnabled)
-        {
-            _refreshView.Refreshing += OnRefreshing;
-        }
+        //if (Parent is null)
+        //{
+        //    _refreshView.Refreshing -= OnRefreshing;
+        //}
+        //else if (RefreshingEnabled)
+        //{
+        //    _refreshView.Refreshing += OnRefreshing;
+        //}
 
         if (Parent is null)
         {
@@ -1399,8 +1395,8 @@ public partial class DataGrid
         {
             // This is to invert SortOrder when the user taps on a column.
             var order = ColumnsHeader[index].SortingOrder == SortingOrder.Ascendant
-                                                    ? SortingOrder.Descendant
-                                                    : SortingOrder.Ascendant;
+                                                            ? SortingOrder.Descendant
+                                                            : SortingOrder.Ascendant;
 
             SortedColumnIndex = new(index, order);
 
@@ -1416,6 +1412,12 @@ public partial class DataGrid
     /// <param name="e"></param>
     private void Collectionheader_ReorderCompleted(object sender, EventArgs e)
     {
+        //If data is sorted by a column keep the same specified column sorting after reordering all the columns
+        if (SortedColumnIndex != null)
+        {
+            SortedColumnIndex.Index = ColumnsHeader.IndexOf(Columns[SortedColumnIndex.Index]);
+        }
+
         //if all columns visible, just reorder
         if (ColumnsHeader.Count == Columns.Count)
         {
