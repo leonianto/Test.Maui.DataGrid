@@ -33,18 +33,18 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiImage Include="Resources\Images\gear.png">
+	  <Resource Include="Resources\Images\gear.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </MauiImage>
-	  <MauiImage Include="Resources\Images\lock.png">
+	  </Resource>
+	  <Resource Include="Resources\Images\lock.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </MauiImage>
-	  <MauiImage Include="Resources\Images\sorticon.png">
+	  </Resource>
+	  <Resource Include="Resources\Images\sorticon.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </MauiImage>
-	  <MauiImage Include="Resources\Images\unlock.png">
+	  </Resource>
+	  <Resource Include="Resources\Images\unlock.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </MauiImage>
+	  </Resource>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -70,6 +70,9 @@
 	  <MauiXaml Update="DataGridUserPreferencesSetup.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Properties\" />
 	</ItemGroup>
 
 </Project>

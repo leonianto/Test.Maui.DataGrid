@@ -67,9 +67,10 @@ internal sealed partial class DataGridRow : Grid
         for (var i = 0; i < DataGrid.Columns.Count; i++)
         {
             var col = DataGrid.Columns[i];
-
+            if(col.ColumnDefinition != null)
+            { 
             ColumnDefinitions.Add(col.ColumnDefinition);
-
+            }
             if (!col.IsVisible)
             {
                 continue;

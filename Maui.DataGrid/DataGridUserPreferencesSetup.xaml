@@ -41,7 +41,7 @@
 
         <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center">
 
-            <CollectionView x:Name="ColumnsList"  ItemsSource="{Binding ColumnsListSource, Source={Reference this}, Mode=TwoWay}"  Margin="5" SelectionMode="Single" CanReorderItems="True" ReorderCompleted="ColumnsList_ReorderCompleted">
+            <CollectionView x:Name="ColumnsList" ItemsSource="{Binding ColumnsListSource, Source={Reference this}, Mode=TwoWay}" HeightRequest="300" Margin="5" SelectionMode="Single" CanReorderItems="True" ReorderCompleted="ColumnsList_ReorderCompleted">
                 <CollectionView.ItemTemplate >
                     <DataTemplate x:DataType="local:DataGridColumn">
                         <Border Stroke="#FFFFFFFF" BackgroundColor="White" StrokeThickness="2" StrokeShape="RoundRectangle 8,8,8,8" HorizontalOptions="Center">
@@ -59,6 +59,7 @@
                                        VerticalOptions="Center" Completed="EntryCompleted" />-->
                                 
                                 <ImageButton HeightRequest="40"
+                                             WidthRequest="40"
                                              x:Name="ImgBtn"
                                              Loaded="ImageButtonLoaded"
                                              Clicked="LockButtonClick">

@@ -24,7 +24,7 @@
                        SearchCommandParameter="{Binding Source={x:Reference searchBar}, Path=Text}"
                        HeightRequest="30"
                        WidthRequest="300"
-                       Margin="10,10,0,0" />
+                       Margin="10,10,0,0"/>
 
             <Picker x:Name="columnSearch"
                     HeightRequest="50"
