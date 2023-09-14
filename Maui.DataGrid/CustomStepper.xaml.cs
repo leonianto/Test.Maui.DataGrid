@@ -38,51 +38,13 @@ public partial class CustomStepper : Grid
     public double Value
     {
         get => (double)GetValue(ValueProperty);
-        set { /*OnValueChanged(Value, value);*/ SetValue(ValueProperty, value); }
+        set { SetValue(ValueProperty, value); }
     }
-
-    public event EventHandler<ValueChangedEventArgs> ValueChanged;
-
 
     public CustomStepper()
     {
         InitializeComponent();
     }
-
-    /*/// <summary>
-    /// Function fired when Value is changed
-    /// </summary>
-    /// <param name="oldValue"></param>
-    /// <param name="newValue"></param>
-    private void OnValueChanged(double oldValue, double newValue)
-    {
-        if (removeBtn != null && addBtn != null)
-        {
-            if (newValue - Increment <= Minimum)
-            {
-                removeBtn.IsEnabled = false;
-            }
-            else
-            {
-                if (removeBtn != null && !removeBtn.IsEnabled)
-                {
-                    removeBtn.IsEnabled = true;
-                }
-            }
-
-            if (newValue + Increment >= Maximum)
-            {
-                addBtn.IsEnabled = false;
-            }
-            else
-            {
-                if (addBtn != null && !addBtn.IsEnabled)
-                {
-                    addBtn.IsEnabled = true;
-                }
-            }
-        }
-    }*/
 
     /// <summary>
     /// Function for the decrease the Value of the Stepper by the Increment Value
@@ -91,16 +53,17 @@ public partial class CustomStepper : Grid
     /// <param name="e"></param>
     private void _RemoveBtn_Clicked(object sender, EventArgs e)
     {
-        DataGridColumn dataGridColumn = (DataGridColumn)((Button)sender).BindingContext;
+        var dataGridColumn = (DataGridColumn)((Button)sender).BindingContext;
 
         // Decrease the value by 10, but ensure it doesn't go below the minimum of 92
-        dataGridColumn.WidthCol -= 10;
-        if (dataGridColumn.WidthCol < Minimum)
+        if (dataGridColumn.WidthCol - 10 < Minimum)
         {
             dataGridColumn.WidthCol = Minimum;
         }
-
-        entryWidth.Text = dataGridColumn.WidthCol.ToString();
+        else
+        {
+            dataGridColumn.WidthCol -= 10;
+        }
     }
     /// <summary>
     /// Function for the increase the Value of the Stepper by the Increment Value
@@ -109,16 +72,17 @@ public partial class CustomStepper : Grid
     /// <param name="e"></param>
     private void _AddBtn_Clicked(object sender, EventArgs e)
     {
-        DataGridColumn dataGridColumn = (DataGridColumn)((Button)sender).BindingContext;
+        var dataGridColumn = (DataGridColumn)((Button)sender).BindingContext;
 
         // Increase the value by 10, but ensure it doesn't exceed the maximum of 500
-        dataGridColumn.WidthCol += 10;
-        if (dataGridColumn.WidthCol > Maximum)
+        if (dataGridColumn.WidthCol + 10 > Maximum)
         {
             dataGridColumn.WidthCol = Maximum;
         }
-
-        entryWidth.Text = dataGridColumn.WidthCol.ToString();
+        else
+        {
+            dataGridColumn.WidthCol += 10;
+        }
     }
 
     /// <summary>
@@ -128,8 +92,8 @@ public partial class CustomStepper : Grid
     /// <param name="e"></param>
     private void _EntryUnfocus(object sender, EventArgs e)
     {
-        double newValue = Double.Parse(((Entry)sender).Text);
-        DataGridColumn dataGridColumn = (DataGridColumn)((Entry)sender).BindingContext;
+        var newValue = double.Parse(((Entry)sender).Text);
+        var dataGridColumn = (DataGridColumn)((Entry)sender).BindingContext;
 
         if (newValue >= Minimum && newValue <= Maximum)
         {
@@ -137,18 +101,14 @@ public partial class CustomStepper : Grid
         }
         else
         {
-            if(newValue < Minimum)
+            if (newValue < Minimum)
             {
                 dataGridColumn.WidthCol = Minimum;
             }
-           else if(newValue > Maximum)
+            else if (newValue > Maximum)
             {
                 dataGridColumn.WidthCol = Maximum;
             }
         }
-
     }
-
-
-
 }

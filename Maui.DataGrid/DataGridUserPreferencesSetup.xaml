@@ -19,20 +19,8 @@
                     </Trigger>
                 </Style.Triggers>
             </Style>
-            <local:DoubleToIntConverter x:Key="DoubleToIntConverter"/>
         </ResourceDictionary>
     </ContentPage.Resources>
-
-    <!--<mopups:PopupPage.Animation>
-        <mopanim:ScaleAnimation
-            DurationIn="700"
-            EasingIn="BounceOut"
-            PositionIn="Bottom"
-            PositionOut="Center"
-            ScaleIn="1"
-            ScaleOut="0.7"/>
-    </mopups:PopupPage.Animation>-->
-
 
     <Border Stroke="Black" StrokeThickness="1" BackgroundColor="#486378" WidthRequest="500" HeightRequest="400">
         <Border.StrokeShape>
@@ -41,23 +29,15 @@
 
         <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center">
 
-            <CollectionView x:Name="ColumnsList" ItemsSource="{Binding ColumnsListSource, Source={Reference this}, Mode=TwoWay}" HeightRequest="300" Margin="5" SelectionMode="Single" CanReorderItems="True" ReorderCompleted="ColumnsList_ReorderCompleted">
+            <CollectionView x:Name="ColumnsList" ItemsSource="{Binding ColumnsListSource, Source={Reference this}, Mode=OneWay}" HeightRequest="300" Margin="5" SelectionMode="Single" CanReorderItems="False">
                 <CollectionView.ItemTemplate >
                     <DataTemplate x:DataType="local:DataGridColumn">
                         <Border Stroke="#FFFFFFFF" BackgroundColor="White" StrokeThickness="2" StrokeShape="RoundRectangle 8,8,8,8" HorizontalOptions="Center">
                             <HorizontalStackLayout>
-                                <CheckBox IsChecked="{Binding IsVisible, Mode=OneWay}" CheckedChanged="ColumnCheckedChanged">
-
-                                </CheckBox>
+                                <CheckBox IsChecked="{Binding IsVisible, Mode=OneWay}" CheckedChanged="ColumnCheckedChanged"/>
                                 <Label Text="{Binding Title}" FontSize="16" HeightRequest="40" VerticalTextAlignment="Center" Margin="5" TextColor="Black" LineBreakMode="WordWrap" WidthRequest="150"></Label>
-                                <local:CustomStepper x:Name="stepper" Minimum="92" Maximum="500" Increment="10" Value="{Binding WidthCol, Mode=TwoWay, Converter={StaticResource DoubleToIntConverter}}" Tag="{Binding}"/>
+                                <local:CustomStepper x:Name="stepper" Minimum="92" Maximum="500" Increment="10" Value="{Binding WidthCol, Mode=OneWay, StringFormat='{0:N0}'}" Tag="{x:Reference this}"/>
 
-
-                                <!--<Stepper x:Name="stepper" Minimum="92" Maximum="500" Increment="10" Value="{Binding WidthCol, Mode=TwoWay}" WidthRequest="150" ></Stepper>--> <!--ValueChanged="Stepper_ValueChanged" Loaded="ColumnStepperLoaded"-->
-                                <!--<Entry x:Name="entryWidth" Text="{Binding WidthCol, StringFormat='{0:N0}', Mode=OneWay}"                         
-                                       HorizontalOptions="Center"
-                                       VerticalOptions="Center" Completed="EntryCompleted" />-->
-                                
                                 <ImageButton HeightRequest="40"
                                              WidthRequest="40"
                                              x:Name="ImgBtn"
@@ -71,9 +51,7 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-
-
-
+            
         </VerticalStackLayout>
     </Border>
 </mopups:PopupPage>

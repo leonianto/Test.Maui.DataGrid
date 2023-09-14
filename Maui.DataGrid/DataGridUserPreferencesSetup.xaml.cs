@@ -1,8 +1,6 @@
 namespace Maui.DataGrid;
 
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using CommunityToolkit.Maui.Core.Extensions;
 
 public partial class DataGridUserPreferencesSetup
 {
@@ -27,11 +25,17 @@ public partial class DataGridUserPreferencesSetup
         _CurrentDataGrid = datagrid;
     }
 
-
-    private void ColumnsList_ReorderCompleted(object sender, EventArgs e)
+    /// <summary>
+    /// Function for refresh the collectionview
+    /// </summary>
+    public void Refresh()
     {
-        _CurrentDataGrid.ColumnsHeader = _CurrentDataGrid.ColumnsHeader.OrderBy(c => _CurrentDataGrid.Columns.IndexOf(c)).ToObservableCollection();
-
+        if (ColumnsList.IsLoaded)
+        {
+            ColumnsList.ItemsSource = null;
+            GC.Collect();
+            ColumnsList.ItemsSource = ColumnsListSource;
+        }
     }
 
     /// <summary>
@@ -73,21 +77,17 @@ public partial class DataGridUserPreferencesSetup
     /// <param name="e"></param>
     private void ImageButtonLoaded(object sender, EventArgs e)
     {
-
-        Debug.WriteLine("Loaded");
         var imageButton = (ImageButton)sender;
         var binding = imageButton.BindingContext;
 
         if (((DataGridColumn)binding).IsLocked)
         {
-
             imageButton.Source = "lock.png";
         }
         else
         {
             imageButton.Source = "unlock.png";
         }
-
     }
 
     /// <summary>
@@ -112,7 +112,6 @@ public partial class DataGridUserPreferencesSetup
             if (visibleColumns > 1)
             {
                 ((sender as CheckBox).BindingContext as DataGridColumn).IsVisible = false;
-
             }
             else
             {

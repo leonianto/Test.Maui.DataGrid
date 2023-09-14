@@ -1,10 +1,8 @@
 namespace Maui.DataGrid;
 
-using Maui.DataGrid.Extensions;
-using Microsoft.Maui.Controls.Shapes;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Security.Cryptography;
+using Maui.DataGrid.Extensions;
 
 /// <summary>
 /// Specifies each column of the DataGrid.
@@ -109,13 +107,10 @@ public sealed class DataGridColumn : BindableObject, IDefinition, INotifyPropert
                             column.DataGrid.ColumnsHeader.Remove(column);
                         }
                         column.DataGrid.Resize(0);
+                        column.DataGrid.SetupWindow.Refresh();
                         column.ColumnVisibilityChanged?.Invoke(column, new EventArgs());
                     }
                     catch { }
-                    /*finally
-                    {
-                        column.OnSizeChanged();
-                    }*/
                 }
             });
 

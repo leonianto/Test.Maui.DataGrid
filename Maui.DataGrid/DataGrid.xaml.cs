@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Reflection;
 using CommunityToolkit.Maui.Core.Extensions;
 using Maui.DataGrid.Extensions;
+using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 using Mopups.Services;
 using Color = Color;
@@ -22,6 +23,8 @@ public partial class DataGrid
 {
 
     #region Fields
+
+    public DataGridUserPreferencesSetup SetupWindow = null;
 
     private static readonly ColumnDefinitionCollection HeaderColumnDefinitions = new()
                 {
@@ -1186,7 +1189,7 @@ public partial class DataGrid
         if (dataGridColumn.IsVisible)
         {
             Debug.WriteLine("OnColumnSizeChanged");
-            DataGridColumn.SizeChangedEventArgs sizeChangedEventArgs = ((DataGridColumn.SizeChangedEventArgs)e);
+            var sizeChangedEventArgs = (DataGridColumn.SizeChangedEventArgs)e;
 
             if (sizeChangedEventArgs.OldSize != sizeChangedEventArgs.NewSize)
             {
@@ -1200,7 +1203,6 @@ public partial class DataGrid
 
                 //true=ADD, false=REMOVE
                 var incrementRemainingColumns = sizeChangedEventArgs.OldSize > sizeChangedEventArgs.NewSize;
-
 
                 double DeltaForOtherColumns = 0;
                 if (incrementRemainingColumns)
@@ -1237,6 +1239,8 @@ public partial class DataGrid
                     }
                 }
 
+                bool ModifyOtherColumns = false;
+
                 for (var i = 0; i < ColumnsHeader.Count; i++)
                 {
                     var col = ColumnsHeader[i];
@@ -1247,6 +1251,7 @@ public partial class DataGrid
                             if (col.WidthCol + DeltaForOtherColumns < 500)
                             {
                                 col.SizeChanged -= OnColumnSizeChanged;
+                                ModifyOtherColumns = true;
                                 col.WidthCol += DeltaForOtherColumns;
                                 col.SizeChanged += OnColumnSizeChanged;
                             }
@@ -1257,11 +1262,24 @@ public partial class DataGrid
                             {
                                 col.SizeChanged -= OnColumnSizeChanged;
                                 col.WidthCol -= DeltaForOtherColumns;
+                                ModifyOtherColumns = true;
                                 col.SizeChanged += OnColumnSizeChanged;
                             }
                         }
                     }
                 }
+
+                if (!ModifyOtherColumns)
+                {
+                    dataGridColumn.SizeChanged -= OnColumnSizeChanged;
+                    dataGridColumn.WidthCol = sizeChangedEventArgs.OldSize;
+                    dataGridColumn.SizeChanged += OnColumnSizeChanged;
+                }
+                else
+                {
+                    SetupWindow?.Refresh();
+                }
+
                 Reload();
             }
         }
@@ -1346,8 +1364,8 @@ public partial class DataGrid
 
     private void DataGridUserPreferencesClick(object sender, EventArgs e)
     {
-        // Navigation.PushAsync(new DataGridUserPreferencesSetup(Columns, this));
-        MopupService.Instance.PushAsync(new DataGridUserPreferencesSetup(Columns, this));
+        SetupWindow = new DataGridUserPreferencesSetup(Columns, this);
+        MopupService.Instance.PushAsync(SetupWindow);
     }
 
     /// <summary>
@@ -1456,6 +1474,7 @@ public partial class DataGrid
     /// <param name="e"></param>
     private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
     {
-        MopupService.Instance.PushAsync(new DataGridUserPreferencesSetup(Columns, this));
+        SetupWindow = new DataGridUserPreferencesSetup(Columns, this);
+        MopupService.Instance.PushAsync(SetupWindow);
     }
 }
